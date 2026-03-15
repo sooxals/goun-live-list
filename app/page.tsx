@@ -153,3 +153,23 @@ export default function Home() {
                   <h3 className="font-black text-lg md:text-2xl truncate text-gray-950 tracking-tight">{song.artist}</h3>
                   <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-[9px] md:text-[10px] font-black rounded-lg uppercase tracking-tighter shrink-0">
                     {song.genre}
+                  </span>
+                </div>
+                <p className="text-gray-600 font-semibold text-sm md:text-base truncate ml-0.5">{song.title}</p>
+              </div>
+              
+              {isAdminMode && (
+                <div className="flex flex-col gap-1.5 shrink-0">
+                  <button onClick={() => { setEditingSong(song); setFormArtist(song.artist); setFormTitle(song.title); setFormGenre(song.genre); window.scrollTo({top:0, behavior:'smooth'}); }} className="p-1.5 text-indigo-400 bg-indigo-50 rounded-lg">✏️</button>
+                  <button onClick={async () => { if(confirm('삭제하시겠습니까?')) { await supabase.from('LIVE LIST').delete().eq('id', song.id); fetchSongs(); } }} className="p-1.5 text-red-400 bg-red-50 rounded-lg">🗑️</button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        
+        {filtered.length === 0 && <div className="text-center py-40 text-gray-300 font-bold italic text-xl">No songs found...</div>}
+      </div>
+    </main>
+  );
+}
