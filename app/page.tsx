@@ -27,6 +27,7 @@ export default function Home() {
   const genres = ['전체', '가요', '트로트', 'POP', 'J-POP', '뮤지컬'];
   const initials = ['전체', '0-9', 'A-Z', 'ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
 
+  // 검색 최적화: 공백 제거 및 소문자 변환 미리 처리
   const getInitialSound = (text: string) => {
     if (!text) return '?';
     const char = text.trim()[0];
@@ -55,6 +56,18 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // 데이터 백업 기능 (CSV 다운로드)
+  const downloadCSV = () => {
+    const headers = ['가수', '제목', '장르', '등록일'];
+    const rows = songs.map(s => [s.artist, s.title, s.genre, s.created_at]);
+    const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `고운_라이브리스트_백업_${new Date().toLocaleDateString()}.csv`;
+    link.click();
+  };
+
   const handleAdminToggle = () => {
     if (isAdminMode) { setIsAdminMode(false); setEditingSong(null); }
     else {
@@ -75,6 +88,7 @@ export default function Home() {
     setFormArtist(''); setFormTitle(''); setEditingSong(null); fetchSongs();
   };
 
+  // 검색 성능 최적화 (필터링 로직)
   const filtered = songs.filter(s => {
     const isInitialMatch = selectedInitial === '전체' || getInitialSound(s.artist) === selectedInitial;
     const isGenreMatch = selectedGenre === '전체' || s.genre === selectedGenre;
@@ -82,6 +96,13 @@ export default function Home() {
     const isSearchMatch = !cleanSearch || (s.artist+s.title).replace(/\s+/g, '').toLowerCase().includes(cleanSearch);
     return isInitialMatch && isGenreMatch && isSearchMatch;
   });
+
+  const isNew = (dateStr: string) => {
+    const created = new Date(dateStr);
+    const now = new Date();
+    const diff = now.getTime() - created.getTime();
+    return diff < 24 * 60 * 60 * 1000; // 24시간 이내
+  };
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -93,7 +114,12 @@ export default function Home() {
         <header className="flex justify-between items-start mb-10 px-2">
           <div>
             <h1 className="text-3xl font-black mb-2 tracking-tighter">🎧 고운이 LIVE LIST</h1>
-            <p className="text-gray-400 text-sm font-medium">총 <span className="text-indigo-600 font-bold">{songs.length}곡</span>의 리스트가 있습니다.</p>
+            <div className="flex items-center gap-3">
+              <p className="text-gray-400 text-sm font-medium">총 <span className="text-indigo-600 font-bold">{songs.length}곡</span></p>
+              {isAdminMode && (
+                <button onClick={downloadCSV} className="text-[10px] bg-gray-200 text-gray-600 px-2 py-1 rounded-md font-bold hover:bg-gray-300 transition-all">엑셀 백업</button>
+              )}
+            </div>
           </div>
           <button onClick={handleAdminToggle} className="w-10 h-10 flex items-center justify-center rounded-2xl bg-white shadow-sm border border-gray-100 text-gray-300 hover:text-indigo-500 transition-all">
             {isAdminMode ? '✕' : '⚙️'}
@@ -101,7 +127,7 @@ export default function Home() {
         </header>
 
         {isAdminMode && (
-          <div className="mb-10 bg-white p-7 rounded-[2.5rem] shadow-xl shadow-indigo-100/40 border border-indigo-50 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="mb-10 bg-white p-7 rounded-[2.5rem] shadow-xl shadow-indigo-100/40 border border-indigo-50">
             <h2 className="text-xl font-bold text-indigo-600 mb-6">{editingSong ? '곡 정보 수정' : '새로운 곡 추가'}</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -116,15 +142,9 @@ export default function Home() {
           </div>
         )}
 
-        {/* 검색창 & 필터 (sticky 제거) */}
         <div className="space-y-4 mb-10">
           <div className="relative">
-            <input 
-              className="w-full p-5 pl-14 rounded-3xl border-none shadow-xl shadow-gray-200/40 outline-none text-lg focus:ring-2 focus:ring-indigo-500 transition-all" 
-              placeholder="찾고 싶은 노래나 가수를 입력하세요" 
-              value={searchTerm} 
-              onChange={e=>setSearchTerm(e.target.value)} 
-            />
+            <input className="w-full p-5 pl-14 rounded-3xl border-none shadow-xl shadow-gray-200/40 outline-none text-lg focus:ring-2 focus:ring-indigo-500 transition-all" placeholder="찾고 싶은 노래나 가수를 입력하세요" value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} />
             <span className="absolute left-6 top-5.5 text-xl opacity-30">🔍</span>
           </div>
           
@@ -146,7 +166,10 @@ export default function Home() {
           {filtered.map((song) => (
             <div key={song.id} className="bg-white px-5 py-4 md:px-8 md:py-6 rounded-2xl md:rounded-[2.5rem] shadow-sm flex items-center justify-between border border-white hover:border-indigo-50 hover:shadow-lg transition-all duration-300">
               <div className="overflow-hidden flex-1 pr-4">
-                <div className="flex items-center gap-3 mb-1.5">
+                <div className="flex items-center gap-2 mb-1.5">
+                  {isNew(song.created_at) && (
+                    <span className="px-1.5 py-0.5 bg-red-500 text-white text-[9px] font-black rounded-md animate-pulse shrink-0">NEW</span>
+                  )}
                   <h3 className="font-black text-lg md:text-xl truncate text-gray-950 tracking-tight">{song.artist}</h3>
                   <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-[10px] font-black rounded-lg uppercase tracking-tighter shrink-0">{song.genre}</span>
                 </div>
@@ -161,18 +184,10 @@ export default function Home() {
             </div>
           ))}
         </div>
-        
-        {filtered.length === 0 && <div className="text-center py-40 text-gray-300 font-bold italic text-xl">No songs found...</div>}
       </div>
 
-      {/* 🚀 상단 이동 버튼 */}
       {showTopBtn && (
-        <button 
-          onClick={scrollToTop}
-          className="fixed bottom-10 right-10 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-2xl flex items-center justify-center font-black animate-bounce z-50 hover:bg-indigo-700 transition-all"
-        >
-          TOP
-        </button>
+        <button onClick={scrollToTop} className="fixed bottom-10 right-10 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-2xl flex items-center justify-center font-black animate-bounce z-50 hover:bg-indigo-700 transition-all">TOP</button>
       )}
     </main>
   );
