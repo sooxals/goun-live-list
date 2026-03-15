@@ -84,7 +84,7 @@ export default function Home() {
       <div className="max-w-5xl mx-auto px-4 pt-12">
         <header className="flex justify-between items-start mb-10 px-2">
           <div>
-            <h1 className="text-3xl font-black mb-2 tracking-tighter">🎧 고운이 LIVE LIST 🎧</h1>
+            <h1 className="text-3xl font-black mb-2 tracking-tighter">🎧 고운이 LIVE LIST</h1>
             <p className="text-gray-400 text-sm font-medium">총 <span className="text-indigo-600 font-bold">{songs.length}곡</span>의 리스트가 있습니다.</p>
           </div>
           <button onClick={handleAdminToggle} className="w-10 h-10 flex items-center justify-center rounded-2xl bg-white shadow-sm border border-gray-100 text-gray-300 hover:text-indigo-500 transition-all">
