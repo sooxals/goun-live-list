@@ -71,17 +71,40 @@ export default function Home() {
     const oneMonthAgo = new Date();
     oneMonthAgo.setDate(oneMonthAgo.getDate() - 31);
     const { error } = await supabase.from('LIVE LIST').update({ created_at: oneMonthAgo.toISOString() }).neq('id', 0);
-    if (error) alert('초기화 중 오류가 발생했습니다.');
+    if (error) alert('오류가 발생했습니다.');
     else { alert('모든 NEW 표시가 제거되었습니다.'); fetchSongs(); }
   };
 
-  const handleAdminToggle = () => {
-    if (isAdminMode) { setIsAdminMode(false); setEditingSong(null); }
-    else {
+  // 통합 비밀번호 관리 로직
+  const handleAdminToggle = async () => {
+    if (isAdminMode) { 
+      setIsAdminMode(false); 
+      setEditingSong(null); 
+    } else {
       const pw = prompt("관리자 인증이 필요합니다.");
-      if (pw === (localStorage.getItem('admin_pw') || "1234")) setIsAdminMode(true);
-      else if (pw !== null) alert("권한이 없습니다.");
+      if (pw === null) return;
+
+      // DB에서 현재 비밀번호 가져오기
+      const { data } = await supabase.from('ADMIN_CONFIG').select('value').eq('id', 'admin_pw').single();
+      const currentPw = data?.value || "1234";
+
+      if (pw === currentPw) {
+        setIsAdminMode(true);
+      } else {
+        alert("비밀번호가 틀렸습니다.");
+      }
     }
+  };
+
+  const changePassword = async () => {
+    const newPw = prompt("새로운 비밀번호를 입력하세요.");
+    if (!newPw) return;
+    const confirmPw = prompt("비밀번호 확인을 위해 다시 입력하세요.");
+    if (newPw !== confirmPw) return alert("비밀번호가 일치하지 않습니다.");
+
+    const { error } = await supabase.from('ADMIN_CONFIG').update({ value: newPw }).eq('id', 'admin_pw');
+    if (error) alert("비밀번호 변경 실패");
+    else alert("비밀번호가 성공적으로 변경되었습니다. 이제 모든 기기에 적용됩니다.");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -114,8 +137,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#F8F9FD] text-[#1D1D1F] pb-10 font-sans relative">
-      
-      {/* 상단 고정 영역 */}
       <div className="sticky top-0 z-40 bg-[#F8F9FD]/95 backdrop-blur-md pt-5 pb-2 px-4 shadow-sm border-b border-gray-100">
         <div className="max-w-5xl mx-auto">
           <header className="flex justify-between items-center mb-4 px-1">
@@ -125,6 +146,7 @@ export default function Home() {
             <div className="flex items-center gap-2">
               {isAdminMode && (
                 <>
+                  <button onClick={changePassword} className="text-[10px] bg-indigo-100 text-indigo-600 px-2 py-1 rounded font-bold hover:bg-indigo-200">비번 변경</button>
                   <button onClick={resetNewTags} className="text-[10px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold hover:bg-red-200">NEW 초기화</button>
                   <button onClick={downloadCSV} className="text-[10px] bg-gray-200 px-2 py-1 rounded font-bold">CSV</button>
                 </>
@@ -134,37 +156,19 @@ export default function Home() {
           </header>
 
           <div className="relative mb-2">
-            <input 
-              className="w-full p-2.5 pl-10 rounded-xl border-none shadow-md outline-none text-sm md:text-base focus:ring-2 focus:ring-indigo-500 transition-all" 
-              placeholder="찾고 싶은 노래나 가수를 입력하세요" 
-              value={searchTerm} 
-              onChange={e=>setSearchTerm(e.target.value)} 
-            />
+            <input className="w-full p-2.5 pl-10 rounded-xl border-none shadow-md outline-none text-sm md:text-base focus:ring-2 focus:ring-indigo-500 transition-all" placeholder="찾고 싶은 노래나 가수를 입력하세요" value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} />
             <span className="absolute left-4 top-2.5 text-base md:text-lg opacity-30">🔍</span>
           </div>
           
-          {/* 카테고리: 글자 두께를 font-semibold 정도로 부드럽게 조정 */}
           <div className="flex flex-col gap-1.5 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
             <div className="flex overflow-x-auto gap-1 no-scrollbar">
               {initials.map(init => (
-                <button 
-                  key={init} 
-                  onClick={() => setSelectedInitial(init)} 
-                  className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs md:text-sm font-semibold transition-all ${selectedInitial === init ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-400 hover:text-gray-500'}`}
-                >
-                  {init}
-                </button>
+                <button key={init} onClick={() => setSelectedInitial(init)} className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs md:text-sm font-semibold transition-all ${selectedInitial === init ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-400 hover:text-gray-500'}`}>{init}</button>
               ))}
             </div>
             <div className="flex overflow-x-auto gap-1.5 no-scrollbar border-t border-gray-50 pt-1.5">
               {genres.map(genre => (
-                <button 
-                  key={genre} 
-                  onClick={() => setSelectedGenre(genre)} 
-                  className={`flex-shrink-0 px-3 py-1 rounded-md text-xs md:text-sm font-bold transition-all ${selectedGenre === genre ? 'bg-black text-white' : 'text-gray-400 hover:text-gray-500'}`}
-                >
-                  {genre}
-                </button>
+                <button key={genre} onClick={() => setSelectedGenre(genre)} className={`flex-shrink-0 px-3 py-1 rounded-md text-xs md:text-sm font-bold transition-all ${selectedGenre === genre ? 'bg-black text-white' : 'text-gray-400 hover:text-gray-500'}`}>{genre}</button>
               ))}
             </div>
           </div>
