@@ -84,7 +84,7 @@ export default function Home() {
       <div className="max-w-5xl mx-auto px-4 pt-12">
         <header className="flex justify-between items-start mb-10 px-2">
           <div>
-            <h1 className="text-3xl font-black mb-2 tracking-tighter">🎧 고운이 LIVE LIST 🎧</h1>
+            <h1 className="text-3xl font-black mb-2 tracking-tighter">🎧 고운이 LIVE LIST</h1>
             <p className="text-gray-400 text-sm font-medium">총 <span className="text-indigo-600 font-bold">{songs.length}곡</span>의 리스트가 있습니다.</p>
           </div>
           <button onClick={handleAdminToggle} className="w-10 h-10 flex items-center justify-center rounded-2xl bg-white shadow-sm border border-gray-100 text-gray-300 hover:text-indigo-500 transition-all">
@@ -145,33 +145,11 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {filtered.map((song) => (
-            <div key={song.id} className="bg-white p-6 md:p-7 rounded-[2.5rem] shadow-sm flex items-center justify-between border border-white hover:border-indigo-50 hover:shadow-2xl transition-all duration-300">
+            <div key={song.id} className="bg-white px-5 py-4 md:px-7 md:py-5 rounded-2xl md:rounded-[2.5rem] shadow-sm flex items-center justify-between border border-white hover:border-indigo-50 hover:shadow-lg transition-all duration-300">
               <div className="overflow-hidden flex-1 pr-4">
-                <div className="flex items-center gap-2 mb-1">
-                  {/* 가수명: 모바일 18px(text-lg), PC 24px(text-2xl) */}
+                <div className="flex items-center gap-2 mb-0.5">
                   <h3 className="font-black text-lg md:text-2xl truncate text-gray-950 tracking-tight">{song.artist}</h3>
                   <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-[9px] md:text-[10px] font-black rounded-lg uppercase tracking-tighter shrink-0">
                     {song.genre}
-                  </span>
-                </div>
-                {/* 노래제목: 모바일 14px(text-sm), PC 16px(text-base) */}
-                <p className="text-gray-400 font-semibold text-sm md:text-base truncate ml-0.5">{song.title}</p>
-              </div>
-              
-              {isAdminMode && (
-                <div className="flex flex-col gap-2 shrink-0">
-                  <button onClick={() => { setEditingSong(song); setFormArtist(song.artist); setFormTitle(song.title); setFormGenre(song.genre); window.scrollTo({top:0, behavior:'smooth'}); }} className="p-2 text-indigo-400 bg-indigo-50 rounded-xl">✏️</button>
-                  <button onClick={async () => { if(confirm('삭제하시겠습니까?')) { await supabase.from('LIVE LIST').delete().eq('id', song.id); fetchSongs(); } }} className="p-2 text-red-400 bg-red-50 rounded-xl">🗑️</button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-        
-        {filtered.length === 0 && <div className="text-center py-40 text-gray-300 font-bold italic text-xl">No songs found...</div>}
-      </div>
-    </main>
-  );
-}
