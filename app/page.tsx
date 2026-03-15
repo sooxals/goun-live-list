@@ -22,6 +22,7 @@ export default function Home() {
   const [formArtist, setFormArtist] = useState('');
   const [formTitle, setFormTitle] = useState('');
   const [formGenre, setFormGenre] = useState('가요');
+  const [showTopBtn, setShowTopBtn] = useState(false);
 
   const genres = ['전체', '가요', '트로트', 'POP', 'J-POP', '뮤지컬'];
   const initials = ['전체', '0-9', 'A-Z', 'ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
@@ -47,7 +48,12 @@ export default function Home() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchSongs(); }, []);
+  useEffect(() => { 
+    fetchSongs();
+    const handleScroll = () => setShowTopBtn(window.scrollY > 400);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleAdminToggle = () => {
     if (isAdminMode) { setIsAdminMode(false); setEditingSong(null); }
@@ -77,6 +83,8 @@ export default function Home() {
     return isInitialMatch && isGenreMatch && isSearchMatch;
   });
 
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
   if (loading) return <div className="p-10 text-center text-gray-400 font-medium font-sans">목록을 불러오는 중...</div>;
 
   return (
@@ -94,13 +102,7 @@ export default function Home() {
 
         {isAdminMode && (
           <div className="mb-10 bg-white p-7 rounded-[2.5rem] shadow-xl shadow-indigo-100/40 border border-indigo-50 animate-in fade-in slide-in-from-top-4 duration-500">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-indigo-600">{editingSong ? '곡 정보 수정' : '새로운 곡 추가'}</h2>
-              <button onClick={() => {
-                const n = prompt("새 암호");
-                if(n) { localStorage.setItem('admin_pw', n); alert("변경완료!"); }
-              }} className="text-xs font-bold text-gray-300 hover:text-indigo-400 underline underline-offset-4">암호변경</button>
-            </div>
+            <h2 className="text-xl font-bold text-indigo-600 mb-6">{editingSong ? '곡 정보 수정' : '새로운 곡 추가'}</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <input className="p-4 bg-gray-50 rounded-2xl outline-none" placeholder="가수명" value={formArtist} onChange={e=>setFormArtist(e.target.value)} />
@@ -109,14 +111,13 @@ export default function Home() {
                   {genres.slice(1).map(g => <option key={g} value={g}>{g}</option>)}
                 </select>
               </div>
-              <button className="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold shadow-lg shadow-indigo-200">
-                {editingSong ? '수정 내용 저장' : '리스트에 추가'}
-              </button>
+              <button className="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold shadow-lg shadow-indigo-200">{editingSong ? '수정 내용 저장' : '리스트에 추가'}</button>
             </form>
           </div>
         )}
 
-        <div className="sticky top-4 z-30 space-y-4 mb-10">
+        {/* 검색창 & 필터 (sticky 제거) */}
+        <div className="space-y-4 mb-10">
           <div className="relative">
             <input 
               className="w-full p-5 pl-14 rounded-3xl border-none shadow-xl shadow-gray-200/40 outline-none text-lg focus:ring-2 focus:ring-indigo-500 transition-all" 
@@ -127,41 +128,34 @@ export default function Home() {
             <span className="absolute left-6 top-5.5 text-xl opacity-30">🔍</span>
           </div>
           
-          <div className="flex flex-col gap-3 bg-white/60 backdrop-blur-lg p-3 rounded-3xl shadow-inner border border-white/50">
+          <div className="flex flex-col gap-3 bg-white p-3 rounded-3xl shadow-sm border border-gray-100">
             <div className="flex overflow-x-auto pb-1.5 gap-1.5 no-scrollbar">
               {initials.map(init => (
-                <button key={init} onClick={() => setSelectedInitial(init)} className={`flex-shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition-all ${selectedInitial === init ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-gray-400'}`}>
-                  {init}
-                </button>
+                <button key={init} onClick={() => setSelectedInitial(init)} className={`flex-shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition-all ${selectedInitial === init ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-gray-400'}`}>{init}</button>
               ))}
             </div>
             <div className="flex overflow-x-auto gap-2 no-scrollbar">
               {genres.map(genre => (
-                <button key={genre} onClick={() => setSelectedGenre(genre)} className={`flex-shrink-0 px-6 py-2.5 rounded-xl text-sm font-black transition-all ${selectedGenre === genre ? 'bg-black text-white' : 'bg-white text-gray-400'}`}>
-                  {genre}
-                </button>
+                <button key={genre} onClick={() => setSelectedGenre(genre)} className={`flex-shrink-0 px-6 py-2.5 rounded-xl text-sm font-black transition-all ${selectedGenre === genre ? 'bg-black text-white' : 'bg-white text-gray-400'}`}>{genre}</button>
               ))}
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filtered.map((song) => (
-            <div key={song.id} className="bg-white px-5 py-4 md:px-7 md:py-5 rounded-2xl md:rounded-[2.5rem] shadow-sm flex items-center justify-between border border-white hover:border-indigo-50 hover:shadow-lg transition-all duration-300">
+            <div key={song.id} className="bg-white px-5 py-4 md:px-8 md:py-6 rounded-2xl md:rounded-[2.5rem] shadow-sm flex items-center justify-between border border-white hover:border-indigo-50 hover:shadow-lg transition-all duration-300">
               <div className="overflow-hidden flex-1 pr-4">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <h3 className="font-black text-lg md:text-2xl truncate text-gray-950 tracking-tight">{song.artist}</h3>
-                  <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-[9px] md:text-[10px] font-black rounded-lg uppercase tracking-tighter shrink-0">
-                    {song.genre}
-                  </span>
+                <div className="flex items-center gap-3 mb-1.5">
+                  <h3 className="font-black text-lg md:text-xl truncate text-gray-950 tracking-tight">{song.artist}</h3>
+                  <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-[10px] font-black rounded-lg uppercase tracking-tighter shrink-0">{song.genre}</span>
                 </div>
-                <p className="text-gray-600 font-semibold text-sm md:text-base truncate ml-0.5">{song.title}</p>
+                <p className="text-gray-700 font-semibold text-sm md:text-lg truncate ml-0.5">{song.title}</p>
               </div>
-              
               {isAdminMode && (
-                <div className="flex flex-col gap-1.5 shrink-0">
-                  <button onClick={() => { setEditingSong(song); setFormArtist(song.artist); setFormTitle(song.title); setFormGenre(song.genre); window.scrollTo({top:0, behavior:'smooth'}); }} className="p-1.5 text-indigo-400 bg-indigo-50 rounded-lg">✏️</button>
-                  <button onClick={async () => { if(confirm('삭제하시겠습니까?')) { await supabase.from('LIVE LIST').delete().eq('id', song.id); fetchSongs(); } }} className="p-1.5 text-red-400 bg-red-50 rounded-lg">🗑️</button>
+                <div className="flex flex-col gap-2 shrink-0">
+                  <button onClick={() => { setEditingSong(song); setFormArtist(song.artist); setFormTitle(song.title); setFormGenre(song.genre); window.scrollTo({top:0, behavior:'smooth'}); }} className="p-2 text-indigo-400 bg-indigo-50 rounded-xl">✏️</button>
+                  <button onClick={async () => { if(confirm('삭제하시겠습니까?')) { await supabase.from('LIVE LIST').delete().eq('id', song.id); fetchSongs(); } }} className="p-2 text-red-400 bg-red-50 rounded-lg">🗑️</button>
                 </div>
               )}
             </div>
@@ -170,6 +164,16 @@ export default function Home() {
         
         {filtered.length === 0 && <div className="text-center py-40 text-gray-300 font-bold italic text-xl">No songs found...</div>}
       </div>
+
+      {/* 🚀 상단 이동 버튼 */}
+      {showTopBtn && (
+        <button 
+          onClick={scrollToTop}
+          className="fixed bottom-10 right-10 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-2xl flex items-center justify-center font-black animate-bounce z-50 hover:bg-indigo-700 transition-all"
+        >
+          TOP
+        </button>
+      )}
     </main>
   );
 }
