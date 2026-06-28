@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation'; // 이 줄을 새로 추가합니다!
 import { supabase, supabaseAdmin } from '@/lib/supabase';
 import { submitSongServer, deleteSongServer } from './adminActions';
 
@@ -13,6 +14,7 @@ interface Song {
 }
 
 export default function Home() {
+  const router = useRouter(); // 이 줄을 새로 추가합니다!
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -239,9 +241,11 @@ const handleSubmit = async (e: React.FormEvent) => {
                   if (confirm('삭제할까요?')) { 
                     try {
                       await deleteSongServer(song.id); 
-                      fetchSongs(); // 삭제 후 목록 새로고침
+                      await fetchSongs(); // 내부에 저장된 노래 목록 다시 가져오기
+                      router.refresh();   // Next.js 화면 새로고침 작동
                       alert('삭제되었습니다!');
                     } catch (error) {
+                      console.error(error);
                       alert('삭제 중 오류가 발생했습니다.');
                     }
                   } 
