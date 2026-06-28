@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase, supabaseAdmin } from '@/lib/supabase';
+import { submitSongServer } from './adminActions';
 
 interface Song {
   id: number;
@@ -110,16 +111,40 @@ export default function Home() {
     else alert("비밀번호가 변경되었습니다.");
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formArtist || !formTitle) return alert('입력란을 확인해주세요.');
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!formArtist || !formTitle) return alert('입력란을 확인해주세요.');
+
+  try {
     if (editingSong) {
-      await supabaseAdmin.from('LIVE LIST').update({ artist: formArtist, title: formTitle, genre: formGenre }).eq('id', editingSong.id);
+      // 서버 기능을 통해 안전하게 수정 요청
+      await submitSongServer({
+        id: editingSong.id,
+        artist: formArtist,
+        title: formTitle,
+        genre: formGenre,
+        isEdit: true
+      });
     } else {
-      await supabaseAdmin.from('LIVE LIST').insert([{ artist: formArtist, title: formTitle, genre: formGenre, created_at: new Date().toISOString() }]);
+      // 서버 기능을 통해 안전하게 추가 요청
+      await submitSongServer({
+        artist: formArtist,
+        title: formTitle,
+        genre: formGenre,
+        isEdit: false
+      });
     }
-    setFormArtist(''); setFormTitle(''); setEditingSong(null); fetchSongs();
-  };
+
+    setFormArtist('');
+    setFormTitle('');
+    setEditingSong(null);
+    fetchSongs(); // 목록 새로고침
+    alert('성공적으로 반영되었습니다!');
+  } catch (error) {
+    console.error(error);
+    alert('작업 중 오류가 발생했습니다.');
+  }
+};
 
   const filtered = songs.filter(s => {
     const isInitialMatch = selectedInitial === '전체' || getInitialSound(s.artist) === selectedInitial;
