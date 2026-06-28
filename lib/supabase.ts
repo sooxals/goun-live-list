@@ -2,8 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-// Vercel에 새로 등록한 마스터 키를 가져옵니다.
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+// 일반 화면(브라우저)에서 에러가 나지 않도록 값이 없을 때를 대비합니다.
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 // 1. 일반 팬들이 조회할 때 쓰는 일반 클라이언트 (기존 코드와 동일)
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
