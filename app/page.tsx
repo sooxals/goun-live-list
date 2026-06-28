@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, supabaseAdmin } from '@/lib/supabase';
 
 interface Song {
   id: number;
@@ -73,7 +73,7 @@ export default function Home() {
     // 30일보다 훨씬 전인 2000년으로 날짜를 세팅하여 확실히 NEW가 사라지게 함
     const oldDate = new Date('2000-01-01').toISOString();
     
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('LIVE LIST')
       .update({ created_at: oldDate })
       .not('id', 'eq', 0); // 모든 행 업데이트
@@ -105,7 +105,7 @@ export default function Home() {
   const changePassword = async () => {
     const newPw = prompt("새로운 비밀번호를 입력하세요.");
     if (!newPw) return;
-    const { error } = await supabase.from('ADMIN_CONFIG').update({ value: newPw }).eq('id', 'admin_pw');
+    const { error } = await supabaseAdmin.from('ADMIN_CONFIG').update({ value: newPw }).eq('id', 'admin_pw');
     if (error) alert("변경 실패");
     else alert("비밀번호가 변경되었습니다.");
   };
@@ -114,9 +114,9 @@ export default function Home() {
     e.preventDefault();
     if (!formArtist || !formTitle) return alert('입력란을 확인해주세요.');
     if (editingSong) {
-      await supabase.from('LIVE LIST').update({ artist: formArtist, title: formTitle, genre: formGenre }).eq('id', editingSong.id);
+      await supabaseAdmin.from('LIVE LIST').update({ artist: formArtist, title: formTitle, genre: formGenre }).eq('id', editingSong.id);
     } else {
-      await supabase.from('LIVE LIST').insert([{ artist: formArtist, title: formTitle, genre: formGenre, created_at: new Date().toISOString() }]);
+      await supabaseAdmin.from('LIVE LIST').insert([{ artist: formArtist, title: formTitle, genre: formGenre, created_at: new Date().toISOString() }]);
     }
     setFormArtist(''); setFormTitle(''); setEditingSong(null); fetchSongs();
   };
@@ -207,7 +207,7 @@ export default function Home() {
               {isAdminMode && (
                 <div className="flex gap-1.5 shrink-0">
                   <button onClick={() => { setEditingSong(song); setFormArtist(song.artist); setFormTitle(song.title); setFormGenre(song.genre); window.scrollTo({top:0, behavior:'smooth'}); }} className="p-2 text-indigo-400 bg-indigo-50 rounded-xl">✏️</button>
-                  <button onClick={async () => { if(confirm('삭제할까요?')) { await supabase.from('LIVE LIST').delete().eq('id', song.id); fetchSongs(); } }} className="p-2 text-red-400 bg-red-50 rounded-lg">🗑️</button>
+                  <button onClick={async () => { if(confirm('삭제할까요?')) { await supabaseAdmin.from('LIVE LIST').delete().eq('id', song.id); fetchSongs(); } }} className="p-2 text-red-400 bg-red-50 rounded-lg">🗑️</button>
                 </div>
               )}
             </div>
