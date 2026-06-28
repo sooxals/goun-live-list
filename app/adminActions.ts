@@ -50,3 +50,19 @@ export async function deleteSongServer(songId: number) {
   revalidatePath('/'); // 중요: 삭제된 데이터가 화면에 계속 남아있지 못하도록 강제 캐시 삭제!
   return data;
 }
+// 관리자 비밀번호를 서버에서 안전하게 확인하는 함수
+export async function checkAdminPasswordServer(inputPw: string) {
+  const { data, error } = await supabaseAdmin
+    .from('ADMIN_CONFIG')
+    .select('value')
+    .eq('id', 'admin_pw')
+    .single();
+
+  if (error) {
+    console.error('비밀번호 조회 에러:', error);
+    return false;
+  }
+
+  // 입력한 비밀번호와 DB에 저장된 비밀번호가 일치하는지 확인 (맞으면 true, 틀리면 false)
+  return data?.value === inputPw;
+}

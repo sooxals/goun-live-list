@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation'; // 이 줄을 새로 추가합니다!
 import { supabase, supabaseAdmin } from '@/lib/supabase';
-import { submitSongServer, deleteSongServer } from './adminActions';
+import { submitSongServer, deleteSongServer, checkAdminPasswordServer } from './adminActions';
 
 interface Song {
   id: number;
@@ -91,17 +91,22 @@ export default function Home() {
     }
   };
 
-  const handleAdminToggle = async () => {
+const handleAdminToggle = async () => {
     if (isAdminMode) { 
       setIsAdminMode(false); 
       setEditingSong(null); 
     } else {
       const pw = prompt("관리자 인증이 필요합니다.");
       if (pw === null) return;
-      const { data } = await supabase.from('ADMIN_CONFIG').select('value').eq('id', 'admin_pw').single();
-      const currentPw = data?.value || "1234";
-      if (pw === currentPw) setIsAdminMode(true);
-      else alert("비밀번호가 틀렸습니다.");
+      
+      // 서버 심부름꾼에게 비밀번호가 맞는지 안전하게 물어봅니다.
+      const isCorrect = await checkAdminPasswordServer(pw);
+      
+      if (isCorrect) {
+        setIsAdminMode(true);
+      } else {
+        alert("비밀번호가 틀렸습니다.");
+      }
     }
   };
 
