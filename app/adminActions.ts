@@ -30,3 +30,13 @@ export async function submitSongServer(songData: { id?: number; artist: string; 
     return data;
   }
 }
+// 곡 삭제를 서버에서 대신 처리해주는 함수 (adminActions.ts 맨 아래에 두시면 됩니다)
+export async function deleteSongServer(songId: number) {
+  const { data, error } = await supabaseAdmin
+    .from('LIVE LIST')
+    .delete()
+    .eq('id', songId);
+    
+  if (error) throw error;
+  return data;
+}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase, supabaseAdmin } from '@/lib/supabase';
-import { submitSongServer } from './adminActions';
+import { submitSongServer, deleteSongServer } from './adminActions';
 
 interface Song {
   id: number;
@@ -230,11 +230,28 @@ const handleSubmit = async (e: React.FormEvent) => {
                 <p className="text-gray-600 font-semibold text-[14px] md:text-[16px] truncate ml-0.5">{song.title}</p>
               </div>
               {isAdminMode && (
-                <div className="flex gap-1.5 shrink-0">
-                  <button onClick={() => { setEditingSong(song); setFormArtist(song.artist); setFormTitle(song.title); setFormGenre(song.genre); window.scrollTo({top:0, behavior:'smooth'}); }} className="p-2 text-indigo-400 bg-indigo-50 rounded-xl">✏️</button>
-                  <button onClick={async () => { if(confirm('삭제할까요?')) { await supabaseAdmin.from('LIVE LIST').delete().eq('id', song.id); fetchSongs(); } }} className="p-2 text-red-400 bg-red-50 rounded-lg">🗑️</button>
-                </div>
-              )}
+            <div className="flex gap-1.5 shrink-0">
+              <button onClick={() => { setEditingSong(song); setFormArtist(song.artist); setFormTitle(song.title); }} className="p-2 text-gray-400 bg-gray-50 rounded-lg">
+                ✏️
+              </button>
+              <button 
+                onClick={async () => { 
+                  if (confirm('삭제할까요?')) { 
+                    try {
+                      await deleteSongServer(song.id); 
+                      fetchSongs(); // 삭제 후 목록 새로고침
+                      alert('삭제되었습니다!');
+                    } catch (error) {
+                      alert('삭제 중 오류가 발생했습니다.');
+                    }
+                  } 
+                }}
+                className="p-2 text-red-400 bg-red-50 rounded-lg"
+              >
+                🗑️
+              </button>
+            </div>
+          )}
             </div>
           ))}
         </div>
