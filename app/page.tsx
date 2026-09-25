@@ -191,13 +191,14 @@ export default function Home() {
               href="https://www.youtube.com/@Singer_LGU"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-[#FF0000] border border-red-200/60 rounded-full text-sm sm:text-base font-bold transition-all transform hover:scale-105 active:scale-95 shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-sm"
             >
-              {/* 유튜브 아이콘 */}
-              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+              {/* 유튜브 아이콘 (레드 색상 유지) */}
+              <svg className="w-5 h-5 fill-[#FF0000] shrink-0" viewBox="0 0 24 24">
                 <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
               </svg>
-              <span>고운이 유튜브 바로가기</span>
+              {/* 텍스트 (까만색) */}
+              <span className="text-gray-900 font-bold text-sm sm:text-base">고운이 유튜브</span>
             </a>
           </div>
 
