@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'; // 이 줄을 새로 추가합니다!
+import { useRouter } from 'next/navigation';
 import { supabase, supabaseAdmin } from '@/lib/supabase';
 import { submitSongServer, deleteSongServer, checkAdminPasswordServer } from './adminActions';
 
@@ -14,7 +14,7 @@ interface Song {
 }
 
 export default function Home() {
-  const router = useRouter(); // 이 줄을 새로 추가합니다!
+  const router = useRouter();
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,8 +22,8 @@ export default function Home() {
   const [selectedGenre, setSelectedGenre] = useState('전체');
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [editingSong, setEditingSong] = useState<Song | null>(null);
-  const [showLoginModal, setShowLoginModal] = useState(false); // 로그인창 열림 여부
-const [inputPassword, setInputPassword] = useState(''); // 입력한 비밀번호
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [inputPassword, setInputPassword] = useState('');
   const [formArtist, setFormArtist] = useState('');
   const [formTitle, setFormTitle] = useState('');
   const [formGenre, setFormGenre] = useState('가요');
@@ -71,51 +71,45 @@ const [inputPassword, setInputPassword] = useState(''); // 입력한 비밀번�
     link.click();
   };
 
-  // NEW 초기화 기능 (강화 버전)
   const resetNewTags = async () => {
     if (!confirm('모든 NEW 표시를 지금 즉시 제거할까요?')) return;
-    
-    // 30일보다 훨씬 전인 2000년으로 날짜를 세팅하여 확실히 NEW가 사라지게 함
     const oldDate = new Date('2000-01-01').toISOString();
-    
     const { error } = await supabaseAdmin
       .from('LIVE LIST')
       .update({ created_at: oldDate })
-      .not('id', 'eq', 0); // 모든 행 업데이트
+      .not('id', 'eq', 0);
 
     if (error) {
       console.error(error);
-      alert('오류가 발생했습니다. Supabase 설정을 확인해주세요.');
+      alert('오류가 발생했습니다.');
     } else {
       alert('모든 NEW 표시가 제거되었습니다!');
-      // 즉시 목록 다시 불러오기
       await fetchSongs();
     }
   };
 
-const handleAdminToggle = () => {
-  if (isAdminMode) { 
-    setIsAdminMode(false); 
-    setEditingSong(null); 
-  } else {
-    setInputPassword(''); // 입력창 초기화
-    setShowLoginModal(true); // 모바일에서도 안전하게 뜨는 로그인 창 열기!
-  }
-};
+  const handleAdminToggle = () => {
+    if (isAdminMode) { 
+      setIsAdminMode(false); 
+      setEditingSong(null); 
+    } else {
+      setInputPassword('');
+      setShowLoginModal(true);
+    }
+  };
 
-// 실제로 비밀번호를 확인하고 로그인 처리하는 함수
-const handleLoginSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  const isCorrect = await checkAdminPasswordServer(inputPassword);
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const isCorrect = await checkAdminPasswordServer(inputPassword);
 
-  if (isCorrect) {
-    setIsAdminMode(true);
-    setShowLoginModal(false); // 성공하면 창 닫기
-    setInputPassword('');
-  } else {
-    alert("비밀번호가 틀렸습니다.");
-  }
-};
+    if (isCorrect) {
+      setIsAdminMode(true);
+      setShowLoginModal(false);
+      setInputPassword('');
+    } else {
+      alert("비밀번호가 틀렸습니다.");
+    }
+  };
 
   const changePassword = async () => {
     const newPw = prompt("새로운 비밀번호를 입력하세요.");
@@ -125,40 +119,38 @@ const handleLoginSubmit = async (e: React.FormEvent) => {
     else alert("비밀번호가 변경되었습니다.");
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!formArtist || !formTitle) return alert('입력란을 확인해주세요.');
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formArtist || !formTitle) return alert('입력란을 확인해주세요.');
 
-  try {
-    if (editingSong) {
-      // 서버 기능을 통해 안전하게 수정 요청
-      await submitSongServer({
-        id: editingSong.id,
-        artist: formArtist,
-        title: formTitle,
-        genre: formGenre,
-        isEdit: true
-      });
-    } else {
-      // 서버 기능을 통해 안전하게 추가 요청
-      await submitSongServer({
-        artist: formArtist,
-        title: formTitle,
-        genre: formGenre,
-        isEdit: false
-      });
+    try {
+      if (editingSong) {
+        await submitSongServer({
+          id: editingSong.id,
+          artist: formArtist,
+          title: formTitle,
+          genre: formGenre,
+          isEdit: true
+        });
+      } else {
+        await submitSongServer({
+          artist: formArtist,
+          title: formTitle,
+          genre: formGenre,
+          isEdit: false
+        });
+      }
+
+      setFormArtist('');
+      setFormTitle('');
+      setEditingSong(null);
+      fetchSongs();
+      alert('성공적으로 반영되었습니다!');
+    } catch (error) {
+      console.error(error);
+      alert('작업 중 오류가 발생했습니다.');
     }
-
-    setFormArtist('');
-    setFormTitle('');
-    setEditingSong(null);
-    fetchSongs(); // 목록 새로고침
-    alert('성공적으로 반영되었습니다!');
-  } catch (error) {
-    console.error(error);
-    alert('작업 중 오류가 발생했습니다.');
-  }
-};
+  };
 
   const filtered = songs.filter(s => {
     const isInitialMatch = selectedInitial === '전체' || getInitialSound(s.artist) === selectedInitial;
@@ -172,7 +164,6 @@ const handleSubmit = async (e: React.FormEvent) => {
     if (!dateStr) return false;
     const created = new Date(dateStr);
     const now = new Date();
-    // 30일 기준 (30일 이내 등록된 곡만 NEW)
     return now.getTime() - created.getTime() < 30 * 24 * 60 * 60 * 1000;
   };
 
@@ -183,23 +174,22 @@ const handleSubmit = async (e: React.FormEvent) => {
       <div className="sticky top-0 z-40 bg-[#F8F9FD]/95 backdrop-blur-md pt-5 pb-2 px-4 shadow-sm border-b border-gray-100">
         <div className="max-w-5xl mx-auto">
           <header className="flex justify-between items-center mb-4">
-            {/* 클릭하면 검색어, 수정 상태, 초성 필터까지 전부 백지(홈)로 초기화되는 타이틀 */}
+            {/* 타이틀 클릭 시 홈 기능: 검색어, 수정 상태, 초성/장르 필터 모두 '전체'로 완벽 초기화 */}
             <div 
               onClick={() => {
-                setSearchTerm('');          // 검색어 초기화
-                setEditingSong(null);       // 수정 상태 취소
-                if (typeof setSelectedInitial === 'function') setSelectedInitial(null); // 초성 필터 초기화 (함수가 존재할 경우)
+                setSearchTerm('');          
+                setEditingSong(null);       
+                setSelectedInitial('전체'); // 초성 필터 초기화
+                setSelectedGenre('전체');   // 장르 필터 초기화
               }}
               className="cursor-pointer select-none group"
               title="처음 화면으로 이동"
             >
-              {/* 기존보다 훨씬 큼직하고 시원한 폰트 크기 적용 */}
-              <h1 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tight group-hover:opacity-80 transition-opacity">
+              <h1 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tight group-hover:opacity-80 transition-opacity whitespace-nowrap">
                 🎧 고운이 LIVE LIST
               </h1>
             </div>
 
-            {/* 우측 관리자 기능 및 톱니바퀴 버튼 영역 */}
             <div className="flex items-center gap-2">
               {isAdminMode && (
                 <>
@@ -215,25 +205,24 @@ const handleSubmit = async (e: React.FormEvent) => {
           </header>
 
           <div className="relative mb-2">
-  <input 
-    className="w-full p-2.5 pl-10 pr-10 rounded-xl border-none shadow-md outline-none text-sm md:text-base" 
-    placeholder="찾고 싶은 노래나 가수를 입력하세요" 
-    value={searchTerm} 
-    onChange={e => setSearchTerm(e.target.value)} 
-  />
-  <span className="absolute left-4 top-2.5 text-base md:text-lg opacity-30">🔍</span>
+            <input 
+              className="w-full p-2.5 pl-10 pr-10 rounded-xl border-none shadow-md outline-none text-sm md:text-base" 
+              placeholder="찾고 싶은 노래나 가수를 입력하세요" 
+              value={searchTerm} 
+              onChange={e => setSearchTerm(e.target.value)} 
+            />
+            <span className="absolute left-4 top-2.5 text-base md:text-lg opacity-30">🔍</span>
 
-  {/* 글자가 입력되었을 때만 우측에 나타나는 X 클리어 버튼 */}
-  {searchTerm && (
-    <button 
-      onClick={() => setSearchTerm('')} 
-      className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-xs font-bold transition-all"
-      title="검색어 지우기"
-    >
-      ✕
-    </button>
-  )}
-</div>
+            {searchTerm && (
+              <button 
+                onClick={() => setSearchTerm('')} 
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-xs font-bold transition-all"
+                title="검색어 지우기"
+              >
+                ✕
+              </button>
+            )}
+          </div>
           
           <div className="flex flex-col gap-1.5 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
             <div className="flex overflow-x-auto gap-1 no-scrollbar">
@@ -278,30 +267,30 @@ const handleSubmit = async (e: React.FormEvent) => {
                 <p className="text-gray-600 font-semibold text-[14px] md:text-[16px] truncate ml-0.5">{song.title}</p>
               </div>
               {isAdminMode && (
-            <div className="flex gap-1.5 shrink-0">
-              <button onClick={() => { setEditingSong(song); setFormArtist(song.artist); setFormTitle(song.title); }} className="p-2 text-gray-400 bg-gray-50 rounded-lg">
-                ✏️
-              </button>
-              <button 
-                onClick={async () => { 
-                  if (confirm('삭제할까요?')) { 
-                    try {
-                      await deleteSongServer(song.id); 
-                      await fetchSongs(); // 내부에 저장된 노래 목록 다시 가져오기
-                      router.refresh();   // Next.js 화면 새로고침 작동
-                      alert('삭제되었습니다!');
-                    } catch (error) {
-                      console.error(error);
-                      alert('삭제 중 오류가 발생했습니다.');
-                    }
-                  } 
-                }}
-                className="p-2 text-red-400 bg-red-50 rounded-lg"
-              >
-                🗑️
-              </button>
-            </div>
-          )}
+                <div className="flex gap-1.5 shrink-0">
+                  <button onClick={() => { setEditingSong(song); setFormArtist(song.artist); setFormTitle(song.title); }} className="p-2 text-gray-400 bg-gray-50 rounded-lg">
+                    ✏️
+                  </button>
+                  <button 
+                    onClick={async () => { 
+                      if (confirm('삭제할까요?')) { 
+                        try {
+                          await deleteSongServer(song.id); 
+                          await fetchSongs(); 
+                          router.refresh(); 
+                          alert('삭제되었습니다!');
+                        } catch (error) {
+                          console.error(error);
+                          alert('삭제 중 오류가 발생했습니다.');
+                        }
+                      } 
+                    }}
+                    className="p-2 text-red-400 bg-red-50 rounded-lg"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -310,7 +299,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       {showTopBtn && (
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-6 right-6 w-12 h-12 bg-indigo-600 text-white rounded-full shadow-2xl flex items-center justify-center font-black text-xs z-50 animate-bounce">TOP</button>
       )}
-      {/* 모바일에서도 완벽하게 작동하는 로그인 팝업 창 */}
+
       {showLoginModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-100">
