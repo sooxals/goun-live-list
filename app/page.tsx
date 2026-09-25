@@ -185,7 +185,7 @@ export default function Home() {
               className="cursor-pointer select-none group"
               title="처음 화면으로 이동"
             >
-              <h1 className="text-xl md:text-3xl font-black text-gray-900 tracking-tight group-hover:opacity-80 transition-opacity whitespace-nowrap">
+              <h1 className="text-2xl md:text-4xl font-black text-gray-900 tracking-tight group-hover:opacity-80 transition-opacity whitespace-nowrap">
   🎧 고운이 LIVE LIST
 </h1>
             </div>
