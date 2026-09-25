@@ -182,20 +182,22 @@ const handleSubmit = async (e: React.FormEvent) => {
     <main className="min-h-screen bg-[#F8F9FD] text-[#1D1D1F] pb-10 font-sans relative">
       <div className="sticky top-0 z-40 bg-[#F8F9FD]/95 backdrop-blur-md pt-5 pb-2 px-4 shadow-sm border-b border-gray-100">
         <div className="max-w-5xl mx-auto">
-          <header className="flex justify-between items-center mb-4 px-1">
-    <div 
-  onClick={() => {
-    setSearchTerm(''); // 검색어 초기화
-    setEditingSong(null); // 수정 상태 취소
-  }}
-  className="cursor-pointer select-none group inline-block"
-  title="처음 화면으로 이동"
->
-  <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight flex items-center gap-2 group-hover:opacity-80 transition-opacity">
-    🎧 고운이 LIVE LIST
-  </h1>
-</div>
-</button>
+          <header className="flex justify-between items-center mb-4">
+            {/* 클릭하면 처음으로 돌아가는 큼직하고 시원한 타이틀 */}
+            <div 
+              onClick={() => {
+                setSearchTerm(''); // 검색어 초기화
+                setEditingSong(null); // 수정 상태 취소
+              }}
+              className="cursor-pointer select-none group"
+              title="처음 화면으로 이동"
+            >
+              <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight group-hover:opacity-80 transition-opacity">
+                🎧 고운이 LIVE LIST
+              </h1>
+            </div>
+
+            {/* 우측 관리자 기능 및 톱니바퀴 버튼 영역 */}
             <div className="flex items-center gap-2">
               {isAdminMode && (
                 <>
@@ -204,11 +206,13 @@ const handleSubmit = async (e: React.FormEvent) => {
                   <button onClick={downloadCSV} className="text-[10px] bg-gray-200 px-2 py-1 rounded font-bold">CSV</button>
                 </>
               )}
-              <button onClick={handleAdminToggle} className="text-gray-300 hover:text-indigo-500 transition-all text-base">{isAdminMode ? '✕' : '⚙️'}</button>
+              <button onClick={handleAdminToggle} className="text-gray-300 hover:text-indigo-500 transition-all text-base">
+                {isAdminMode ? '✕' : '⚙️'}
+              </button>
             </div>
           </header>
 
-         <div className="relative mb-2">
+          <div className="relative mb-2">
   <input 
     className="w-full p-2.5 pl-10 pr-10 rounded-xl border-none shadow-md outline-none text-sm md:text-base" 
     placeholder="찾고 싶은 노래나 가수를 입력하세요" 
