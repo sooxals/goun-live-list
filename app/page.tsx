@@ -225,17 +225,37 @@ export default function Home() {
           </div>
           
           <div className="flex flex-col gap-1.5 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex overflow-x-auto gap-1 no-scrollbar">
-              {initials.map(init => (
-                <button key={init} onClick={() => setSelectedInitial(init)} className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs md:text-sm font-semibold ${selectedInitial === init ? 'bg-indigo-600 text-white' : 'text-gray-400'}`}>{init}</button>
-              ))}
-            </div>
-            <div className="flex overflow-x-auto gap-1.5 no-scrollbar border-t border-gray-50 pt-1.5">
-              {genres.map(genre => (
-                <button key={genre} onClick={() => setSelectedGenre(genre)} className={`flex-shrink-0 px-3 py-1 rounded-md text-xs md:text-sm font-bold ${selectedGenre === genre ? 'bg-black text-white' : 'text-gray-400'}`}>{genre}</button>
-              ))}
-            </div>
-          </div>
+  {/* 초성 필터: 누르면 초성이 바뀌고 장르 필터는 '전체'로 초기화 */}
+  <div className="flex overflow-x-auto gap-1 no-scrollbar">
+    {initials.map(init => (
+      <button 
+        key={init} 
+        onClick={() => {
+          setSelectedInitial(init);
+          setSelectedGenre('전체'); // 장르를 '전체'로 초기화
+        }} 
+        className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs md:text-sm font-semibold ${selectedInitial === init ? 'bg-indigo-600 text-white' : 'text-gray-400'}`}
+      >
+        {init}
+      </button>
+    ))}
+  </div>
+  {/* 장르 필터: 누르면 장르가 바뀌고 초성 필터는 '전체'로 초기화 */}
+  <div className="flex overflow-x-auto gap-1.5 no-scrollbar border-t border-gray-50 pt-1.5">
+    {genres.map(genre => (
+      <button 
+        key={genre} 
+        onClick={() => {
+          setSelectedGenre(genre);
+          setSelectedInitial('전체'); // 초성을 '전체'로 초기화
+        }} 
+        className={`flex-shrink-0 px-3 py-1 rounded-md text-xs md:text-sm font-bold ${selectedGenre === genre ? 'bg-black text-white' : 'text-gray-400'}`}
+      >
+        {genre}
+      </button>
+    ))}
+  </div>
+</div>
         </div>
       </div>
 
