@@ -22,6 +22,8 @@ export default function Home() {
   const [selectedGenre, setSelectedGenre] = useState('전체');
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [editingSong, setEditingSong] = useState<Song | null>(null);
+  const [showLoginModal, setShowLoginModal] = useState(false); // 로그인창 열림 여부
+const [inputPassword, setInputPassword] = useState(''); // 입력한 비밀번호
   const [formArtist, setFormArtist] = useState('');
   const [formTitle, setFormTitle] = useState('');
   const [formGenre, setFormGenre] = useState('가요');
@@ -91,24 +93,29 @@ export default function Home() {
     }
   };
 
-const handleAdminToggle = async () => {
-    if (isAdminMode) { 
-      setIsAdminMode(false); 
-      setEditingSong(null); 
-    } else {
-      const pw = prompt("관리자 인증이 필요합니다.");
-      if (pw === null) return;
-      
-      // 서버 심부름꾼에게 비밀번호가 맞는지 안전하게 물어봅니다.
-      const isCorrect = await checkAdminPasswordServer(pw);
-      
-      if (isCorrect) {
-        setIsAdminMode(true);
-      } else {
-        alert("비밀번호가 틀렸습니다.");
-      }
-    }
-  };
+const handleAdminToggle = () => {
+  if (isAdminMode) { 
+    setIsAdminMode(false); 
+    setEditingSong(null); 
+  } else {
+    setInputPassword(''); // 입력창 초기화
+    setShowLoginModal(true); // 모바일에서도 안전하게 뜨는 로그인 창 열기!
+  }
+};
+
+// 실제로 비밀번호를 확인하고 로그인 처리하는 함수
+const handleLoginSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  const isCorrect = await checkAdminPasswordServer(inputPassword);
+
+  if (isCorrect) {
+    setIsAdminMode(true);
+    setShowLoginModal(false); // 성공하면 창 닫기
+    setInputPassword('');
+  } else {
+    alert("비밀번호가 틀렸습니다.");
+  }
+};
 
   const changePassword = async () => {
     const newPw = prompt("새로운 비밀번호를 입력하세요.");
@@ -268,6 +275,41 @@ const handleSubmit = async (e: React.FormEvent) => {
 
       {showTopBtn && (
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-6 right-6 w-12 h-12 bg-indigo-600 text-white rounded-full shadow-2xl flex items-center justify-center font-black text-xs z-50 animate-bounce">TOP</button>
+      )}
+      {/* 모바일에서도 완벽하게 작동하는 로그인 팝업 창 */}
+      {showLoginModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-100">
+            <h3 className="text-lg font-black text-gray-900 mb-2">🔐 관리자 로그인</h3>
+            <p className="text-xs text-gray-500 mb-4">관리자 비밀번호를 입력해주세요.</p>
+            
+            <form onSubmit={handleLoginSubmit} className="flex flex-col gap-3">
+              <input 
+                type="password" 
+                className="p-3 bg-gray-50 rounded-xl text-sm outline-none border border-gray-200 focus:border-indigo-600" 
+                placeholder="비밀번호" 
+                value={inputPassword} 
+                onChange={e => setInputPassword(e.target.value)} 
+                autoFocus
+              />
+              <div className="flex gap-2 mt-1">
+                <button 
+                  type="button" 
+                  onClick={() => setShowLoginModal(false)} 
+                  className="flex-1 bg-gray-100 text-gray-600 p-3 rounded-xl font-bold text-sm"
+                >
+                  취소
+                </button>
+                <button 
+                  type="submit" 
+                  className="flex-1 bg-indigo-600 text-white p-3 rounded-xl font-bold text-sm"
+                >
+                  확인
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </main>
   );
