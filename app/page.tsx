@@ -188,16 +188,36 @@ export default function Home() {
 
            {/* 소셜 링크 버튼 영역 (SOOP & YouTube) */}
           <div className="flex items-center justify-center gap-2.5 pt-1">
-            {/* 1. SOOP 이동 링크 버튼 (앞으로 이동) */}
+            {/* 1. SOOP 이동 링크 버튼 */}
             <a
               href="https://www.sooplive.com/station/kjnw7643"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-sm"
             >
-              {/* SOOP 공식 심볼 아이콘 */}
-              <svg className="w-5 h-5 fill-[#0080FF] shrink-0" viewBox="0 0 24 24">
-                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1.2 13.5c-2.1 0-3.7-1.2-3.7-3.2 0-2.3 2.1-3.1 3.9-3.7 1.4-.5 2.1-.8 2.1-1.5 0-.7-.6-1.1-1.6-1.1-1.2 0-2.3.6-3.1 1.3l-1.2-1.6c1.2-1.1 2.8-1.7 4.5-1.7 2.3 0 3.8 1.1 3.8 3.1 0 2.1-1.8 2.9-3.7 3.5-1.5.5-2.2.9-2.2 1.6 0 .8.8 1.2 1.8 1.2 1.4 0 2.7-.8 3.5-1.6l1.2 1.5c-1.2 1.3-2.9 2.2-4.9 2.2z"/>
+              {/* SOOP 풀 로고 아이콘 (S + 무한대 그라데이션 + P) */}
+              <svg className="h-4 w-auto shrink-0" viewBox="0 0 130 40" fill="none">
+                {/* S (검은색) */}
+                <path
+                  d="M12 9.5C6.5 9.5 3 13 3 17.5C3 24 13.5 24.5 13.5 28.5C13.5 31 10.5 32.5 7 32.5C3.5 32.5 1 30.5 0 28H-4L0 37.5C3.5 39.5 8 40.5 12.5 40.5C18.5 40.5 22.5 37 22.5 31.5C22.5 24.5 12 24 12 20C12 18 14.5 16.5 17.5 16.5C20.5 16.5 23 18 24 20.5H28C27 16.5 23 9.5 12 9.5Z"
+                  fill="#111827"
+                />
+                {/* OO (무한대 그라데이션 심볼) */}
+                <path
+                  d="M 52 8 C 40 8, 32 16, 32 24 C 32 32, 40 40, 52 40 C 62 40, 68 32, 72 26 C 76 32, 82 40, 92 40 C 104 40, 112 32, 112 24 C 112 16, 104 8, 92 8 C 82 8, 76 16, 72 22 C 68 16, 62 8, 52 8 Z M 52 16 C 58 16, 63 20, 66 24 C 63 28, 58 32, 52 32 C 46 32, 41 28, 41 24 C 41 20, 46 16, 52 16 Z M 92 16 C 98 16, 103 20, 103 24 C 103 28, 98 32, 92 32 C 86 32, 81 28, 78 24 C 81 20, 86 16, 92 16 Z"
+                  fill="url(#soop-full-gradient)"
+                />
+                {/* P (검은색) */}
+                <path
+                  d="M120 10H112V40H120V27.5H124C128.5 27.5 132 24 132 18.75C132 13.5 128.5 10 120 10ZM120 20.5H118V16.5H120C122.5 16.5 124 17.5 124 18.5C124 19.5 122.5 20.5 120 20.5Z"
+                  fill="#111827"
+                />
+                <defs>
+                  <linearGradient id="soop-full-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#0080FF" />
+                    <stop offset="100%" stopColor="#00E5FF" />
+                  </linearGradient>
+                </defs>
               </svg>
               <span className="text-gray-900 font-bold text-sm sm:text-base">SOOP</span>
             </a>
