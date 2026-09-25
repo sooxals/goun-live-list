@@ -16,7 +16,7 @@ interface Song {
 export default function Home() {
   const router = useRouter();
   
-  // 🌟 첫 접속 시 메인 랜딩 화면을 먼저 보여주는 상태값
+  // 첫 접속 시 메인 랜딩 화면 상태
   const [showList, setShowList] = useState(false);
 
   const [songs, setSongs] = useState<Song[]>([]);
@@ -35,18 +35,18 @@ export default function Home() {
 
   // 📋 복사 기능용 State
   const [copiedId, setCopiedId] = useState<number | null>(null);
-  // 🌟 SOOP iframe 차단/먹통 대응 수동 선택 모달 State
+  // 🌟 SOOP iframe 차단 환경 대응 수동 선택 모달 State
   const [copyModalText, setCopyModalText] = useState<string | null>(null);
-  const [isModalCopied, setIsModalCopied] = useState(false);
+  const [isModalSelected, setIsModalSelected] = useState(false);
 
   const genres = ['전체', '가요', '트로트', 'POP', 'J-POP', '뮤지컬'];
   const initials = ['전체', '0-9', 'A-Z', 'ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
 
-  // 📋 SOOP iframe 및 모바일 안전 대응 클립보드 복사 함수
+  // 📋 클립보드 복사 시도 및 차단 시 모달 안내 함수
   const handleCopySong = async (song: Song) => {
     const textToCopy = `${song.artist} - ${song.title}`;
 
-    // 1. 일반 웹 브라우저(PC / 모바일 단독 접속)에서 자동 복사 시도
+    // 1. 일반 웹 브라우저(단독 접속)에서 자동 복사 시도
     try {
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(textToCopy);
@@ -55,42 +55,31 @@ export default function Home() {
         return;
       }
     } catch (err) {
-      console.log('자동 복사 차단됨 -> 수동 선택 모달 팝업으로 전환');
+      console.log('SOOP iframe 보안 차단 감지 -> 수동 선택 모달 전환');
     }
 
-    // 2. SOOP 게시글 iframe 등 보안 차단 환경에서는 수동 선택 모달 띄우기
-    setIsModalCopied(false);
+    // 2. SOOP iframe 차단 환경 시 선택 모달 띄우기
+    setIsModalSelected(false);
     setCopyModalText(textToCopy);
   };
 
-  // 🌟 모달 내부: 전체선택 + 복사를 동시에 처리하는 함수
-  const handleSelectAndCopy = async () => {
+  // 🌟 모달 내부: iOS/Android/PC 완벽 호환 전체 선택 처리 함수
+  const handleSelectText = () => {
     const inputEl = document.getElementById('copy-input-element') as HTMLInputElement;
     if (inputEl) {
-      // 1. 시각적 선택 처리 (iOS/모바일 대응)
+      // iOS Safari 및 모바일 WebKit 호환 전체 선택
       inputEl.focus();
+      inputEl.setSelectionRange(0, 9999);
       inputEl.select();
-      inputEl.setSelectionRange(0, 99999);
 
-      // 2. 사용자 클릭 이벤트 시점에 즉시 복사 실행 시도
-      if (copyModalText) {
-        try {
-          if (navigator.clipboard && window.isSecureContext) {
-            await navigator.clipboard.writeText(copyModalText);
-          } else {
-            // 구형 브라우저 / 일부 iframe 환경 대안
-            document.execCommand('copy');
-          }
-          // 버튼 상태를 '복사완료!'로 변경
-          setIsModalCopied(true);
-          setTimeout(() => {
-            setCopyModalText(null);
-            setIsModalCopied(false);
-          }, 1000);
-        } catch (e) {
-          // 보안 차단으로 실패하더라도 텍스트는 전체 선택된 상태 유지
-          setIsModalCopied(true);
-        }
+      // 시각적 힌트 제공
+      setIsModalSelected(true);
+      
+      // 자동 복사가 가능한 일부 스마트폰 환경 대응
+      try {
+        document.execCommand('copy');
+      } catch (e) {
+        // 차단되더라도 전체 선택 상 태 유지
       }
     }
   };
@@ -453,14 +442,14 @@ export default function Home() {
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-6 right-6 w-12 h-12 bg-indigo-600 text-white rounded-full shadow-2xl flex items-center justify-center font-black text-xs z-50 animate-bounce">TOP</button>
       )}
 
-      {/* 🌟 SOOP iframe 차단 환경 대응 수동 선택/자동 복사 모달 */}
+      {/* 🌟 SOOP iframe 차단 환경 대응 모달 */}
       {copyModalText && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-5 w-full max-w-xs shadow-2xl border border-gray-100 text-center">
-            <h3 className="text-base font-black text-gray-900 mb-1">📋 신청곡 복사</h3>
+            <h3 className="text-base font-black text-gray-900 mb-1">📋 신청곡 선택</h3>
             <p className="text-xs text-gray-500 mb-3">
-              [전체선택 & 복사] 버튼을 누르면<br />
-              자동 선택 및 복사됩니다!
+              아래 버튼을 눌러 파랗게 선택되면<br />
+              <b>[복사]</b> 메뉴를 터치해 주세요!
             </p>
             
             <input
@@ -468,7 +457,7 @@ export default function Home() {
               type="text"
               readOnly
               value={copyModalText}
-              onClick={handleSelectAndCopy}
+              onClick={handleSelectText}
               className="w-full p-3 bg-indigo-50 border border-indigo-200 text-indigo-950 font-bold rounded-xl text-center text-sm outline-none mb-3 focus:ring-2 focus:ring-indigo-500"
             />
 
@@ -480,14 +469,14 @@ export default function Home() {
                 닫기
               </button>
               <button 
-                onClick={handleSelectAndCopy} 
+                onClick={handleSelectText} 
                 className={`flex-1 text-white py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
-                  isModalCopied 
-                    ? 'bg-green-600' 
+                  isModalSelected
+                    ? 'bg-emerald-600'
                     : 'bg-indigo-600 hover:bg-indigo-700'
                 }`}
               >
-                {isModalCopied ? '✓ 복사완료!' : '전체선택 & 복사'}
+                {isModalSelected ? '✓ 선택됨 (터치후 복사)' : '전체 선택하기'}
               </button>
             </div>
           </div>
