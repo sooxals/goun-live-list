@@ -33,59 +33,41 @@ export default function Home() {
   const [formGenre, setFormGenre] = useState('가요');
   const [showTopBtn, setShowTopBtn] = useState(false);
 
-  // 📋 복사 기능용 State (복사 완료 상태 피드백용)
+  // 📋 복사 기능용 State
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  // 🌟 SOOP iframe 차단/먹통 대응 수동 선택 모달 State
+  const [copyModalText, setCopyModalText] = useState<string | null>(null);
 
   const genres = ['전체', '가요', '트로트', 'POP', 'J-POP', '뮤지컬'];
   const initials = ['전체', '0-9', 'A-Z', 'ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
 
-  // 📋 모바일 및 모든 브라우저 호환 클립보드 복사 함수
+  // 📋 SOOP iframe 및 모바일 안전 대응 클립보드 복사 함수
   const handleCopySong = async (song: Song) => {
     const textToCopy = `${song.artist} - ${song.title}`;
 
+    // 1. 일반 웹 브라우저(PC / 모바일 단독 접속)에서 자동 복사 시도
     try {
-      // 1. 최신 Clipboard API 시도 (HTTPS / PC 지원)
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(textToCopy);
-      } else {
-        // 2. 모바일 / SOOP 인앱 브라우저 / 웹뷰 호환 Fallback (execCommand)
-        const textArea = document.createElement('textarea');
-        textArea.value = textToCopy;
-        
-        // 화면 흔들림 및 키보드 팝업 방지
-        textArea.style.position = 'fixed';
-        textArea.style.top = '0';
-        textArea.style.left = '0';
-        textArea.style.width = '2em';
-        textArea.style.height = '2em';
-        textArea.style.padding = '0';
-        textArea.style.border = 'none';
-        textArea.style.outline = 'none';
-        textArea.style.boxShadow = 'none';
-        textArea.style.background = 'transparent';
-
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-
-        // iOS Safari 전용 선택 범위 지정
-        textArea.setSelectionRange(0, 999999);
-
-        const successful = document.execCommand('copy');
-        document.body.removeChild(textArea);
-
-        if (!successful) {
-          throw new Error('execCommand 복사 실패');
-        }
+        setCopiedId(song.id);
+        setTimeout(() => setCopiedId(null), 1500);
+        return;
       }
-
-      // 복사 성공 피드백
-      setCopiedId(song.id);
-      setTimeout(() => setCopiedId(null), 1500);
     } catch (err) {
-      console.error('클립보드 복사 실패:', err);
-      // 보안 차단 시 수동 복사 프롬프트
-      prompt('아래 텍스트를 길게 눌러 복사해주세요:', textToCopy);
+      console.log('자동 복사 차단됨 -> 수동 선택 모달 팝업으로 전환');
+    }
+
+    // 2. SOOP 게시글 iframe 등 보안 차단 환경에서는 스크립트 에러 방지를 위해 수동 선택 모달 띄우기
+    setCopyModalText(textToCopy);
+  };
+
+  // 모달 내부 텍스트 전체 선택 함수 (execCommand를 실행하지 않아 SOOP 차단/먹통 완벽 방지)
+  const handleSelectAll = () => {
+    const inputEl = document.getElementById('copy-input-element') as HTMLInputElement;
+    if (inputEl) {
+      inputEl.focus();
+      inputEl.select();
+      inputEl.setSelectionRange(0, 99999); // iOS Safari 대응
     }
   };
 
@@ -507,6 +489,44 @@ export default function Home() {
       {/* TOP 버튼 */}
       {showList && showTopBtn && (
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-6 right-6 w-12 h-12 bg-indigo-600 text-white rounded-full shadow-2xl flex items-center justify-center font-black text-xs z-50 animate-bounce">TOP</button>
+      )}
+
+      {/* 🌟 SOOP iframe 차단 환경 대응 수동 선택 복사 모달 */}
+      {copyModalText && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-5 w-full max-w-xs shadow-2xl border border-gray-100 text-center">
+            <h3 className="text-base font-black text-gray-900 mb-1">📋 신청곡 복사</h3>
+            <p className="text-xs text-gray-500 mb-3">
+              아래 박스를 터치하거나 [전체선택] 후<br />
+              '복사'를 눌러주세요!
+            </p>
+            
+            {/* 터치 시 자동으로 전체 선택되는 입력창 */}
+            <input
+              id="copy-input-element"
+              type="text"
+              readOnly
+              value={copyModalText}
+              onClick={handleSelectAll}
+              className="w-full p-3 bg-indigo-50 border border-indigo-200 text-indigo-950 font-bold rounded-xl text-center text-sm outline-none mb-3 focus:ring-2 focus:ring-indigo-500"
+            />
+
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setCopyModalText(null)} 
+                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 py-2.5 rounded-xl font-bold text-xs cursor-pointer"
+              >
+                닫기
+              </button>
+              <button 
+                onClick={handleSelectAll} 
+                className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-bold text-xs cursor-pointer"
+              >
+                전체선택
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* 관리자 로그인 모달 */}
