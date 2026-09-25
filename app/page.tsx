@@ -186,6 +186,8 @@ export default function Home() {
               <span>고운이 LIVE LIST</span>
             </h1>
 
+            {/* 소셜 링크 버튼 영역 (YouTube & SOOP) */}
+          <div className="flex items-center justify-center gap-2.5 pt-1">
             {/* 유튜브 이동 링크 버튼 */}
             <a
               href="https://www.youtube.com/@Singer_LGU"
@@ -193,12 +195,25 @@ export default function Home() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-sm"
             >
-              {/* 유튜브 아이콘 (레드 색상 유지) */}
+              {/* 유튜브 아이콘 */}
               <svg className="w-5 h-5 fill-[#FF0000] shrink-0" viewBox="0 0 24 24">
                 <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
               </svg>
-              {/* 텍스트 (까만색) */}
-              <span className="text-gray-900 font-bold text-sm sm:text-base">고운이 유튜브</span>
+              <span className="text-gray-900 font-bold text-sm sm:text-base">YouTube</span>
+            </a>
+
+            {/* SOOP 이동 링크 버튼 */}
+            <a
+              href="https://www.sooplive.com/station/kjnw7643"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-sm"
+            >
+              {/* SOOP 스트리밍/방송 심볼 아이콘 */}
+              <svg className="w-5 h-5 fill-indigo-600 shrink-0" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+              </svg>
+              <span className="text-gray-900 font-bold text-sm sm:text-base">SOOP</span>
             </a>
           </div>
 
