@@ -183,16 +183,18 @@ const handleSubmit = async (e: React.FormEvent) => {
       <div className="sticky top-0 z-40 bg-[#F8F9FD]/95 backdrop-blur-md pt-5 pb-2 px-4 shadow-sm border-b border-gray-100">
         <div className="max-w-5xl mx-auto">
           <header className="flex justify-between items-center mb-4 px-1">
-    <h1 
+    <div 
   onClick={() => {
     setSearchTerm(''); // 검색어 초기화
     setEditingSong(null); // 수정 상태 취소
   }}
-  className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity select-none"
+  className="cursor-pointer select-none group inline-block"
   title="처음 화면으로 이동"
 >
-  🎧 고운이 LIVE LIST
-</h1>
+  <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight flex items-center gap-2 group-hover:opacity-80 transition-opacity">
+    🎧 고운이 LIVE LIST
+  </h1>
+</div>
 </button>
             <div className="flex items-center gap-2">
               {isAdminMode && (
