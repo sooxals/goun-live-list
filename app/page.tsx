@@ -196,10 +196,26 @@ const handleSubmit = async (e: React.FormEvent) => {
             </div>
           </header>
 
-          <div className="relative mb-2">
-            <input className="w-full p-2.5 pl-10 rounded-xl border-none shadow-md outline-none text-sm md:text-base" placeholder="찾고 싶은 노래나 가수를 입력하세요" value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} />
-            <span className="absolute left-4 top-2.5 text-base md:text-lg opacity-30">🔍</span>
-          </div>
+         <div className="relative mb-2">
+  <input 
+    className="w-full p-2.5 pl-10 pr-10 rounded-xl border-none shadow-md outline-none text-sm md:text-base" 
+    placeholder="찾고 싶은 노래나 가수를 입력하세요" 
+    value={searchTerm} 
+    onChange={e => setSearchTerm(e.target.value)} 
+  />
+  <span className="absolute left-4 top-2.5 text-base md:text-lg opacity-30">🔍</span>
+
+  {/* 글자가 입력되었을 때만 우측에 나타나는 X 클리어 버튼 */}
+  {searchTerm && (
+    <button 
+      onClick={() => setSearchTerm('')} 
+      className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-xs font-bold transition-all"
+      title="검색어 지우기"
+    >
+      ✕
+    </button>
+  )}
+</div>
           
           <div className="flex flex-col gap-1.5 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
             <div className="flex overflow-x-auto gap-1 no-scrollbar">
