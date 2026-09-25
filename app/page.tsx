@@ -183,16 +183,18 @@ const handleSubmit = async (e: React.FormEvent) => {
       <div className="sticky top-0 z-40 bg-[#F8F9FD]/95 backdrop-blur-md pt-5 pb-2 px-4 shadow-sm border-b border-gray-100">
         <div className="max-w-5xl mx-auto">
           <header className="flex justify-between items-center mb-4">
-            {/* 클릭하면 처음으로 돌아가는 큼직하고 시원한 타이틀 */}
+            {/* 클릭하면 검색어, 수정 상태, 초성 필터까지 전부 백지(홈)로 초기화되는 타이틀 */}
             <div 
               onClick={() => {
-                setSearchTerm(''); // 검색어 초기화
-                setEditingSong(null); // 수정 상태 취소
+                setSearchTerm('');          // 검색어 초기화
+                setEditingSong(null);       // 수정 상태 취소
+                if (typeof setSelectedInitial === 'function') setSelectedInitial(null); // 초성 필터 초기화 (함수가 존재할 경우)
               }}
               className="cursor-pointer select-none group"
               title="처음 화면으로 이동"
             >
-              <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight group-hover:opacity-80 transition-opacity">
+              {/* 기존보다 훨씬 큼직하고 시원한 폰트 크기 적용 */}
+              <h1 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tight group-hover:opacity-80 transition-opacity">
                 🎧 고운이 LIVE LIST
               </h1>
             </div>
