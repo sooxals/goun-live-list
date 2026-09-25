@@ -446,10 +446,10 @@ export default function Home() {
       {copyModalText && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-5 w-full max-w-xs shadow-2xl border border-gray-100 text-center">
-            <h3 className="text-base font-black text-gray-900 mb-1">📋 신청곡 선택</h3>
+            <h3 className="text-base font-black text-gray-900 mb-1">📋 신청곡 복사</h3>
             <p className="text-xs text-gray-500 mb-3">
-              아래 버튼을 눌러 파랗게 선택되면<br />
-              <b>[복사]</b> 메뉴를 터치해 주세요!
+              [전체 선택 & 복사] 버튼을 누르면<br />
+              즉시 클립보드에 복사됩니다!
             </p>
             
             <input
@@ -476,7 +476,7 @@ export default function Home() {
                     : 'bg-indigo-600 hover:bg-indigo-700'
                 }`}
               >
-                {isModalSelected ? '✓ 선택됨 (터치후 복사)' : '전체 선택하기'}
+                {isModalSelected ? '✓ 복사 완료!' : '전체 선택 & 복사'}
               </button>
             </div>
           </div>
