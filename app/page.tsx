@@ -234,12 +234,13 @@ export default function Home() {
             />
           </div>
 
-          {/* 리스트 입장 버튼 */}
+          {/* 리스트 입장 버튼 (파스텔 톤 변경 버전) */}
           <button
             onClick={() => setShowList(true)}
-            className="w-full sm:w-auto px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold rounded-2xl shadow-xl shadow-indigo-200 transition-all transform hover:-translate-y-1 active:translate-y-0 text-base md:text-xl flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full sm:w-auto px-10 py-4 bg-indigo-100/80 hover:bg-indigo-200/90 text-indigo-950 font-extrabold rounded-2xl border border-indigo-200/60 shadow-lg shadow-indigo-100/50 transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-base md:text-xl flex items-center justify-center gap-2.5 cursor-pointer"
           >
-            <span>🎵 전체 노래 리스트 둘러보기</span>
+            <span className="text-xl">🎵</span>
+            <span>전체 노래 리스트 둘러보기</span>
           </button>
         </section>
       ) : (
