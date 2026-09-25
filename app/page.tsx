@@ -5,20 +5,24 @@ import { useRouter } from 'next/navigation';
 import { supabase, supabaseAdmin } from '@/lib/supabase';
 import { submitSongServer, deleteSongServer, checkAdminPasswordServer } from './adminActions';
 
+interface LiveHistoryItem {
+  date: string;
+  url: string;
+}
+
 interface Song {
   id: number;
   title: string;
   artist: string;
   genre: string;
   created_at: string;
+  history?: LiveHistoryItem[];
 }
 
 export default function Home() {
   const router = useRouter();
   
-  // 첫 접속 시 메인 랜딩 화면 상태
   const [showList, setShowList] = useState(false);
-
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -28,25 +32,28 @@ export default function Home() {
   const [editingSong, setEditingSong] = useState<Song | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [inputPassword, setInputPassword] = useState('');
+  const [showTopBtn, setShowTopBtn] = useState(false);
+
+  // 📝 곡 등록/수정 폼 State
   const [formArtist, setFormArtist] = useState('');
   const [formTitle, setFormTitle] = useState('');
   const [formGenre, setFormGenre] = useState('가요');
-  const [showTopBtn, setShowTopBtn] = useState(false);
+  const [formHistory, setFormHistory] = useState<LiveHistoryItem[]>([]);
 
-  // 📋 복사 기능용 State
+  // 📋 복사기능용 State
   const [copiedId, setCopiedId] = useState<number | null>(null);
-  // 🌟 SOOP iframe 차단 환경 대응 수동 선택 모달 State
   const [copyModalText, setCopyModalText] = useState<string | null>(null);
   const [isModalSelected, setIsModalSelected] = useState(false);
+
+  // 🎵 곡 상세 보기 모달 State
+  const [selectedSongDetail, setSelectedSongDetail] = useState<Song | null>(null);
 
   const genres = ['전체', '가요', '트로트', 'POP', 'J-POP', '뮤지컬'];
   const initials = ['전체', '0-9', 'A-Z', 'ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
 
-  // 📋 클립보드 복사 시도 및 차단 시 모달 안내 함수
   const handleCopySong = async (song: Song) => {
     const textToCopy = `${song.artist} - ${song.title}`;
 
-    // 1. 일반 웹 브라우저(단독 접속)에서 자동 복사 시도
     try {
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(textToCopy);
@@ -58,29 +65,21 @@ export default function Home() {
       console.log('SOOP iframe 보안 차단 감지 -> 수동 선택 모달 전환');
     }
 
-    // 2. SOOP iframe 차단 환경 시 선택 모달 띄우기
     setIsModalSelected(false);
     setCopyModalText(textToCopy);
   };
 
-  // 🌟 모달 내부: iOS/Android/PC 완벽 호환 전체 선택 처리 함수
   const handleSelectText = () => {
     const inputEl = document.getElementById('copy-input-element') as HTMLInputElement;
     if (inputEl) {
-      // iOS Safari 및 모바일 WebKit 호환 전체 선택
       inputEl.focus();
       inputEl.setSelectionRange(0, 9999);
       inputEl.select();
-
-      // 시각적 힌트 제공
       setIsModalSelected(true);
       
-      // 자동 복사가 가능한 일부 스마트폰 환경 대응
       try {
         document.execCommand('copy');
-      } catch (e) {
-        // 차단되더라도 전체 선택 상 태 유지
-      }
+      } catch (e) {}
     }
   };
 
@@ -144,6 +143,7 @@ export default function Home() {
     if (isAdminMode) { 
       setIsAdminMode(false); 
       setEditingSong(null); 
+      resetForm();
     } else {
       setInputPassword('');
       setShowLoginModal(true);
@@ -171,9 +171,43 @@ export default function Home() {
     else alert("비밀번호가 변경되었습니다.");
   };
 
+  // 📝 관리자 히스토리 동적 추가/수정 관련 함수
+  const resetForm = () => {
+    setFormArtist('');
+    setFormTitle('');
+    setFormGenre('가요');
+    setFormHistory([]);
+    setEditingSong(null);
+  };
+
+  const handleAddHistoryRow = () => {
+    setFormHistory([...formHistory, { date: '', url: '' }]);
+  };
+
+  const handleHistoryChange = (index: number, field: 'date' | 'url', value: string) => {
+    const updated = [...formHistory];
+    updated[index][field] = value;
+    setFormHistory(updated);
+  };
+
+  const handleRemoveHistoryRow = (index: number) => {
+    setFormHistory(formHistory.filter((_, i) => i !== index));
+  };
+
+  const handleStartEdit = (song: Song) => {
+    setEditingSong(song);
+    setFormArtist(song.artist);
+    setFormTitle(song.title);
+    setFormGenre(song.genre);
+    setFormHistory(song.history || []);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formArtist || !formTitle) return alert('입력란을 확인해주세요.');
+
+    // 빈 항목 필터링
+    const cleanHistory = formHistory.filter(item => item.date.trim() || item.url.trim());
 
     try {
       if (editingSong) {
@@ -182,6 +216,7 @@ export default function Home() {
           artist: formArtist,
           title: formTitle,
           genre: formGenre,
+          history: cleanHistory,
           isEdit: true
         });
       } else {
@@ -189,13 +224,12 @@ export default function Home() {
           artist: formArtist,
           title: formTitle,
           genre: formGenre,
+          history: cleanHistory,
           isEdit: false
         });
       }
 
-      setFormArtist('');
-      setFormTitle('');
-      setEditingSong(null);
+      resetForm();
       fetchSongs();
       alert('성공적으로 반영되었습니다!');
     } catch (error) {
@@ -281,7 +315,7 @@ export default function Home() {
                 <div 
                   onClick={() => {
                     setSearchTerm('');          
-                    setEditingSong(null);       
+                    resetForm();
                     setSelectedInitial('전체'); 
                     setSelectedGenre('전체');   
                     setShowList(false);
@@ -358,42 +392,113 @@ export default function Home() {
           </div>
 
           <div className="max-w-5xl mx-auto px-4 mt-6">
+            {/* 🛠️ 관리자 모드 등록/수정 폼 */}
             {isAdminMode && (
-              <div className="mb-6 bg-white p-5 rounded-2xl shadow-lg border border-indigo-50">
+              <div className="mb-6 bg-white p-5 rounded-2xl shadow-lg border border-indigo-100">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-bold text-gray-800 text-sm">
+                    {editingSong ? '✏️ 곡 정보 수정 중' : '➕ 새 노래 추가하기'}
+                  </h3>
+                  {editingSong && (
+                    <button onClick={resetForm} className="text-xs text-red-500 font-bold hover:underline">
+                      수정 취소
+                    </button>
+                  )}
+                </div>
+
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    <input className="p-3 bg-gray-50 rounded-xl text-sm outline-none" placeholder="가수명" value={formArtist} onChange={e=>setFormArtist(e.target.value)} />
-                    <input className="p-3 bg-gray-50 rounded-xl text-sm outline-none" placeholder="노래제목" value={formTitle} onChange={e=>setFormTitle(e.target.value)} />
-                    <select className="p-3 bg-gray-50 rounded-xl text-sm outline-none" value={formGenre} onChange={e=>setFormGenre(e.target.value)}>
+                    <input className="p-3 bg-gray-50 rounded-xl text-sm outline-none border border-gray-100 focus:border-indigo-500" placeholder="가수명" value={formArtist} onChange={e=>setFormArtist(e.target.value)} />
+                    <input className="p-3 bg-gray-50 rounded-xl text-sm outline-none border border-gray-100 focus:border-indigo-500" placeholder="노래제목" value={formTitle} onChange={e=>setFormTitle(e.target.value)} />
+                    <select className="p-3 bg-gray-50 rounded-xl text-sm outline-none border border-gray-100" value={formGenre} onChange={e=>setFormGenre(e.target.value)}>
                       {genres.slice(1).map(g => <option key={g} value={g}>{g}</option>)}
                     </select>
                   </div>
-                  <button className="bg-indigo-600 text-white p-3 rounded-xl font-bold text-sm">곡 저장하기</button>
+
+                  {/* 📺 동적 라이브 히스토리 입력 영역 */}
+                  <div className="bg-indigo-50/50 p-3.5 rounded-xl border border-indigo-100 mt-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold text-indigo-900">📺 방송 라이브 날짜 & 영상 링크</span>
+                      <button 
+                        type="button" 
+                        onClick={handleAddHistoryRow}
+                        className="text-xs bg-indigo-600 text-white font-bold px-2.5 py-1 rounded-lg hover:bg-indigo-700 transition-colors"
+                      >
+                        + 날짜 추가
+                      </button>
+                    </div>
+
+                    {formHistory.length === 0 ? (
+                      <p className="text-xs text-gray-400 text-center py-2">등록된 라이브 영상 링크가 없습니다. [+ 날짜 추가]를 눌러보세요.</p>
+                    ) : (
+                      <div className="flex flex-col gap-2">
+                        {formHistory.map((item, idx) => (
+                          <div key={idx} className="flex items-center gap-2">
+                            <input 
+                              type="text" 
+                              placeholder="예: 2026-06-15" 
+                              value={item.date} 
+                              onChange={e => handleHistoryChange(idx, 'date', e.target.value)}
+                              className="w-1/3 p-2 bg-white rounded-lg text-xs border border-gray-200 outline-none"
+                            />
+                            <input 
+                              type="text" 
+                              placeholder="영상/다시보기 URL (https://...)" 
+                              value={item.url} 
+                              onChange={e => handleHistoryChange(idx, 'url', e.target.value)}
+                              className="flex-1 p-2 bg-white rounded-lg text-xs border border-gray-200 outline-none"
+                            />
+                            <button 
+                              type="button" 
+                              onClick={() => handleRemoveHistoryRow(idx)} 
+                              className="text-xs text-red-500 font-bold px-2 py-1 bg-red-50 rounded-lg hover:bg-red-100 shrink-0"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <button className="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-xl font-bold text-sm transition-colors mt-1">
+                    {editingSong ? '수정 완료하기' : '곡 저장하기'}
+                  </button>
                 </form>
               </div>
             )}
 
+            {/* 노래 카드 목록 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
               {filtered.map((song) => (
                 <div 
                   key={song.id} 
                   className="bg-white px-4 py-3 rounded-xl shadow-sm flex items-center justify-between border border-transparent hover:border-indigo-100 transition-all gap-2"
                 >
-                  <div className="overflow-hidden flex-1 min-w-0 pr-1">
+                  {/* 🎵 노래 정보 (클릭 시 상세 모달 열림) */}
+                  <div 
+                    onClick={() => setSelectedSongDetail(song)}
+                    className="overflow-hidden flex-1 min-w-0 pr-1 cursor-pointer group"
+                  >
                     <div className="flex items-center gap-2 mb-0.5">
                       {isNew(song.created_at) && (
                         <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-black rounded shrink-0 animate-pulse">
                           NEW
                         </span>
                       )}
-                      <h3 className="font-extrabold text-[16px] md:text-[18px] truncate text-gray-950 tracking-tight leading-tight">
+                      <h3 className="font-extrabold text-[16px] md:text-[18px] truncate text-gray-950 tracking-tight leading-tight group-hover:text-indigo-600 transition-colors">
                         {song.artist}
                       </h3>
                       <span className="text-[11px] bg-gray-50 px-1.5 py-0.5 rounded text-gray-400 font-bold uppercase shrink-0">
                         {song.genre}
                       </span>
+                      {song.history && song.history.length > 0 && (
+                        <span className="text-[10px] bg-indigo-50 text-indigo-600 font-bold px-1.5 py-0.5 rounded shrink-0 flex items-center gap-0.5">
+                          🎬 {song.history.length}
+                        </span>
+                      )}
                     </div>
-                    <p className="text-gray-600 font-semibold text-[14px] md:text-[16px] truncate ml-0.5">
+                    <p className="text-gray-600 font-semibold text-[14px] md:text-[16px] truncate ml-0.5 group-hover:text-indigo-900 transition-colors">
                       {song.title}
                     </p>
                   </div>
@@ -426,7 +531,7 @@ export default function Home() {
 
                     {isAdminMode && (
                       <div className="flex gap-1 pl-1 border-l border-gray-100">
-                        <button onClick={() => { setEditingSong(song); setFormArtist(song.artist); setFormTitle(song.title); setFormGenre(song.genre); }} className="p-1.5 text-gray-400 hover:text-gray-600 bg-gray-50 rounded-lg text-xs">✏️</button>
+                        <button onClick={() => handleStartEdit(song)} className="p-1.5 text-gray-400 hover:text-gray-600 bg-gray-50 rounded-lg text-xs">✏️</button>
                         <button onClick={async () => { if (confirm('삭제할까요?')) { await deleteSongServer(song.id); await fetchSongs(); router.refresh(); } }} className="p-1.5 text-red-400 hover:text-red-600 bg-red-50 rounded-lg text-xs">🗑️</button>
                       </div>
                     )}
@@ -442,7 +547,73 @@ export default function Home() {
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-6 right-6 w-12 h-12 bg-indigo-600 text-white rounded-full shadow-2xl flex items-center justify-center font-black text-xs z-50 animate-bounce">TOP</button>
       )}
 
-      {/* 🌟 SOOP iframe 차단 환경 대응 모달 */}
+      {/* 🎬 노래 상세 보기 및 라이브 영상 이동 모달 */}
+      {selectedSongDetail && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-100 text-center relative max-h-[90vh] flex flex-col">
+            <button 
+              onClick={() => setSelectedSongDetail(null)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-sm w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center"
+            >
+              ✕
+            </button>
+
+            <div className="shrink-0 mb-3 pt-1">
+              <span className="text-[11px] bg-indigo-50 text-indigo-600 font-bold px-2.5 py-1 rounded-full uppercase">
+                {selectedSongDetail.genre}
+              </span>
+              <h3 className="text-xl font-black text-gray-900 mt-2 tracking-tight">{selectedSongDetail.title}</h3>
+              <p className="text-sm font-bold text-gray-500">{selectedSongDetail.artist}</p>
+            </div>
+
+            <div className="flex-1 overflow-y-auto my-2 pr-1 space-y-2 no-scrollbar text-left">
+              <p className="text-xs font-bold text-gray-400 px-1 mb-1">
+                🎤 방송 라이브 히스토리 ({selectedSongDetail.history?.length || 0}회)
+              </p>
+
+              {!selectedSongDetail.history || selectedSongDetail.history.length === 0 ? (
+                <div className="bg-gray-50 p-6 rounded-xl text-center">
+                  <p className="text-xs text-gray-400 font-semibold">아직 등록된 방송 다시보기 링크가 없습니다.</p>
+                </div>
+              ) : (
+                selectedSongDetail.history.map((item, idx) => (
+                  <div key={idx} className="bg-gray-50 p-3 rounded-xl flex items-center justify-between border border-gray-100 hover:border-indigo-100 transition-all">
+                    <div className="flex items-center gap-2">
+                      <span className="text-indigo-500 font-bold text-xs">📅</span>
+                      <span className="text-xs font-extrabold text-gray-800">
+                        {item.date || '날짜 미지정'}
+                      </span>
+                    </div>
+
+                    {item.url ? (
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg transition-all flex items-center gap-1 shadow-sm shrink-0"
+                      >
+                        <span>영상 보기</span>
+                        <span className="text-[10px]">➔</span>
+                      </a>
+                    ) : (
+                      <span className="text-[11px] text-gray-400 font-bold">링크 없음</span>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+
+            <button
+              onClick={() => setSelectedSongDetail(null)}
+              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 py-2.5 rounded-xl font-bold text-xs mt-3 shrink-0"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 📋 SOOP iframe 차단 대응 복사 모달 */}
       {copyModalText && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-5 w-full max-w-xs shadow-2xl border border-gray-100 text-center">
@@ -483,7 +654,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* 관리자 로그인 모달 */}
+      {/* 🔐 관리자 로그인 모달 */}
       {showLoginModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-100">
