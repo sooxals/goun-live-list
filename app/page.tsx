@@ -15,6 +15,10 @@ interface Song {
 
 export default function Home() {
   const router = useRouter();
+  
+  // 🌟 첫 접속 시 메인 랜딩 화면을 먼저 보여주는 상태값
+  const [showList, setShowList] = useState(false);
+
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -171,155 +175,204 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#F8F9FD] text-[#1D1D1F] pb-10 font-sans relative">
-      <div className="sticky top-0 z-40 bg-[#F8F9FD]/95 backdrop-blur-md pt-5 pb-2 px-4 shadow-sm border-b border-gray-100">
-        <div className="max-w-5xl mx-auto">
-          <header className="flex justify-between items-center mb-4">
-            {/* 타이틀 클릭 시 홈 기능: 검색어, 수정 상태, 초성/장르 필터 모두 '전체'로 완벽 초기화 */}
-            <div 
-              onClick={() => {
-                setSearchTerm('');          
-                setEditingSong(null);       
-                setSelectedInitial('전체'); // 초성 필터 초기화
-                setSelectedGenre('전체');   // 장르 필터 초기화
-              }}
-              className="cursor-pointer select-none group"
-              title="처음 화면으로 이동"
-            >
-              <h1 className="text-2xl md:text-4xl font-black text-gray-900 tracking-tight group-hover:opacity-80 transition-opacity whitespace-nowrap">
-  🎧 고운이 LIVE LIST
-</h1>
-            </div>
+      
+      {/* ================= 1. 기본 웰컴 랜딩 화면 (초기 접속 화면) ================= */}
+      {!showList ? (
+        <section className="min-h-screen flex flex-col items-center justify-center p-4 text-center max-w-2xl mx-auto">
+          {/* 타이틀 영역 */}
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-3">
+            🎧 고운이 LIVE LIST
+          </h1>
+          <p className="text-gray-500 text-sm sm:text-base mb-8 font-medium">
+            가수 고운님의 라이브 노래 목록을 찾고 감상해보세요!
+          </p>
 
-            <div className="flex items-center gap-2">
-              {isAdminMode && (
-                <>
-                  <button onClick={changePassword} className="text-[10px] bg-indigo-100 text-indigo-600 px-2 py-1 rounded font-bold">비번 변경</button>
-                  <button onClick={resetNewTags} className="text-[10px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold">NEW 초기화</button>
-                  <button onClick={downloadCSV} className="text-[10px] bg-gray-200 px-2 py-1 rounded font-bold">CSV</button>
-                </>
-              )}
-              <button onClick={handleAdminToggle} className="text-gray-300 hover:text-indigo-500 transition-all text-base">
-                {isAdminMode ? '✕' : '⚙️'}
-              </button>
-            </div>
-          </header>
-
-          <div className="relative mb-2">
-            <input 
-              className="w-full p-2.5 pl-10 pr-10 rounded-xl border-none shadow-md outline-none text-sm md:text-base" 
-              placeholder="찾고 싶은 노래나 가수를 입력하세요" 
-              value={searchTerm} 
-              onChange={e => setSearchTerm(e.target.value)} 
+          {/* 중앙 카드 이미지 (public/hero-pc.png, public/hero-mobile.png) */}
+          <div className="w-full relative rounded-2xl overflow-hidden shadow-xl border border-gray-200/80 mb-8 bg-white group">
+            {/* PC 전용 이미지 (sm 이상) */}
+            <img
+              src="/hero-pc.png"
+              alt="가수 고운 메인 (PC)"
+              className="hidden sm:block w-full h-auto object-cover transform group-hover:scale-102 transition-transform duration-500"
             />
-            <span className="absolute left-4 top-2.5 text-base md:text-lg opacity-30">🔍</span>
-
-            {searchTerm && (
-              <button 
-                onClick={() => setSearchTerm('')} 
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-xs font-bold transition-all"
-                title="검색어 지우기"
-              >
-                ✕
-              </button>
-            )}
+            {/* 모바일 전용 이미지 (sm 미만) */}
+            <img
+              src="/hero-mobile.png"
+              alt="가수 고운 메인 (모바일)"
+              className="block sm:hidden w-full h-auto object-cover transform group-hover:scale-102 transition-transform duration-500"
+            />
           </div>
-          
-          <div className="flex flex-col gap-1.5 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
-  {/* 초성 필터: 누르면 초성이 바뀌고 장르 필터는 '전체'로 초기화 */}
-  <div className="flex overflow-x-auto gap-1 no-scrollbar">
-    {initials.map(init => (
-      <button 
-        key={init} 
-        onClick={() => {
-          setSelectedInitial(init);
-          setSelectedGenre('전체'); // 장르를 '전체'로 초기화
-        }} 
-        className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs md:text-sm font-semibold ${selectedInitial === init ? 'bg-indigo-600 text-white' : 'text-gray-400'}`}
-      >
-        {init}
-      </button>
-    ))}
-  </div>
-  {/* 장르 필터: 누르면 장르가 바뀌고 초성 필터는 '전체'로 초기화 */}
-  <div className="flex overflow-x-auto gap-1.5 no-scrollbar border-t border-gray-50 pt-1.5">
-    {genres.map(genre => (
-      <button 
-        key={genre} 
-        onClick={() => {
-          setSelectedGenre(genre);
-          setSelectedInitial('전체'); // 초성을 '전체'로 초기화
-        }} 
-        className={`flex-shrink-0 px-3 py-1 rounded-md text-xs md:text-sm font-bold ${selectedGenre === genre ? 'bg-black text-white' : 'text-gray-400'}`}
-      >
-        {genre}
-      </button>
-    ))}
-  </div>
-</div>
-        </div>
-      </div>
 
-      <div className="max-w-5xl mx-auto px-4 mt-6">
-        {isAdminMode && (
-          <div className="mb-6 bg-white p-5 rounded-2xl shadow-lg border border-indigo-50">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                <input className="p-3 bg-gray-50 rounded-xl text-sm outline-none" placeholder="가수명" value={formArtist} onChange={e=>setFormArtist(e.target.value)} />
-                <input className="p-3 bg-gray-50 rounded-xl text-sm outline-none" placeholder="노래제목" value={formTitle} onChange={e=>setFormTitle(e.target.value)} />
-                <select className="p-3 bg-gray-50 rounded-xl text-sm outline-none" value={formGenre} onChange={e=>setFormGenre(e.target.value)}>
-                  {genres.slice(1).map(g => <option key={g} value={g}>{g}</option>)}
-                </select>
-              </div>
-              <button className="bg-indigo-600 text-white p-3 rounded-xl font-bold text-sm">곡 저장하기</button>
-            </form>
-          </div>
-        )}
+          {/* 리스트 입장 버튼 */}
+          <button
+            onClick={() => setShowList(true)}
+            className="w-full sm:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-200 transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-base md:text-lg flex items-center justify-center gap-2"
+          >
+            <span>🎵 전체 노래 리스트 둘러보기</span>
+          </button>
+        </section>
+      ) : (
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-          {filtered.map((song) => (
-            <div key={song.id} className="bg-white px-4 py-3 rounded-xl shadow-sm flex items-center justify-between border border-transparent hover:border-indigo-100 transition-all">
-              <div className="overflow-hidden flex-1 pr-2">
-                <div className="flex items-center gap-2 mb-0.5">
-                  {isNew(song.created_at) && <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-black rounded shrink-0 animate-pulse">NEW</span>}
-                  <h3 className="font-extrabold text-[16px] md:text-[18px] truncate text-gray-950 tracking-tight leading-tight">{song.artist}</h3>
-                  <span className="text-[11px] bg-gray-50 px-1.5 py-0.5 rounded text-gray-400 font-bold uppercase shrink-0">{song.genre}</span>
+        /* ================= 2. 기존 노래 리스트 화면 (버튼 클릭 시 노출) ================= */
+        <>
+          <div className="sticky top-0 z-40 bg-[#F8F9FD]/95 backdrop-blur-md pt-5 pb-2 px-4 shadow-sm border-b border-gray-100">
+            <div className="max-w-5xl mx-auto">
+              <header className="flex justify-between items-center mb-4">
+                
+                {/* 메인 랜딩으로 돌아가는 버튼 역할 포함 */}
+                <div 
+                  onClick={() => {
+                    setSearchTerm('');          
+                    setEditingSong(null);       
+                    setSelectedInitial('전체'); 
+                    setSelectedGenre('전체');   
+                    setShowList(false); // 메인 랜딩 카드 화면으로 되돌아가기
+                  }}
+                  className="cursor-pointer select-none group flex items-center gap-2"
+                  title="처음 화면으로 이동"
+                >
+                  <span className="text-sm font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg group-hover:bg-indigo-100 transition-colors">
+                    ← 메인
+                  </span>
+                  <h1 className="text-xl md:text-3xl font-black text-gray-900 tracking-tight group-hover:opacity-80 transition-opacity whitespace-nowrap">
+                    🎧 고운이 LIVE LIST
+                  </h1>
                 </div>
-                <p className="text-gray-600 font-semibold text-[14px] md:text-[16px] truncate ml-0.5">{song.title}</p>
-              </div>
-              {isAdminMode && (
-                <div className="flex gap-1.5 shrink-0">
-                  <button onClick={() => { setEditingSong(song); setFormArtist(song.artist); setFormTitle(song.title); }} className="p-2 text-gray-400 bg-gray-50 rounded-lg">
-                    ✏️
+
+                <div className="flex items-center gap-2">
+                  {isAdminMode && (
+                    <>
+                      <button onClick={changePassword} className="text-[10px] bg-indigo-100 text-indigo-600 px-2 py-1 rounded font-bold">비번 변경</button>
+                      <button onClick={resetNewTags} className="text-[10px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold">NEW 초기화</button>
+                      <button onClick={downloadCSV} className="text-[10px] bg-gray-200 px-2 py-1 rounded font-bold">CSV</button>
+                    </>
+                  )}
+                  <button onClick={handleAdminToggle} className="text-gray-300 hover:text-indigo-500 transition-all text-base">
+                    {isAdminMode ? '✕' : '⚙️'}
                   </button>
+                </div>
+              </header>
+
+              <div className="relative mb-2">
+                <input 
+                  className="w-full p-2.5 pl-10 pr-10 rounded-xl border-none shadow-md outline-none text-sm md:text-base" 
+                  placeholder="찾고 싶은 노래나 가수를 입력하세요" 
+                  value={searchTerm} 
+                  onChange={e => setSearchTerm(e.target.value)} 
+                />
+                <span className="absolute left-4 top-2.5 text-base md:text-lg opacity-30">🔍</span>
+
+                {searchTerm && (
                   <button 
-                    onClick={async () => { 
-                      if (confirm('삭제할까요?')) { 
-                        try {
-                          await deleteSongServer(song.id); 
-                          await fetchSongs(); 
-                          router.refresh(); 
-                          alert('삭제되었습니다!');
-                        } catch (error) {
-                          console.error(error);
-                          alert('삭제 중 오류가 발생했습니다.');
-                        }
-                      } 
-                    }}
-                    className="p-2 text-red-400 bg-red-50 rounded-lg"
+                    onClick={() => setSearchTerm('')} 
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-xs font-bold transition-all"
+                    title="검색어 지우기"
                   >
-                    🗑️
+                    ✕
                   </button>
+                )}
+              </div>
+              
+              <div className="flex flex-col gap-1.5 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
+                {/* 초성 필터 */}
+                <div className="flex overflow-x-auto gap-1 no-scrollbar">
+                  {initials.map(init => (
+                    <button 
+                      key={init} 
+                      onClick={() => {
+                        setSelectedInitial(init);
+                        setSelectedGenre('전체'); 
+                      }} 
+                      className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs md:text-sm font-semibold ${selectedInitial === init ? 'bg-indigo-600 text-white' : 'text-gray-400'}`}
+                    >
+                      {init}
+                    </button>
+                  ))}
                 </div>
-              )}
+                {/* 장르 필터 */}
+                <div className="flex overflow-x-auto gap-1.5 no-scrollbar border-t border-gray-50 pt-1.5">
+                  {genres.map(genre => (
+                    <button 
+                      key={genre} 
+                      onClick={() => {
+                        setSelectedGenre(genre);
+                        setSelectedInitial('전체'); 
+                      }} 
+                      className={`flex-shrink-0 px-3 py-1 rounded-md text-xs md:text-sm font-bold ${selectedGenre === genre ? 'bg-black text-white' : 'text-gray-400'}`}
+                    >
+                      {genre}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      {showTopBtn && (
+          <div className="max-w-5xl mx-auto px-4 mt-6">
+            {isAdminMode && (
+              <div className="mb-6 bg-white p-5 rounded-2xl shadow-lg border border-indigo-50">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <input className="p-3 bg-gray-50 rounded-xl text-sm outline-none" placeholder="가수명" value={formArtist} onChange={e=>setFormArtist(e.target.value)} />
+                    <input className="p-3 bg-gray-50 rounded-xl text-sm outline-none" placeholder="노래제목" value={formTitle} onChange={e=>setFormTitle(e.target.value)} />
+                    <select className="p-3 bg-gray-50 rounded-xl text-sm outline-none" value={formGenre} onChange={e=>setFormGenre(e.target.value)}>
+                      {genres.slice(1).map(g => <option key={g} value={g}>{g}</option>)}
+                    </select>
+                  </div>
+                  <button className="bg-indigo-600 text-white p-3 rounded-xl font-bold text-sm">곡 저장하기</button>
+                </form>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+              {filtered.map((song) => (
+                <div key={song.id} className="bg-white px-4 py-3 rounded-xl shadow-sm flex items-center justify-between border border-transparent hover:border-indigo-100 transition-all">
+                  <div className="overflow-hidden flex-1 pr-2">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      {isNew(song.created_at) && <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-black rounded shrink-0 animate-pulse">NEW</span>}
+                      <h3 className="font-extrabold text-[16px] md:text-[18px] truncate text-gray-950 tracking-tight leading-tight">{song.artist}</h3>
+                      <span className="text-[11px] bg-gray-50 px-1.5 py-0.5 rounded text-gray-400 font-bold uppercase shrink-0">{song.genre}</span>
+                    </div>
+                    <p className="text-gray-600 font-semibold text-[14px] md:text-[16px] truncate ml-0.5">{song.title}</p>
+                  </div>
+                  {isAdminMode && (
+                    <div className="flex gap-1.5 shrink-0">
+                      <button onClick={() => { setEditingSong(song); setFormArtist(song.artist); setFormTitle(song.title); }} className="p-2 text-gray-400 bg-gray-50 rounded-lg">
+                        ✏️
+                      </button>
+                      <button 
+                        onClick={async () => { 
+                          if (confirm('삭제할까요?')) { 
+                            try {
+                              await deleteSongServer(song.id); 
+                              await fetchSongs(); 
+                              router.refresh(); 
+                              alert('삭제되었습니다!');
+                            } catch (error) {
+                              console.error(error);
+                              alert('삭제 중 오류가 발생했습니다.');
+                            }
+                          } 
+                        }}
+                        className="p-2 text-red-400 bg-red-50 rounded-lg"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* TOP 버튼 */}
+      {showList && showTopBtn && (
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-6 right-6 w-12 h-12 bg-indigo-600 text-white rounded-full shadow-2xl flex items-center justify-center font-black text-xs z-50 animate-bounce">TOP</button>
       )}
 
+      {/* 관리자 로그인 모달 */}
       {showLoginModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-100">
