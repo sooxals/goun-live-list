@@ -186,36 +186,36 @@ export default function Home() {
               <span>고운이 LIVE LIST</span>
             </h1>
 
-            {/* 유튜브 & SOOP 이동 링크 버튼 모음 */}
-            <div className="flex items-center justify-center gap-2.5 pt-1">
-              {/* 유튜브 이동 링크 버튼 */}
-              <a
-                href="https://www.youtube.com/@Singer_LGU"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-sm"
-              >
-                {/* 유튜브 아이콘 */}
-                <svg className="w-5 h-5 fill-[#FF0000] shrink-0" viewBox="0 0 24 24">
-                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                </svg>
-                <span className="text-gray-900 font-bold text-sm sm:text-base">YouTube</span>
-              </a>
+           {/* 소셜 링크 버튼 영역 (SOOP & YouTube) */}
+          <div className="flex items-center justify-center gap-2.5 pt-1">
+            {/* 1. SOOP 이동 링크 버튼 (앞으로 이동) */}
+            <a
+              href="https://www.sooplive.com/station/kjnw7643"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-sm"
+            >
+              {/* SOOP 공식 심볼 아이콘 */}
+              <svg className="w-5 h-5 fill-[#0080FF] shrink-0" viewBox="0 0 24 24">
+                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1.2 13.5c-2.1 0-3.7-1.2-3.7-3.2 0-2.3 2.1-3.1 3.9-3.7 1.4-.5 2.1-.8 2.1-1.5 0-.7-.6-1.1-1.6-1.1-1.2 0-2.3.6-3.1 1.3l-1.2-1.6c1.2-1.1 2.8-1.7 4.5-1.7 2.3 0 3.8 1.1 3.8 3.1 0 2.1-1.8 2.9-3.7 3.5-1.5.5-2.2.9-2.2 1.6 0 .8.8 1.2 1.8 1.2 1.4 0 2.7-.8 3.5-1.6l1.2 1.5c-1.2 1.3-2.9 2.2-4.9 2.2z"/>
+              </svg>
+              <span className="text-gray-900 font-bold text-sm sm:text-base">SOOP</span>
+            </a>
 
-              {/* SOOP 이동 링크 버튼 */}
-              <a
-                href="https://www.sooplive.com/station/kjnw7643"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-sm"
-              >
-                {/* SOOP 아이콘 */}
-                <svg className="w-5 h-5 fill-indigo-600 shrink-0" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
-                </svg>
-                <span className="text-gray-900 font-bold text-sm sm:text-base">SOOP</span>
-              </a>
-            </div>
+            {/* 2. YouTube 이동 링크 버튼 */}
+            <a
+              href="https://www.youtube.com/@Singer_LGU"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-sm"
+            >
+              {/* 유튜브 아이콘 */}
+              <svg className="w-5 h-5 fill-[#FF0000] shrink-0" viewBox="0 0 24 24">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+              <span className="text-gray-900 font-bold text-sm sm:text-base">YouTube</span>
+            </a>
+          </div>
           </div>
 
           {/* 메인 이미지 히어로 카드 */}
