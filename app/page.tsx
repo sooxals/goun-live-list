@@ -184,7 +184,7 @@ export default function Home() {
             🎧 고운이 LIVE LIST
           </h1>
           <p className="text-gray-500 text-sm sm:text-base mb-8 font-medium">
-            가수 고운님의 라이브 노래 목록을 찾고 감상해보세요!
+            라이브 노래 목록을 찾고 감상해보세요!
           </p>
 
           {/* 중앙 카드 이미지 (public/hero-pc.png, public/hero-mobile.png) */}
