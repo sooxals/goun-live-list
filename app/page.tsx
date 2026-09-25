@@ -39,13 +39,54 @@ export default function Home() {
   const genres = ['전체', '가요', '트로트', 'POP', 'J-POP', '뮤지컬'];
   const initials = ['전체', '0-9', 'A-Z', 'ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
 
-  // 📋 클립보드 복사 함수 ("가수명 - 노래제목")
-  const handleCopySong = (song: Song) => {
+  // 📋 모바일 및 모든 브라우저 호환 클립보드 복사 함수
+  const handleCopySong = async (song: Song) => {
     const textToCopy = `${song.artist} - ${song.title}`;
-    navigator.clipboard.writeText(textToCopy).then(() => {
+
+    try {
+      // 1. 최신 Clipboard API 시도 (HTTPS / PC 지원)
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(textToCopy);
+      } else {
+        // 2. 모바일 / SOOP 인앱 브라우저 / 웹뷰 호환 Fallback (execCommand)
+        const textArea = document.createElement('textarea');
+        textArea.value = textToCopy;
+        
+        // 화면 흔들림 및 키보드 팝업 방지
+        textArea.style.position = 'fixed';
+        textArea.style.top = '0';
+        textArea.style.left = '0';
+        textArea.style.width = '2em';
+        textArea.style.height = '2em';
+        textArea.style.padding = '0';
+        textArea.style.border = 'none';
+        textArea.style.outline = 'none';
+        textArea.style.boxShadow = 'none';
+        textArea.style.background = 'transparent';
+
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        // iOS Safari 전용 선택 범위 지정
+        textArea.setSelectionRange(0, 999999);
+
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+
+        if (!successful) {
+          throw new Error('execCommand 복사 실패');
+        }
+      }
+
+      // 복사 성공 피드백
       setCopiedId(song.id);
-      setTimeout(() => setCopiedId(null), 1500); // 1.5초 후 원래대로 복구
-    });
+      setTimeout(() => setCopiedId(null), 1500);
+    } catch (err) {
+      console.error('클립보드 복사 실패:', err);
+      // 보안 차단 시 수동 복사 프롬프트
+      prompt('아래 텍스트를 길게 눌러 복사해주세요:', textToCopy);
+    }
   };
 
   const getInitialSound = (text: string) => {
