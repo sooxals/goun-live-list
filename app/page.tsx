@@ -179,53 +179,52 @@ export default function Home() {
       {/* ================= 1. 기본 웰컴 랜딩 화면 (PC 시원하게 확장 버전) ================= */}
       {!showList ? (
         <section className="min-h-screen flex flex-col items-center justify-center p-6 text-center max-w-4xl md:max-w-5xl mx-auto">
-          {/* 타이틀 및 유튜브 바로가기 링크 */}
-          <div className="mb-6 space-y-3 flex flex-col items-center">
+          {/* 타이틀 및 소셜 링크 버튼 (YouTube & SOOP) */}
+          <div className="mb-6 space-y-4 flex flex-col items-center">
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-gray-900 tracking-tight flex items-center justify-center gap-3">
               <span>🎧</span>
               <span>고운이 LIVE LIST</span>
             </h1>
 
-            {/* 소셜 링크 버튼 영역 (YouTube & SOOP) */}
-          <div className="flex items-center justify-center gap-2.5 pt-1">
-            {/* 유튜브 이동 링크 버튼 */}
-            <a
-              href="https://www.youtube.com/@Singer_LGU"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-sm"
-            >
-              {/* 유튜브 아이콘 */}
-              <svg className="w-5 h-5 fill-[#FF0000] shrink-0" viewBox="0 0 24 24">
-                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-              </svg>
-              <span className="text-gray-900 font-bold text-sm sm:text-base">YouTube</span>
-            </a>
+            {/* 유튜브 & SOOP 이동 링크 버튼 모음 */}
+            <div className="flex items-center justify-center gap-2.5 pt-1">
+              {/* 유튜브 이동 링크 버튼 */}
+              <a
+                href="https://www.youtube.com/@Singer_LGU"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-sm"
+              >
+                {/* 유튜브 아이콘 */}
+                <svg className="w-5 h-5 fill-[#FF0000] shrink-0" viewBox="0 0 24 24">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+                <span className="text-gray-900 font-bold text-sm sm:text-base">YouTube</span>
+              </a>
 
-            {/* SOOP 이동 링크 버튼 */}
-            <a
-              href="https://www.sooplive.com/station/kjnw7643"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-sm"
-            >
-              {/* SOOP 스트리밍/방송 심볼 아이콘 */}
-              <svg className="w-5 h-5 fill-indigo-600 shrink-0" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
-              </svg>
-              <span className="text-gray-900 font-bold text-sm sm:text-base">SOOP</span>
-            </a>
+              {/* SOOP 이동 링크 버튼 */}
+              <a
+                href="https://www.sooplive.com/station/kjnw7643"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-sm"
+              >
+                {/* SOOP 아이콘 */}
+                <svg className="w-5 h-5 fill-indigo-600 shrink-0" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+                </svg>
+                <span className="text-gray-900 font-bold text-sm sm:text-base">SOOP</span>
+              </a>
+            </div>
           </div>
 
-          {/* 메인 이미지 히어로 카드리스트 (PC 너비 확장 및 스타일 보강) */}
+          {/* 메인 이미지 히어로 카드 */}
           <div className="w-full relative rounded-3xl overflow-hidden shadow-2xl border border-gray-100 mb-8 bg-white group">
-            {/* PC 전용 이미지 (sm 이상) */}
             <img
               src="/hero-pc.png"
               alt="가수 고운 메인 (PC)"
               className="hidden sm:block w-full h-auto max-h-[550px] object-cover transform group-hover:scale-[1.01] transition-transform duration-500"
             />
-            {/* 모바일 전용 이미지 (sm 미만) */}
             <img
               src="/hero-mobile.png"
               alt="가수 고운 메인 (모바일)"
