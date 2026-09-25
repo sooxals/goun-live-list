@@ -37,6 +37,7 @@ export default function Home() {
   const [copiedId, setCopiedId] = useState<number | null>(null);
   // 🌟 SOOP iframe 차단/먹통 대응 수동 선택 모달 State
   const [copyModalText, setCopyModalText] = useState<string | null>(null);
+  const [isModalCopied, setIsModalCopied] = useState(false);
 
   const genres = ['전체', '가요', '트로트', 'POP', 'J-POP', '뮤지컬'];
   const initials = ['전체', '0-9', 'A-Z', 'ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
@@ -57,17 +58,40 @@ export default function Home() {
       console.log('자동 복사 차단됨 -> 수동 선택 모달 팝업으로 전환');
     }
 
-    // 2. SOOP 게시글 iframe 등 보안 차단 환경에서는 스크립트 에러 방지를 위해 수동 선택 모달 띄우기
+    // 2. SOOP 게시글 iframe 등 보안 차단 환경에서는 수동 선택 모달 띄우기
+    setIsModalCopied(false);
     setCopyModalText(textToCopy);
   };
 
-  // 모달 내부 텍스트 전체 선택 함수 (execCommand를 실행하지 않아 SOOP 차단/먹통 완벽 방지)
-  const handleSelectAll = () => {
+  // 🌟 모달 내부: 전체선택 + 복사를 동시에 처리하는 함수
+  const handleSelectAndCopy = async () => {
     const inputEl = document.getElementById('copy-input-element') as HTMLInputElement;
     if (inputEl) {
+      // 1. 시각적 선택 처리 (iOS/모바일 대응)
       inputEl.focus();
       inputEl.select();
-      inputEl.setSelectionRange(0, 99999); // iOS Safari 대응
+      inputEl.setSelectionRange(0, 99999);
+
+      // 2. 사용자 클릭 이벤트 시점에 즉시 복사 실행 시도
+      if (copyModalText) {
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(copyModalText);
+          } else {
+            // 구형 브라우저 / 일부 iframe 환경 대안
+            document.execCommand('copy');
+          }
+          // 버튼 상태를 '복사완료!'로 변경
+          setIsModalCopied(true);
+          setTimeout(() => {
+            setCopyModalText(null);
+            setIsModalCopied(false);
+          }, 1000);
+        } catch (e) {
+          // 보안 차단으로 실패하더라도 텍스트는 전체 선택된 상태 유지
+          setIsModalCopied(true);
+        }
+      }
     }
   };
 
@@ -211,42 +235,32 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#F8F9FD] text-[#1D1D1F] pb-10 font-sans relative">
       
-      {/* ================= 1. 기본 웰컴 랜딩 화면 (PC 시원하게 확장 버전) ================= */}
+      {/* 1. 메인 랜딩 화면 */}
       {!showList ? (
         <section className="min-h-screen flex flex-col items-center justify-center p-6 text-center max-w-4xl md:max-w-5xl mx-auto">
-          {/* 타이틀 및 소셜 링크 버튼 (YouTube & SOOP) */}
           <div className="mb-6 space-y-4 flex flex-col items-center">
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-gray-900 tracking-tight flex items-center justify-center gap-3">
               <span>🎧</span>
               <span>고운이 LIVE LIST</span>
             </h1>
 
-            {/* 소셜 링크 버튼 영역 (SOOP & YouTube) */}
             <div className="flex items-center justify-center gap-2.5 pt-1">
-              {/* 1. SOOP 이동 링크 버튼 */}
               <a
                 href="https://www.sooplive.com/station/kjnw7643"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-sm"
               >
-                {/* 직접 업로드한 SOOP 아이콘 이미지 */}
-                <img
-                  src="/soop-icon.png"
-                  alt="SOOP"
-                  className="h-5 w-auto object-contain shrink-0"
-                />
+                <img src="/soop-icon.png" alt="SOOP" className="h-5 w-auto object-contain shrink-0" />
                 <span className="text-gray-900 font-bold text-sm sm:text-base">SOOP</span>
               </a>
 
-              {/* 2. YouTube 이동 링크 버튼 */}
               <a
                 href="https://www.youtube.com/@Singer_LGU"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-sm"
               >
-                {/* 유튜브 아이콘 */}
                 <svg className="w-5 h-5 fill-[#FF0000] shrink-0" viewBox="0 0 24 24">
                   <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                 </svg>
@@ -255,21 +269,11 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 메인 이미지 히어로 카드 */}
           <div className="w-full relative rounded-3xl overflow-hidden shadow-2xl border border-gray-100 mb-8 bg-white group">
-            <img
-              src="/hero-pc.png"
-              alt="가수 고운 메인 (PC)"
-              className="hidden sm:block w-full h-auto max-h-[550px] object-cover transform group-hover:scale-[1.01] transition-transform duration-500"
-            />
-            <img
-              src="/hero-mobile.png"
-              alt="가수 고운 메인 (모바일)"
-              className="block sm:hidden w-full h-auto object-cover transform group-hover:scale-[1.01] transition-transform duration-500"
-            />
+            <img src="/hero-pc.png" alt="가수 고운 메인 (PC)" className="hidden sm:block w-full h-auto max-h-[550px] object-cover transform group-hover:scale-[1.01] transition-transform duration-500" />
+            <img src="/hero-mobile.png" alt="가수 고운 메인 (모바일)" className="block sm:hidden w-full h-auto object-cover transform group-hover:scale-[1.01] transition-transform duration-500" />
           </div>
 
-          {/* 리스트 입장 버튼 (파스텔 톤 변경 버전) */}
           <button
             onClick={() => setShowList(true)}
             className="w-full sm:w-auto px-10 py-4 bg-indigo-100/80 hover:bg-indigo-200/90 text-indigo-950 font-extrabold rounded-2xl border border-indigo-200/60 shadow-lg shadow-indigo-100/50 transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-base md:text-xl flex items-center justify-center gap-2.5 cursor-pointer"
@@ -280,20 +284,18 @@ export default function Home() {
         </section>
       ) : (
 
-        /* ================= 2. 기존 노래 리스트 화면 (버튼 클릭 시 노출) ================= */
+        /* 2. 노래 리스트 화면 */
         <>
           <div className="sticky top-0 z-40 bg-[#F8F9FD]/95 backdrop-blur-md pt-5 pb-2 px-4 shadow-sm border-b border-gray-100">
             <div className="max-w-5xl mx-auto">
               <header className="flex justify-between items-center mb-4">
-                
-                {/* 메인 랜딩으로 돌아가는 버튼 역할 포함 */}
                 <div 
                   onClick={() => {
                     setSearchTerm('');          
                     setEditingSong(null);       
                     setSelectedInitial('전체'); 
                     setSelectedGenre('전체');   
-                    setShowList(false); // 메인 랜딩 카드 화면으로 되돌아가기
+                    setShowList(false);
                   }}
                   className="cursor-pointer select-none group flex items-center gap-2"
                   title="처음 화면으로 이동"
@@ -333,7 +335,6 @@ export default function Home() {
                   <button 
                     onClick={() => setSearchTerm('')} 
                     className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-xs font-bold transition-all"
-                    title="검색어 지우기"
                   >
                     ✕
                   </button>
@@ -341,30 +342,22 @@ export default function Home() {
               </div>
               
               <div className="flex flex-col gap-1.5 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
-                {/* 초성 필터 */}
                 <div className="flex overflow-x-auto gap-1 no-scrollbar">
                   {initials.map(init => (
                     <button 
                       key={init} 
-                      onClick={() => {
-                        setSelectedInitial(init);
-                        setSelectedGenre('전체'); 
-                      }} 
+                      onClick={() => { setSelectedInitial(init); setSelectedGenre('전체'); }} 
                       className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs md:text-sm font-semibold ${selectedInitial === init ? 'bg-indigo-600 text-white' : 'text-gray-400'}`}
                     >
                       {init}
                     </button>
                   ))}
                 </div>
-                {/* 장르 필터 */}
                 <div className="flex overflow-x-auto gap-1.5 no-scrollbar border-t border-gray-50 pt-1.5">
                   {genres.map(genre => (
                     <button 
                       key={genre} 
-                      onClick={() => {
-                        setSelectedGenre(genre);
-                        setSelectedInitial('전체'); 
-                      }} 
+                      onClick={() => { setSelectedGenre(genre); setSelectedInitial('전체'); }} 
                       className={`flex-shrink-0 px-3 py-1 rounded-md text-xs md:text-sm font-bold ${selectedGenre === genre ? 'bg-black text-white' : 'text-gray-400'}`}
                     >
                       {genre}
@@ -391,14 +384,12 @@ export default function Home() {
               </div>
             )}
 
-            {/* 🎵 노래 목록 카드 리스트 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
               {filtered.map((song) => (
                 <div 
                   key={song.id} 
                   className="bg-white px-4 py-3 rounded-xl shadow-sm flex items-center justify-between border border-transparent hover:border-indigo-100 transition-all gap-2"
                 >
-                  {/* 좌측: 곡 정보 (가수명, 제목, 장르, NEW) */}
                   <div className="overflow-hidden flex-1 min-w-0 pr-1">
                     <div className="flex items-center gap-2 mb-0.5">
                       {isNew(song.created_at) && (
@@ -418,9 +409,7 @@ export default function Home() {
                     </p>
                   </div>
 
-                  {/* 우측 영역: 복사 버튼 및 (관리자용) 편집/삭제 버튼 */}
                   <div className="flex items-center gap-1.5 shrink-0">
-                    {/* 📋 신청곡 복사 버튼 (보라색 계열 스타일) */}
                     <button
                       onClick={() => handleCopySong(song)}
                       className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
@@ -428,7 +417,6 @@ export default function Home() {
                           ? 'bg-indigo-600 text-white shadow-sm scale-95'
                           : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 active:scale-95'
                       }`}
-                      title="클립보드에 신청곡 복사"
                     >
                       {copiedId === song.id ? (
                         <>
@@ -447,35 +435,10 @@ export default function Home() {
                       )}
                     </button>
 
-                    {/* 관리자 수정/삭제 버튼 */}
                     {isAdminMode && (
                       <div className="flex gap-1 pl-1 border-l border-gray-100">
-                        <button 
-                          onClick={() => { setEditingSong(song); setFormArtist(song.artist); setFormTitle(song.title); setFormGenre(song.genre); }} 
-                          className="p-1.5 text-gray-400 hover:text-gray-600 bg-gray-50 rounded-lg text-xs"
-                          title="수정"
-                        >
-                          ✏️
-                        </button>
-                        <button 
-                          onClick={async () => { 
-                            if (confirm('삭제할까요?')) { 
-                              try {
-                                await deleteSongServer(song.id); 
-                                await fetchSongs(); 
-                                router.refresh(); 
-                                alert('삭제되었습니다!');
-                              } catch (error) {
-                                console.error(error);
-                                alert('삭제 중 오류가 발생했습니다.');
-                              }
-                            } 
-                          }}
-                          className="p-1.5 text-red-400 hover:text-red-600 bg-red-50 rounded-lg text-xs"
-                          title="삭제"
-                        >
-                          🗑️
-                        </button>
+                        <button onClick={() => { setEditingSong(song); setFormArtist(song.artist); setFormTitle(song.title); setFormGenre(song.genre); }} className="p-1.5 text-gray-400 hover:text-gray-600 bg-gray-50 rounded-lg text-xs">✏️</button>
+                        <button onClick={async () => { if (confirm('삭제할까요?')) { await deleteSongServer(song.id); await fetchSongs(); router.refresh(); } }} className="p-1.5 text-red-400 hover:text-red-600 bg-red-50 rounded-lg text-xs">🗑️</button>
                       </div>
                     )}
                   </div>
@@ -486,28 +449,26 @@ export default function Home() {
         </>
       )}
 
-      {/* TOP 버튼 */}
       {showList && showTopBtn && (
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-6 right-6 w-12 h-12 bg-indigo-600 text-white rounded-full shadow-2xl flex items-center justify-center font-black text-xs z-50 animate-bounce">TOP</button>
       )}
 
-      {/* 🌟 SOOP iframe 차단 환경 대응 수동 선택 복사 모달 */}
+      {/* 🌟 SOOP iframe 차단 환경 대응 수동 선택/자동 복사 모달 */}
       {copyModalText && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-5 w-full max-w-xs shadow-2xl border border-gray-100 text-center">
             <h3 className="text-base font-black text-gray-900 mb-1">📋 신청곡 복사</h3>
             <p className="text-xs text-gray-500 mb-3">
-              아래 박스를 터치하거나 [전체선택] 후<br />
-              '복사'를 눌러주세요!
+              [전체선택 & 복사] 버튼을 누르면<br />
+              자동 선택 및 복사됩니다!
             </p>
             
-            {/* 터치 시 자동으로 전체 선택되는 입력창 */}
             <input
               id="copy-input-element"
               type="text"
               readOnly
               value={copyModalText}
-              onClick={handleSelectAll}
+              onClick={handleSelectAndCopy}
               className="w-full p-3 bg-indigo-50 border border-indigo-200 text-indigo-950 font-bold rounded-xl text-center text-sm outline-none mb-3 focus:ring-2 focus:ring-indigo-500"
             />
 
@@ -519,10 +480,14 @@ export default function Home() {
                 닫기
               </button>
               <button 
-                onClick={handleSelectAll} 
-                className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-bold text-xs cursor-pointer"
+                onClick={handleSelectAndCopy} 
+                className={`flex-1 text-white py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
+                  isModalCopied 
+                    ? 'bg-green-600' 
+                    : 'bg-indigo-600 hover:bg-indigo-700'
+                }`}
               >
-                전체선택
+                {isModalCopied ? '✓ 복사완료!' : '전체선택 & 복사'}
               </button>
             </div>
           </div>
@@ -546,19 +511,8 @@ export default function Home() {
                 autoFocus
               />
               <div className="flex gap-2 mt-1">
-                <button 
-                  type="button" 
-                  onClick={() => setShowLoginModal(false)} 
-                  className="flex-1 bg-gray-100 text-gray-600 p-3 rounded-xl font-bold text-sm"
-                >
-                  취소
-                </button>
-                <button 
-                  type="submit" 
-                  className="flex-1 bg-indigo-600 text-white p-3 rounded-xl font-bold text-sm"
-                >
-                  확인
-                </button>
+                <button type="button" onClick={() => setShowLoginModal(false)} className="flex-1 bg-gray-100 text-gray-600 p-3 rounded-xl font-bold text-sm">취소</button>
+                <button type="submit" className="flex-1 bg-indigo-600 text-white p-3 rounded-xl font-bold text-sm">확인</button>
               </div>
             </form>
           </div>
