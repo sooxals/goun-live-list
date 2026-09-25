@@ -33,8 +33,20 @@ export default function Home() {
   const [formGenre, setFormGenre] = useState('가요');
   const [showTopBtn, setShowTopBtn] = useState(false);
 
+  // 📋 복사 기능용 State (복사 완료 상태 피드백용)
+  const [copiedId, setCopiedId] = useState<number | null>(null);
+
   const genres = ['전체', '가요', '트로트', 'POP', 'J-POP', '뮤지컬'];
   const initials = ['전체', '0-9', 'A-Z', 'ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
+
+  // 📋 클립보드 복사 함수 ("가수명 - 노래제목")
+  const handleCopySong = (song: Song) => {
+    const textToCopy = `${song.artist} - ${song.title}`;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      setCopiedId(song.id);
+      setTimeout(() => setCopiedId(null), 1500); // 1.5초 후 원래대로 복구
+    });
+  };
 
   const getInitialSound = (text: string) => {
     if (!text) return '?';
@@ -186,38 +198,38 @@ export default function Home() {
               <span>고운이 LIVE LIST</span>
             </h1>
 
-           {/* 소셜 링크 버튼 영역 (SOOP & YouTube) */}
-          <div className="flex items-center justify-center gap-2.5 pt-1">
-            {/* 1. SOOP 이동 링크 버튼 */}
-            <a
-              href="https://www.sooplive.com/station/kjnw7643"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-sm"
-            >
-              {/* 직접 업로드한 SOOP 아이콘 이미지 */}
-              <img
-                src="/soop-icon.png"
-                alt="SOOP"
-                className="h-5 w-auto object-contain shrink-0"
-              />
-              <span className="text-gray-900 font-bold text-sm sm:text-base">SOOP</span>
-            </a>
+            {/* 소셜 링크 버튼 영역 (SOOP & YouTube) */}
+            <div className="flex items-center justify-center gap-2.5 pt-1">
+              {/* 1. SOOP 이동 링크 버튼 */}
+              <a
+                href="https://www.sooplive.com/station/kjnw7643"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-sm"
+              >
+                {/* 직접 업로드한 SOOP 아이콘 이미지 */}
+                <img
+                  src="/soop-icon.png"
+                  alt="SOOP"
+                  className="h-5 w-auto object-contain shrink-0"
+                />
+                <span className="text-gray-900 font-bold text-sm sm:text-base">SOOP</span>
+              </a>
 
-            {/* 2. YouTube 이동 링크 버튼 */}
-            <a
-              href="https://www.youtube.com/@Singer_LGU"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-sm"
-            >
-              {/* 유튜브 아이콘 */}
-              <svg className="w-5 h-5 fill-[#FF0000] shrink-0" viewBox="0 0 24 24">
-                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-              </svg>
-              <span className="text-gray-900 font-bold text-sm sm:text-base">YouTube</span>
-            </a>
-          </div>
+              {/* 2. YouTube 이동 링크 버튼 */}
+              <a
+                href="https://www.youtube.com/@Singer_LGU"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-sm"
+              >
+                {/* 유튜브 아이콘 */}
+                <svg className="w-5 h-5 fill-[#FF0000] shrink-0" viewBox="0 0 24 24">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+                <span className="text-gray-900 font-bold text-sm sm:text-base">YouTube</span>
+              </a>
+            </div>
           </div>
 
           {/* 메인 이미지 히어로 카드 */}
@@ -356,42 +368,94 @@ export default function Home() {
               </div>
             )}
 
+            {/* 🎵 노래 목록 카드 리스트 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
               {filtered.map((song) => (
-                <div key={song.id} className="bg-white px-4 py-3 rounded-xl shadow-sm flex items-center justify-between border border-transparent hover:border-indigo-100 transition-all">
-                  <div className="overflow-hidden flex-1 pr-2">
+                <div 
+                  key={song.id} 
+                  className="bg-white px-4 py-3 rounded-xl shadow-sm flex items-center justify-between border border-transparent hover:border-indigo-100 transition-all gap-2"
+                >
+                  {/* 좌측: 곡 정보 (가수명, 제목, 장르, NEW) */}
+                  <div className="overflow-hidden flex-1 min-w-0 pr-1">
                     <div className="flex items-center gap-2 mb-0.5">
-                      {isNew(song.created_at) && <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-black rounded shrink-0 animate-pulse">NEW</span>}
-                      <h3 className="font-extrabold text-[16px] md:text-[18px] truncate text-gray-950 tracking-tight leading-tight">{song.artist}</h3>
-                      <span className="text-[11px] bg-gray-50 px-1.5 py-0.5 rounded text-gray-400 font-bold uppercase shrink-0">{song.genre}</span>
+                      {isNew(song.created_at) && (
+                        <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-black rounded shrink-0 animate-pulse">
+                          NEW
+                        </span>
+                      )}
+                      <h3 className="font-extrabold text-[16px] md:text-[18px] truncate text-gray-950 tracking-tight leading-tight">
+                        {song.artist}
+                      </h3>
+                      <span className="text-[11px] bg-gray-50 px-1.5 py-0.5 rounded text-gray-400 font-bold uppercase shrink-0">
+                        {song.genre}
+                      </span>
                     </div>
-                    <p className="text-gray-600 font-semibold text-[14px] md:text-[16px] truncate ml-0.5">{song.title}</p>
+                    <p className="text-gray-600 font-semibold text-[14px] md:text-[16px] truncate ml-0.5">
+                      {song.title}
+                    </p>
                   </div>
-                  {isAdminMode && (
-                    <div className="flex gap-1.5 shrink-0">
-                      <button onClick={() => { setEditingSong(song); setFormArtist(song.artist); setFormTitle(song.title); }} className="p-2 text-gray-400 bg-gray-50 rounded-lg">
-                        ✏️
-                      </button>
-                      <button 
-                        onClick={async () => { 
-                          if (confirm('삭제할까요?')) { 
-                            try {
-                              await deleteSongServer(song.id); 
-                              await fetchSongs(); 
-                              router.refresh(); 
-                              alert('삭제되었습니다!');
-                            } catch (error) {
-                              console.error(error);
-                              alert('삭제 중 오류가 발생했습니다.');
-                            }
-                          } 
-                        }}
-                        className="p-2 text-red-400 bg-red-50 rounded-lg"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  )}
+
+                  {/* 우측 영역: 복사 버튼 및 (관리자용) 편집/삭제 버튼 */}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {/* 📋 신청곡 복사 버튼 (보라색 계열 스타일) */}
+                    <button
+                      onClick={() => handleCopySong(song)}
+                      className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                        copiedId === song.id
+                          ? 'bg-indigo-600 text-white shadow-sm scale-95'
+                          : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 active:scale-95'
+                      }`}
+                      title="클립보드에 신청곡 복사"
+                    >
+                      {copiedId === song.id ? (
+                        <>
+                          <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
+                            <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
+                          </svg>
+                          <span>복사됨!</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-3 h-3 fill-current opacity-70" viewBox="0 0 24 24">
+                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
+                          </svg>
+                          <span>복사</span>
+                        </>
+                      )}
+                    </button>
+
+                    {/* 관리자 수정/삭제 버튼 */}
+                    {isAdminMode && (
+                      <div className="flex gap-1 pl-1 border-l border-gray-100">
+                        <button 
+                          onClick={() => { setEditingSong(song); setFormArtist(song.artist); setFormTitle(song.title); setFormGenre(song.genre); }} 
+                          className="p-1.5 text-gray-400 hover:text-gray-600 bg-gray-50 rounded-lg text-xs"
+                          title="수정"
+                        >
+                          ✏️
+                        </button>
+                        <button 
+                          onClick={async () => { 
+                            if (confirm('삭제할까요?')) { 
+                              try {
+                                await deleteSongServer(song.id); 
+                                await fetchSongs(); 
+                                router.refresh(); 
+                                alert('삭제되었습니다!');
+                              } catch (error) {
+                                console.error(error);
+                                alert('삭제 중 오류가 발생했습니다.');
+                              }
+                            } 
+                          }}
+                          className="p-1.5 text-red-400 hover:text-red-600 bg-red-50 rounded-lg text-xs"
+                          title="삭제"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
