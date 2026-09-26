@@ -52,8 +52,9 @@ export default function Home() {
   // 🎵 곡 상세 보기 모달 State
   const [selectedSongDetail, setSelectedSongDetail] = useState<Song | null>(null);
 
-  // 🎲 랜덤 노래 모달 State
+  // 🎲 랜덤 노래 모달 State (대상 범위 & 장르 선택)
   const [showRandomModal, setShowRandomModal] = useState(false);
+  const [randomTarget, setRandomTarget] = useState<'all' | 'new' | 'top100'>('all');
   const [randomGenre, setRandomGenre] = useState('전체');
   const [pickedSong, setPickedSong] = useState<Song | null>(null);
 
@@ -309,13 +310,14 @@ export default function Home() {
     return a.title.localeCompare(b.title, 'ko');
   }).slice(0, specialFilter === 'top100' ? 100 : undefined);
 
-  // 🎲 랜덤 노래 뽑기 로직
+  // 🎲 랜덤 노래 뽑기 로직 (선택한 대상 범위 및 장르 반영)
   const handlePickRandomSong = () => {
     let pool = songs;
 
-    if (specialFilter === 'new') {
+    // 1. 모달에서 선택한 대상 (전체 노래 / NEW / TOP 100) 필터링
+    if (randomTarget === 'new') {
       pool = pool.filter(s => isNew(s.created_at));
-    } else if (specialFilter === 'top100') {
+    } else if (randomTarget === 'top100') {
       pool = pool
         .filter(s => (s.history?.filter(h => h.url && h.url.trim() !== '').length || 0) > 0)
         .sort((a, b) => {
@@ -326,6 +328,7 @@ export default function Home() {
         .slice(0, 100);
     }
 
+    // 2. 모달에서 선택한 장르 필터링
     if (randomGenre !== '전체') {
       pool = pool.filter(s => s.genre === randomGenre);
     }
@@ -453,38 +456,38 @@ export default function Home() {
               </div>
               
               <div className="flex flex-col gap-1.5 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
-                {/* 🌟 특수 필터 탭 (NEW / TOP 100 / 랜덤 노래 버튼) */}
-                <div className="flex justify-between items-center pb-1 border-b border-gray-100">
-                  <div className="flex gap-1.5">
-                    <button
-                      onClick={() => setSpecialFilter(prev => prev === 'new' ? 'all' : 'new')}
-                      className={`px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1 cursor-pointer ${
-                        specialFilter === 'new'
-                          ? 'bg-red-500 text-white shadow-sm'
-                          : 'bg-red-50 text-red-600 hover:bg-red-100'
-                      }`}
-                    >
-                      <span>✨ NEW</span>
-                    </button>
-                    <button
-                      onClick={() => setSpecialFilter(prev => prev === 'top100' ? 'all' : 'top100')}
-                      className={`px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1 cursor-pointer ${
-                        specialFilter === 'top100'
-                          ? 'bg-amber-500 text-white shadow-sm'
-                          : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
-                      }`}
-                    >
-                      <span>🔥 TOP 100</span>
-                    </button>
-                  </div>
+                {/* 🌟 상단 특수 필터 (NEW / TOP 100 바로 오른쪽에 🎲 랜덤 노래 버튼 추가) */}
+                <div className="flex items-center gap-1.5 pb-1 border-b border-gray-100 overflow-x-auto no-scrollbar">
+                  <button
+                    onClick={() => setSpecialFilter(prev => prev === 'new' ? 'all' : 'new')}
+                    className={`px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
+                      specialFilter === 'new'
+                        ? 'bg-red-500 text-white shadow-sm'
+                        : 'bg-red-50 text-red-600 hover:bg-red-100'
+                    }`}
+                  >
+                    <span>✨ NEW</span>
+                  </button>
+                  <button
+                    onClick={() => setSpecialFilter(prev => prev === 'top100' ? 'all' : 'top100')}
+                    className={`px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
+                      specialFilter === 'top100'
+                        ? 'bg-amber-500 text-white shadow-sm'
+                        : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                    }`}
+                  >
+                    <span>🔥 TOP 100</span>
+                  </button>
 
+                  {/* 🎲 NEW, TOP 100 바로 오른쪽에 노출 */}
                   <button
                     onClick={() => {
+                      setRandomTarget(specialFilter); // 현재 활성화된 메인 필터 상태를 모달 기본값으로 연동
                       setRandomGenre('전체');
                       setPickedSong(null);
                       setShowRandomModal(true);
                     }}
-                    className="px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 transition-all flex items-center gap-1 cursor-pointer"
+                    className="px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold bg-indigo-600 hover:bg-indigo-700 text-white transition-all flex items-center gap-1 cursor-pointer shrink-0 shadow-sm"
                   >
                     <span>🎲 랜덤 노래</span>
                   </button>
@@ -728,10 +731,10 @@ export default function Home() {
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-6 right-6 w-12 h-12 bg-indigo-600 text-white rounded-full shadow-2xl flex items-center justify-center font-black text-xs z-50 animate-bounce">TOP</button>
       )}
 
-      {/* 🎲 랜덤 노래 뽑기 모달 */}
+      {/* 🎲 랜덤 노래 뽑기 모달 (대상 범위 + 장르 선택) */}
       {showRandomModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-100 text-center relative">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-100 relative">
             <button 
               onClick={() => setShowRandomModal(false)}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-sm w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center"
@@ -739,16 +742,53 @@ export default function Home() {
               ✕
             </button>
 
-            <h3 className="text-lg font-black text-gray-900 mb-1 flex items-center justify-center gap-1.5">
+            <h3 className="text-lg font-black text-gray-900 mb-4 text-center flex items-center justify-center gap-1.5">
               <span>🎲</span>
               <span>랜덤 노래 추천</span>
             </h3>
-            <p className="text-xs text-gray-400 font-bold mb-4">
-              {specialFilter === 'new' ? '✨ NEW 곡 중에서 추천합니다' : specialFilter === 'top100' ? '🔥 TOP 100 곡 중에서 추천합니다' : '🎵 전체 곡 중에서 추천합니다'}
-            </p>
 
-            {/* 장르 선택 드롭다운 (우측 화살표 적용) */}
-            <div className="mb-4 text-left">
+            {/* 1. 모달 내부 - 대상 노래 선택 버튼 (전체 노래 / NEW / TOP 100) */}
+            <div className="mb-4">
+              <label className="block text-xs font-extrabold text-gray-700 mb-1.5 ml-1">추첨 대상</label>
+              <div className="grid grid-cols-3 gap-1.5 bg-gray-50 p-1 rounded-xl border border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setRandomTarget('all')}
+                  className={`py-2 rounded-lg text-xs font-bold transition-all ${
+                    randomTarget === 'all'
+                      ? 'bg-indigo-600 text-white shadow-sm'
+                      : 'text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  🎵 전체 노래
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRandomTarget('new')}
+                  className={`py-2 rounded-lg text-xs font-bold transition-all ${
+                    randomTarget === 'new'
+                      ? 'bg-red-500 text-white shadow-sm'
+                      : 'text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  ✨ NEW
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRandomTarget('top100')}
+                  className={`py-2 rounded-lg text-xs font-bold transition-all ${
+                    randomTarget === 'top100'
+                      ? 'bg-amber-500 text-white shadow-sm'
+                      : 'text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  🔥 TOP 100
+                </button>
+              </div>
+            </div>
+
+            {/* 2. 모달 내부 - 장르 선택 드롭다운 (우측 화살표 표시) */}
+            <div className="mb-4">
               <label className="block text-xs font-extrabold text-gray-700 mb-1.5 ml-1">장르</label>
               <div className="relative">
                 <select
@@ -766,7 +806,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 추첨된 결과 화면 */}
+            {/* 3. 추첨된 결과 화면 */}
             {pickedSong && (
               <div className="bg-indigo-50/80 p-4 rounded-xl border border-indigo-100 my-4 text-center animate-fadeIn">
                 <span className="text-[10px] bg-indigo-600 text-white font-extrabold px-2 py-0.5 rounded-full uppercase">
@@ -777,14 +817,12 @@ export default function Home() {
               </div>
             )}
 
-            <div className="flex gap-2 mt-2">
-              <button
-                onClick={handlePickRandomSong}
-                className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold text-sm transition-all shadow-md active:scale-95 cursor-pointer"
-              >
-                {pickedSong ? '🔄 다시 뽑기' : '🎲 랜덤 노래 뽑기'}
-              </button>
-            </div>
+            <button
+              onClick={handlePickRandomSong}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold text-sm transition-all shadow-md active:scale-95 cursor-pointer mt-2"
+            >
+              {pickedSong ? '🔄 다시 뽑기' : '🎲 랜덤 노래 뽑기'}
+            </button>
           </div>
         </div>
       )}
