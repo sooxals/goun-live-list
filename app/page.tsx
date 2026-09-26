@@ -407,7 +407,6 @@ export default function Home() {
                   className="cursor-pointer select-none group flex items-center gap-2"
                   title="처음 화면으로 이동"
                 >
-                  {/* 회색톤으로 조정된 메인 이동 버튼 */}
                   <span className="text-sm font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg group-hover:bg-slate-200 transition-colors">
                     ← 메인
                   </span>
@@ -435,7 +434,16 @@ export default function Home() {
                   className="w-full p-2.5 pl-10 pr-10 rounded-xl border-none shadow-md outline-none text-sm md:text-base" 
                   placeholder="찾고 싶은 노래나 가수를 입력하세요" 
                   value={searchTerm} 
-                  onChange={e => setSearchTerm(e.target.value)} 
+                  onChange={e => {
+                    const val = e.target.value;
+                    setSearchTerm(val);
+                    // 💡 검색어를 입력할 때 기존 적용된 모든 필터 해제
+                    if (val) {
+                      setSelectedInitial('전체');
+                      setSelectedGenre('전체');
+                      setSpecialFilter('all');
+                    }
+                  }} 
                 />
                 <span className="absolute left-4 top-2.5 text-base md:text-lg opacity-30">🔍</span>
 
@@ -450,7 +458,7 @@ export default function Home() {
               </div>
               
               <div className="flex flex-col gap-1.5 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
-                {/* 🌟 상단 특수 필터 (선택 시 부드러운 파스텔톤 적용) */}
+                {/* 🌟 상단 특수 필터 */}
                 <div className="flex items-center gap-1.5 pb-1 border-b border-gray-100 overflow-x-auto no-scrollbar">
                   <button
                     onClick={() => setSpecialFilter(prev => prev === 'new' ? 'all' : 'new')}
@@ -486,7 +494,7 @@ export default function Home() {
                   </button>
                 </div>
 
-                {/* 초성 필터 (선택 시 회색톤 `bg-slate-700` 적용) */}
+                {/* 초성 필터 */}
                 <div className="flex overflow-x-auto gap-1 no-scrollbar">
                   {initials.map(init => (
                     <button 
@@ -503,7 +511,7 @@ export default function Home() {
                   ))}
                 </div>
 
-                {/* 장르 필터 (선택 시 소프트 회색 `bg-slate-700` 적용) */}
+                {/* 장르 필터 */}
                 <div className="flex overflow-x-auto gap-1.5 no-scrollbar border-t border-gray-50 pt-1.5">
                   {genres.map(genre => (
                     <button 
@@ -718,7 +726,7 @@ export default function Home() {
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-6 right-6 w-12 h-12 bg-slate-700 text-white rounded-full shadow-2xl flex items-center justify-center font-black text-xs z-50 animate-bounce">TOP</button>
       )}
 
-      {/* 🎲 랜덤 노래 뽑기 모달 (회색톤 & 파스텔톤 반영) */}
+      {/* 🎲 랜덤 노래 뽑기 모달 */}
       {showRandomModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-100 relative">
@@ -734,7 +742,6 @@ export default function Home() {
               <span>랜덤 노래 추천</span>
             </h3>
 
-            {/* 추첨 대상 - 전체 노래(회색톤), NEW & TOP100(파스텔) */}
             <div className="mb-4">
               <label className="block text-xs font-extrabold text-gray-700 mb-1.5 ml-1">추첨 대상</label>
               <div className="grid grid-cols-3 gap-1.5 bg-gray-50 p-1 rounded-xl border border-gray-100">
@@ -774,7 +781,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 장르 선택 드롭다운 */}
             <div className="mb-4">
               <label className="block text-xs font-extrabold text-gray-700 mb-1.5 ml-1">장르</label>
               <div className="relative">
@@ -793,7 +799,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 추첨 결과 */}
             {pickedSong && (
               <div className="bg-slate-100/80 p-4 rounded-xl border border-slate-200 my-4 text-center animate-fadeIn">
                 <span className="text-[10px] bg-slate-700 text-white font-extrabold px-2 py-0.5 rounded-full uppercase">
@@ -804,7 +809,6 @@ export default function Home() {
               </div>
             )}
 
-            {/* 회색톤으로 수정된 랜덤 노래 뽑기 / 다시 뽑기 버튼 */}
             <button
               onClick={handlePickRandomSong}
               className="w-full bg-slate-700 hover:bg-slate-800 text-white py-3 rounded-xl font-bold text-sm transition-all shadow-md active:scale-95 cursor-pointer mt-2"
