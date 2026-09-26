@@ -573,22 +573,22 @@ export default function Home() {
                     className="overflow-hidden flex-1 min-w-0 pr-1 cursor-pointer group"
                   >
                     <div className="flex items-center gap-2 mb-0.5">
-                      {/* 1. TOP100 모드일 때 기존처럼 순위 번호 표시 */}
+                      {/* TOP100 특수 필터 모드일 때 순위 번호 표시 */}
                       {specialFilter === 'top100' && (
                         <span className="px-1.5 py-0.5 bg-amber-500 text-white text-[10px] font-black rounded shrink-0">
                           {index + 1}위
                         </span>
                       )}
-
-                      {/* 2. DB의 is_top100 컬럼이 true일 때 TOP 100 배지 표시 */}
-                      {song.is_top100 && specialFilter !== 'top100' && (
+                      
+                      {/* TOP 100 컬럼에 값이 존재할 때 배지 표시 */}
+                      {song.top100 && (
                         <span className="px-1.5 py-0.5 bg-amber-500 text-white text-[10px] font-black rounded shrink-0">
                           TOP 100
                         </span>
                       )}
-                      
-                      {/* 3. DB의 is_new 컬럼 또는 기존 날짜 계산 기준 NEW 배지 */}
-                      {(song.is_new || (typeof isNew === 'function' && isNew(song.created_at))) && (
+
+                      {/* 기존 날짜 기반 NEW 배지 */}
+                      {isNew && isNew(song.created_at) && (
                         <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-black rounded shrink-0 animate-pulse">
                           NEW
                         </span>
