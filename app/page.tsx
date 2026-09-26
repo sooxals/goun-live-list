@@ -405,7 +405,7 @@ export default function Home() {
               </div>
               
               <div className="flex flex-col gap-1.5 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
-                {/* 🌟 [추가] 상단 NEW / TOP100 바로가기 버튼 영역 */}
+                {/* 🌟 [NEW / TOP100 바로가기 버튼 영역] */}
                 <div className="flex items-center gap-1.5 pb-1.5 border-b border-gray-50">
                   <button
                     onClick={() => setSpecialFilter('all')}
@@ -435,6 +435,7 @@ export default function Home() {
                   </button>
                 </div>
 
+                {/* 초성 필터 */}
                 <div className="flex overflow-x-auto gap-1 no-scrollbar">
                   {initials.map(init => (
                     <button 
@@ -446,6 +447,8 @@ export default function Home() {
                     </button>
                   ))}
                 </div>
+                
+                {/* 장르 필터 */}
                 <div className="flex overflow-x-auto gap-1.5 no-scrollbar border-t border-gray-50 pt-1.5">
                   {genres.map(genre => (
                     <button 
