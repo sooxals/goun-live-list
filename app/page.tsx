@@ -404,49 +404,63 @@ export default function Home() {
                 )}
               </div>
               
-              <div className="flex flex-col gap-1.5 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
-                {/* 🌟 [NEW / TOP100 바로가기 버튼 영역] */}
-                <div className="flex items-center gap-1.5 pb-1.5 border-b border-gray-50">
-                  <button
-                    onClick={() => setSpecialFilter('all')}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                      specialFilter === 'all' ? 'bg-gray-900 text-white shadow-sm' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                    }`}
-                  >
-                    🏠 전체 목록
-                  </button>
-                  <button
-                    onClick={() => setSpecialFilter('new')}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
-                      specialFilter === 'new' ? 'bg-red-500 text-white shadow-sm' : 'bg-red-50 text-red-500 hover:bg-red-100'
-                    }`}
-                  >
-                    <span>🔥</span>
-                    <span>NEW</span>
-                  </button>
-                  <button
-                    onClick={() => setSpecialFilter('top100')}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
-                      specialFilter === 'top100' ? 'bg-amber-500 text-white shadow-sm' : 'bg-amber-50 text-amber-600 hover:bg-amber-100'
-                    }`}
-                  >
-                    <span>👑</span>
-                    <span>TOP 100</span>
-                  </button>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+  {filtered.map((song, index) => (
+    <div 
+      key={song.id} 
+      className="bg-white px-4 py-3 rounded-xl shadow-sm flex items-center justify-between border border-transparent hover:border-indigo-100 transition-all gap-2"
+    >
+      <div 
+        onClick={() => setSelectedSongDetail(song)}
+        className="overflow-hidden flex-1 min-w-0 pr-1 cursor-pointer group"
+      >
+        <div className="flex items-center gap-2 mb-0.5">
+          {/* TOP100 모드일 때 순위 번호 표시 */}
+          {specialFilter === 'top100' && (
+            <span className="px-1.5 py-0.5 bg-amber-500 text-white text-[10px] font-black rounded shrink-0">
+              {index + 1}위
+            </span>
+          )}
+          
+          {/* 날짜 기반 NEW 배지 (30일 이내) */}
+          {isNew(song.created_at) && (
+            <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-black rounded shrink-0 animate-pulse">
+              NEW
+            </span>
+          )}
 
-                {/* 초성 필터 */}
-                <div className="flex overflow-x-auto gap-1 no-scrollbar">
-                  {initials.map(init => (
-                    <button 
-                      key={init} 
-                      onClick={() => { setSelectedInitial(init); setSelectedGenre('전체'); setSpecialFilter('all'); }} 
-                      className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs md:text-sm font-semibold ${selectedInitial === init && specialFilter === 'all' ? 'bg-indigo-600 text-white' : 'text-gray-400'}`}
-                    >
-                      {init}
-                    </button>
-                  ))}
-                </div>
+          <h3 className="font-extrabold text-[16px] md:text-[18px] truncate text-gray-950 tracking-tight leading-tight group-hover:text-indigo-600 transition-colors">
+            {song.artist}
+          </h3>
+          <span className="text-[11px] bg-gray-50 px-1.5 py-0.5 rounded text-gray-400 font-bold uppercase shrink-0">
+            {song.genre}
+          </span>
+          {song.history && song.history.length > 0 && (
+            <span className="text-[10px] bg-indigo-50 text-indigo-600 font-bold px-1.5 py-0.5 rounded shrink-0 flex items-center gap-0.5">
+              🎬 {song.history.length}
+            </span>
+          )}
+        </div>
+        <p className="text-gray-600 font-semibold text-[14px] md:text-[16px] truncate ml-0.5 group-hover:text-indigo-900 transition-colors">
+          {song.title}
+        </p>
+      </div>
+
+      <div className="flex items-center gap-1.5 shrink-0">
+        <button
+          onClick={() => handleCopySong(song)}
+          className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+            copiedId === song.id
+              ? 'bg-indigo-600 text-white shadow-sm scale-95'
+              : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 active:scale-95'
+          }`}
+        >
+          {copiedId === song.id ? '복사됨!' : '복사'}
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
                 
                 {/* 장르 필터 */}
                 <div className="flex overflow-x-auto gap-1.5 no-scrollbar border-t border-gray-50 pt-1.5">
