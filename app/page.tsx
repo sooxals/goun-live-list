@@ -122,7 +122,7 @@ export default function Home() {
   };
 
   const fetchSongs = async () => {
-    const { data, error } = await supabase.from('LIVE LIST').select('*').order('artist', { ascending: true });
+    const { data } = await supabase.from('LIVE LIST').select('*').order('artist', { ascending: true });
     if (data) setSongs(data as Song[]);
     setLoading(false);
   };
@@ -194,7 +194,6 @@ export default function Home() {
     else alert("비밀번호가 변경되었습니다.");
   };
 
-  // 📝 관리자 히스토리 동적 추가/수정 관련 함수
   const resetForm = () => {
     setFormArtist('');
     setFormTitle('');
@@ -217,7 +216,6 @@ export default function Home() {
     setFormHistory(formHistory.filter((_, i) => i !== index));
   };
 
-  // ↕️ 히스토리 순서 위/아래 이동 함수
   const handleMoveHistoryRow = (index: number, direction: 'up' | 'down') => {
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
     if (targetIndex < 0 || targetIndex >= formHistory.length) return;
@@ -241,7 +239,6 @@ export default function Home() {
     e.preventDefault();
     if (!formArtist || !formTitle) return alert('입력란을 확인해주세요.');
 
-    // 빈 항목 필터링
     const cleanHistory = formHistory.filter(item => item.date.trim() || item.url.trim());
 
     try {
@@ -280,7 +277,6 @@ export default function Home() {
     return now.getTime() - created.getTime() < 30 * 24 * 60 * 60 * 1000;
   };
 
-  // 필터링 & 정렬 로직
   const filtered = songs.filter(s => {
     if (specialFilter === 'new') {
       if (!isNew(s.created_at)) return false;
@@ -310,11 +306,9 @@ export default function Home() {
     return a.title.localeCompare(b.title, 'ko');
   }).slice(0, specialFilter === 'top100' ? 100 : undefined);
 
-  // 🎲 랜덤 노래 뽑기 로직 (선택한 대상 범위 및 장르 반영)
   const handlePickRandomSong = () => {
     let pool = songs;
 
-    // 1. 모달에서 선택한 대상 (전체 노래 / NEW / TOP 100) 필터링
     if (randomTarget === 'new') {
       pool = pool.filter(s => isNew(s.created_at));
     } else if (randomTarget === 'top100') {
@@ -328,7 +322,6 @@ export default function Home() {
         .slice(0, 100);
     }
 
-    // 2. 모달에서 선택한 장르 필터링
     if (randomGenre !== '전체') {
       pool = pool.filter(s => s.genre === randomGenre);
     }
@@ -389,7 +382,7 @@ export default function Home() {
 
           <button
             onClick={() => setShowList(true)}
-            className="w-full sm:w-auto px-10 py-4 bg-sky-100/80 hover:bg-sky-200/90 text-sky-950 font-extrabold rounded-2xl border border-sky-200/60 shadow-lg shadow-sky-100/50 transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-base md:text-xl flex items-center justify-center gap-2.5 cursor-pointer"
+            className="w-full sm:w-auto px-10 py-4 bg-slate-800 hover:bg-slate-900 text-white font-extrabold rounded-2xl shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-base md:text-xl flex items-center justify-center gap-2.5 cursor-pointer"
           >
             <span className="text-xl">🎵</span>
             <span>전체 노래 리스트 둘러보기</span>
@@ -414,7 +407,8 @@ export default function Home() {
                   className="cursor-pointer select-none group flex items-center gap-2"
                   title="처음 화면으로 이동"
                 >
-                  <span className="text-sm font-bold text-sky-700 bg-sky-50 px-2.5 py-1 rounded-lg group-hover:bg-sky-100 transition-colors">
+                  {/* 회색톤으로 조정된 메인 이동 버튼 */}
+                  <span className="text-sm font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg group-hover:bg-slate-200 transition-colors">
                     ← 메인
                   </span>
                   <h1 className="text-xl md:text-3xl font-black text-gray-900 tracking-tight group-hover:opacity-80 transition-opacity whitespace-nowrap">
@@ -425,12 +419,12 @@ export default function Home() {
                 <div className="flex items-center gap-2">
                   {isAdminMode && (
                     <>
-                      <button onClick={changePassword} className="text-[10px] bg-sky-100 text-sky-700 px-2 py-1 rounded font-bold">비번 변경</button>
+                      <button onClick={changePassword} className="text-[10px] bg-slate-100 text-slate-700 px-2 py-1 rounded font-bold">비번 변경</button>
                       <button onClick={resetNewTags} className="text-[10px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold">NEW 초기화</button>
                       <button onClick={downloadCSV} className="text-[10px] bg-gray-200 px-2 py-1 rounded font-bold">CSV</button>
                     </>
                   )}
-                  <button onClick={handleAdminToggle} className="text-gray-300 hover:text-sky-600 transition-all text-base">
+                  <button onClick={handleAdminToggle} className="text-gray-300 hover:text-slate-600 transition-all text-base">
                     {isAdminMode ? '✕' : '⚙️'}
                   </button>
                 </div>
@@ -456,14 +450,14 @@ export default function Home() {
               </div>
               
               <div className="flex flex-col gap-1.5 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
-                {/* 🌟 상단 특수 필터 (연한 파스텔 하늘색 파랑으로 조정) */}
+                {/* 🌟 상단 특수 필터 (선택 시 부드러운 파스텔톤 적용) */}
                 <div className="flex items-center gap-1.5 pb-1 border-b border-gray-100 overflow-x-auto no-scrollbar">
                   <button
                     onClick={() => setSpecialFilter(prev => prev === 'new' ? 'all' : 'new')}
                     className={`px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
                       specialFilter === 'new'
-                        ? 'bg-red-500 text-white shadow-sm'
-                        : 'bg-red-50 text-red-600 hover:bg-red-100'
+                        ? 'bg-rose-400 text-white shadow-sm'
+                        : 'bg-rose-50 text-rose-600 hover:bg-rose-100'
                     }`}
                   >
                     <span>✨ NEW</span>
@@ -472,14 +466,13 @@ export default function Home() {
                     onClick={() => setSpecialFilter(prev => prev === 'top100' ? 'all' : 'top100')}
                     className={`px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
                       specialFilter === 'top100'
-                        ? 'bg-amber-500 text-white shadow-sm'
+                        ? 'bg-amber-400 text-white shadow-sm'
                         : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
                     }`}
                   >
                     <span>🔥 TOP 100</span>
                   </button>
 
-                  {/* 🎲 파스텔톤 연하늘색 스타일 적용 */}
                   <button
                     onClick={() => {
                       setRandomTarget(specialFilter);
@@ -487,13 +480,13 @@ export default function Home() {
                       setPickedSong(null);
                       setShowRandomModal(true);
                     }}
-                    className="px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold bg-sky-50 hover:bg-sky-100 text-sky-700 transition-all flex items-center gap-1 cursor-pointer shrink-0 border border-sky-100 active:scale-95"
+                    className="px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1 cursor-pointer shrink-0 active:scale-95"
                   >
                     <span>🎲 랜덤 노래</span>
                   </button>
                 </div>
 
-                {/* 초성 필터 */}
+                {/* 초성 필터 (선택 시 회색톤 `bg-slate-700` 적용) */}
                 <div className="flex overflow-x-auto gap-1 no-scrollbar">
                   {initials.map(init => (
                     <button 
@@ -501,7 +494,7 @@ export default function Home() {
                       onClick={() => handleInitialClick(init)} 
                       className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs md:text-sm font-semibold cursor-pointer ${
                         specialFilter === 'all' && selectedInitial === init
-                          ? 'bg-sky-600 text-white' 
+                          ? 'bg-slate-700 text-white' 
                           : 'text-gray-400 hover:bg-gray-100'
                       }`}
                     >
@@ -510,7 +503,7 @@ export default function Home() {
                   ))}
                 </div>
 
-                {/* 장르 필터 */}
+                {/* 장르 필터 (선택 시 소프트 회색 `bg-slate-700` 적용) */}
                 <div className="flex overflow-x-auto gap-1.5 no-scrollbar border-t border-gray-50 pt-1.5">
                   {genres.map(genre => (
                     <button 
@@ -518,7 +511,7 @@ export default function Home() {
                       onClick={() => handleGenreClick(genre)} 
                       className={`flex-shrink-0 px-3 py-1 rounded-md text-xs md:text-sm font-bold cursor-pointer ${
                         specialFilter === 'all' && selectedGenre === genre 
-                          ? 'bg-black text-white' 
+                          ? 'bg-slate-700 text-white' 
                           : 'text-gray-400 hover:bg-gray-100'
                       }`}
                     >
@@ -533,7 +526,7 @@ export default function Home() {
           <div className="max-w-5xl mx-auto px-4 mt-6">
             {/* 🛠️ 관리자 모드 등록/수정 폼 */}
             {isAdminMode && (
-              <div className="mb-6 bg-white p-5 rounded-2xl shadow-lg border border-sky-100">
+              <div className="mb-6 bg-white p-5 rounded-2xl shadow-lg border border-slate-100">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-bold text-gray-800 text-sm">
                     {editingSong ? '✏️ 곡 정보 수정 중' : '➕ 새 노래 추가하기'}
@@ -547,21 +540,20 @@ export default function Home() {
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    <input className="p-3 bg-gray-50 rounded-xl text-sm outline-none border border-gray-100 focus:border-sky-500" placeholder="가수명" value={formArtist} onChange={e=>setFormArtist(e.target.value)} />
-                    <input className="p-3 bg-gray-50 rounded-xl text-sm outline-none border border-gray-100 focus:border-sky-500" placeholder="노래제목" value={formTitle} onChange={e=>setFormTitle(e.target.value)} />
+                    <input className="p-3 bg-gray-50 rounded-xl text-sm outline-none border border-gray-100 focus:border-slate-500" placeholder="가수명" value={formArtist} onChange={e=>setFormArtist(e.target.value)} />
+                    <input className="p-3 bg-gray-50 rounded-xl text-sm outline-none border border-gray-100 focus:border-slate-500" placeholder="노래제목" value={formTitle} onChange={e=>setFormTitle(e.target.value)} />
                     <select className="p-3 bg-gray-50 rounded-xl text-sm outline-none border border-gray-100" value={formGenre} onChange={e=>setFormGenre(e.target.value)}>
                       {genres.slice(1).map(g => <option key={g} value={g}>{g}</option>)}
                     </select>
                   </div>
 
-                  {/* 📺 동적 라이브 히스토리 입력 영역 */}
-                  <div className="bg-sky-50/50 p-3.5 rounded-xl border border-sky-100 mt-1">
+                  <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100 mt-1">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold text-sky-900">📺 방송 라이브 날짜 & 영상 링크</span>
+                      <span className="text-xs font-bold text-slate-800">📺 방송 라이브 날짜 & 영상 링크</span>
                       <button 
                         type="button" 
                         onClick={handleAddHistoryRow}
-                        className="text-xs bg-sky-600 text-white font-bold px-2.5 py-1 rounded-lg hover:bg-sky-700 transition-colors"
+                        className="text-xs bg-slate-700 text-white font-bold px-2.5 py-1 rounded-lg hover:bg-slate-800 transition-colors"
                       >
                         + 날짜 추가
                       </button>
@@ -588,7 +580,6 @@ export default function Home() {
                               className="flex-1 p-2 bg-white rounded-lg text-xs border border-gray-200 outline-none"
                             />
                             
-                            {/* ↕️ 위로/아래로 이동 버튼 */}
                             <div className="flex flex-col shrink-0">
                               <button 
                                 type="button" 
@@ -624,7 +615,7 @@ export default function Home() {
                     )}
                   </div>
 
-                  <button className="bg-sky-600 hover:bg-sky-700 text-white p-3 rounded-xl font-bold text-sm transition-colors mt-1">
+                  <button className="bg-slate-700 hover:bg-slate-800 text-white p-3 rounded-xl font-bold text-sm transition-colors mt-1">
                     {editingSong ? '수정 완료하기' : '곡 저장하기'}
                   </button>
                 </form>
@@ -644,43 +635,39 @@ export default function Home() {
                   return (
                     <div 
                       key={song.id} 
-                      className="bg-white px-4 py-3 rounded-xl shadow-sm flex items-center justify-between border border-transparent hover:border-sky-100 transition-all gap-2"
+                      className="bg-white px-4 py-3 rounded-xl shadow-sm flex items-center justify-between border border-transparent hover:border-slate-200 transition-all gap-2"
                     >
-                      {/* 🎵 노래 정보 (클릭 시 상세 모달 열림) */}
                       <div 
                         onClick={() => setSelectedSongDetail(song)}
                         className="overflow-hidden flex-1 min-w-0 pr-1 cursor-pointer group"
                       >
                         <div className="flex items-center gap-2 mb-0.5">
-                          {/* 🔥 TOP 100 탭 선택 시 순위 뱃지 */}
                           {specialFilter === 'top100' && (
-                            <span className="px-1.5 py-0.5 bg-amber-500 text-white text-[10px] font-black rounded shrink-0">
+                            <span className="px-1.5 py-0.5 bg-amber-400 text-white text-[10px] font-black rounded shrink-0">
                               {index + 1}위
                             </span>
                           )}
 
-                          {/* ✨ NEW 뱃지 */}
                           {isNew(song.created_at) && (
-                            <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-black rounded shrink-0 animate-pulse">
+                            <span className="px-1.5 py-0.5 bg-rose-400 text-white text-[10px] font-black rounded shrink-0 animate-pulse">
                               NEW
                             </span>
                           )}
 
-                          <h3 className="font-extrabold text-[16px] md:text-[18px] truncate text-gray-950 tracking-tight leading-tight group-hover:text-sky-600 transition-colors">
+                          <h3 className="font-extrabold text-[16px] md:text-[18px] truncate text-gray-950 tracking-tight leading-tight group-hover:text-slate-600 transition-colors">
                             {song.artist}
                           </h3>
                           <span className="text-[11px] bg-gray-50 px-1.5 py-0.5 rounded text-gray-400 font-bold uppercase shrink-0">
                             {song.genre}
                           </span>
 
-                          {/* 🎬 바로가기 영상 수 표시 */}
                           {validHistoryCount > 0 && (
-                            <span className="text-[10px] bg-sky-50 text-sky-700 font-bold px-1.5 py-0.5 rounded shrink-0 flex items-center gap-0.5">
+                            <span className="text-[10px] bg-slate-100 text-slate-700 font-bold px-1.5 py-0.5 rounded shrink-0 flex items-center gap-0.5">
                               🎬 {validHistoryCount}
                             </span>
                           )}
                         </div>
-                        <p className="text-gray-600 font-semibold text-[14px] md:text-[16px] truncate ml-0.5 group-hover:text-sky-900 transition-colors">
+                        <p className="text-gray-600 font-semibold text-[14px] md:text-[16px] truncate ml-0.5 group-hover:text-slate-900 transition-colors">
                           {song.title}
                         </p>
                       </div>
@@ -690,8 +677,8 @@ export default function Home() {
                           onClick={() => handleCopySong(song)}
                           className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
                             copiedId === song.id
-                              ? 'bg-sky-600 text-white shadow-sm scale-95'
-                              : 'bg-sky-50 hover:bg-sky-100 text-sky-800 active:scale-95'
+                              ? 'bg-slate-700 text-white shadow-sm scale-95'
+                              : 'bg-slate-100 hover:bg-slate-200 text-slate-700 active:scale-95'
                           }`}
                         >
                           {copiedId === song.id ? (
@@ -728,10 +715,10 @@ export default function Home() {
       )}
 
       {showList && showTopBtn && (
-        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-6 right-6 w-12 h-12 bg-sky-600 text-white rounded-full shadow-2xl flex items-center justify-center font-black text-xs z-50 animate-bounce">TOP</button>
+        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-6 right-6 w-12 h-12 bg-slate-700 text-white rounded-full shadow-2xl flex items-center justify-center font-black text-xs z-50 animate-bounce">TOP</button>
       )}
 
-      {/* 🎲 랜덤 노래 뽑기 모달 (대상 범위 + 장르 선택) */}
+      {/* 🎲 랜덤 노래 뽑기 모달 (회색톤 & 파스텔톤 반영) */}
       {showRandomModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-100 relative">
@@ -747,7 +734,7 @@ export default function Home() {
               <span>랜덤 노래 추천</span>
             </h3>
 
-            {/* 1. 모달 내부 - 파스텔톤 컬러 적용 */}
+            {/* 추첨 대상 - 전체 노래(회색톤), NEW & TOP100(파스텔) */}
             <div className="mb-4">
               <label className="block text-xs font-extrabold text-gray-700 mb-1.5 ml-1">추첨 대상</label>
               <div className="grid grid-cols-3 gap-1.5 bg-gray-50 p-1 rounded-xl border border-gray-100">
@@ -756,7 +743,7 @@ export default function Home() {
                   onClick={() => setRandomTarget('all')}
                   className={`py-2 rounded-lg text-xs font-bold transition-all ${
                     randomTarget === 'all'
-                      ? 'bg-sky-500 text-white shadow-sm'
+                      ? 'bg-slate-700 text-white shadow-sm'
                       : 'text-gray-500 hover:text-gray-900'
                   }`}
                 >
@@ -767,7 +754,7 @@ export default function Home() {
                   onClick={() => setRandomTarget('new')}
                   className={`py-2 rounded-lg text-xs font-bold transition-all ${
                     randomTarget === 'new'
-                      ? 'bg-red-500 text-white shadow-sm'
+                      ? 'bg-rose-100 text-rose-700 font-black shadow-sm'
                       : 'text-gray-500 hover:text-gray-900'
                   }`}
                 >
@@ -778,7 +765,7 @@ export default function Home() {
                   onClick={() => setRandomTarget('top100')}
                   className={`py-2 rounded-lg text-xs font-bold transition-all ${
                     randomTarget === 'top100'
-                      ? 'bg-amber-500 text-white shadow-sm'
+                      ? 'bg-amber-100 text-amber-800 font-black shadow-sm'
                       : 'text-gray-500 hover:text-gray-900'
                   }`}
                 >
@@ -787,14 +774,14 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 2. 모달 내부 - 장르 선택 드롭다운 */}
+            {/* 장르 선택 드롭다운 */}
             <div className="mb-4">
               <label className="block text-xs font-extrabold text-gray-700 mb-1.5 ml-1">장르</label>
               <div className="relative">
                 <select
                   value={randomGenre}
                   onChange={(e) => setRandomGenre(e.target.value)}
-                  className="w-full p-3 bg-gray-50 border border-gray-200 text-gray-800 font-bold rounded-xl text-sm appearance-none outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer pr-10"
+                  className="w-full p-3 bg-gray-50 border border-gray-200 text-gray-800 font-bold rounded-xl text-sm appearance-none outline-none focus:ring-2 focus:ring-slate-500 cursor-pointer pr-10"
                 >
                   {genres.map(g => (
                     <option key={g} value={g}>{g}</option>
@@ -806,20 +793,21 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 3. 추첨된 결과 화면 */}
+            {/* 추첨 결과 */}
             {pickedSong && (
-              <div className="bg-sky-50/80 p-4 rounded-xl border border-sky-100 my-4 text-center animate-fadeIn">
-                <span className="text-[10px] bg-sky-600 text-white font-extrabold px-2 py-0.5 rounded-full uppercase">
+              <div className="bg-slate-100/80 p-4 rounded-xl border border-slate-200 my-4 text-center animate-fadeIn">
+                <span className="text-[10px] bg-slate-700 text-white font-extrabold px-2 py-0.5 rounded-full uppercase">
                   {pickedSong.genre}
                 </span>
                 <h4 className="text-lg font-black text-gray-900 mt-2 tracking-tight">{pickedSong.title}</h4>
-                <p className="text-sm font-bold text-sky-700 mt-0.5">{pickedSong.artist}</p>
+                <p className="text-sm font-bold text-slate-700 mt-0.5">{pickedSong.artist}</p>
               </div>
             )}
 
+            {/* 회색톤으로 수정된 랜덤 노래 뽑기 / 다시 뽑기 버튼 */}
             <button
               onClick={handlePickRandomSong}
-              className="w-full bg-sky-500 hover:bg-sky-600 text-white py-3 rounded-xl font-bold text-sm transition-all shadow-md active:scale-95 cursor-pointer mt-2"
+              className="w-full bg-slate-700 hover:bg-slate-800 text-white py-3 rounded-xl font-bold text-sm transition-all shadow-md active:scale-95 cursor-pointer mt-2"
             >
               {pickedSong ? '🔄 다시 뽑기' : '🎲 랜덤 노래 뽑기'}
             </button>
@@ -839,7 +827,7 @@ export default function Home() {
             </button>
 
             <div className="shrink-0 mb-3 pt-1">
-              <span className="text-[11px] bg-sky-50 text-sky-700 font-bold px-2.5 py-1 rounded-full uppercase">
+              <span className="text-[11px] bg-slate-100 text-slate-700 font-bold px-2.5 py-1 rounded-full uppercase">
                 {selectedSongDetail.genre}
               </span>
               <h3 className="text-xl font-black text-gray-900 mt-2 tracking-tight">{selectedSongDetail.title}</h3>
@@ -857,9 +845,9 @@ export default function Home() {
                 </div>
               ) : (
                 selectedSongDetail.history.map((item, idx) => (
-                  <div key={idx} className="bg-gray-50 p-3 rounded-xl flex items-center justify-between border border-gray-100 hover:border-sky-100 transition-all">
+                  <div key={idx} className="bg-gray-50 p-3 rounded-xl flex items-center justify-between border border-gray-100 hover:border-slate-200 transition-all">
                     <div className="flex items-center gap-2">
-                      <span className="text-sky-500 font-bold text-xs">📅</span>
+                      <span className="text-slate-500 font-bold text-xs">📅</span>
                       <span className="text-xs font-extrabold text-gray-800">
                         {item.date || '날짜 미지정'}
                       </span>
@@ -870,7 +858,7 @@ export default function Home() {
                         href={item.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-lg transition-all flex items-center gap-1 shadow-sm shrink-0"
+                        className="px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs rounded-lg transition-all flex items-center gap-1 shadow-sm shrink-0"
                       >
                         <span>영상 보기</span>
                         <span className="text-[10px]">➔</span>
@@ -909,7 +897,7 @@ export default function Home() {
               readOnly
               value={copyModalText}
               onClick={handleSelectText}
-              className="w-full p-3 bg-sky-50 border border-sky-200 text-sky-950 font-bold rounded-xl text-center text-sm outline-none mb-3 focus:ring-2 focus:ring-sky-500"
+              className="w-full p-3 bg-slate-50 border border-slate-200 text-slate-900 font-bold rounded-xl text-center text-sm outline-none mb-3 focus:ring-2 focus:ring-slate-500"
             />
 
             <div className="flex gap-2">
@@ -924,7 +912,7 @@ export default function Home() {
                 className={`flex-1 text-white py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
                   isModalSelected
                     ? 'bg-emerald-600'
-                    : 'bg-sky-600 hover:bg-sky-700'
+                    : 'bg-slate-700 hover:bg-slate-800'
                 }`}
               >
                 {isModalSelected ? '✓ 복사 완료!' : '전체 선택 & 복사'}
@@ -944,7 +932,7 @@ export default function Home() {
             <form onSubmit={handleLoginSubmit} className="flex flex-col gap-3">
               <input 
                 type="password" 
-                className="p-3 bg-gray-50 rounded-xl text-sm outline-none border border-gray-200 focus:border-sky-600" 
+                className="p-3 bg-gray-50 rounded-xl text-sm outline-none border border-gray-200 focus:border-slate-600" 
                 placeholder="비밀번호" 
                 value={inputPassword} 
                 onChange={e => setInputPassword(e.target.value)} 
@@ -952,7 +940,7 @@ export default function Home() {
               />
               <div className="flex gap-2 mt-1">
                 <button type="button" onClick={() => setShowLoginModal(false)} className="flex-1 bg-gray-100 text-gray-600 p-3 rounded-xl font-bold text-sm">취소</button>
-                <button type="submit" className="flex-1 bg-sky-600 text-white p-3 rounded-xl font-bold text-sm">확인</button>
+                <button type="submit" className="flex-1 bg-slate-700 text-white p-3 rounded-xl font-bold text-sm">확인</button>
               </div>
             </form>
           </div>
