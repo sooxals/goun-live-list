@@ -29,7 +29,7 @@ export default function Home() {
   const [selectedInitial, setSelectedInitial] = useState('전체');
   const [selectedGenre, setSelectedGenre] = useState('전체');
 
-  // 🌟 [추가] 특수 필터 상태 관리 ('all' | 'new' | 'top100')
+  // 특수 필터 상태 관리 ('all' | 'new' | 'top100')
   const [specialFilter, setSpecialFilter] = useState<'all' | 'new' | 'top100'>('all');
 
   const [isAdminMode, setIsAdminMode] = useState(false);
@@ -54,6 +54,19 @@ export default function Home() {
 
   const genres = ['전체', '가요', '트로트', 'POP', 'J-POP', '뮤지컬'];
   const initials = ['전체', '0-9', 'A-Z', 'ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
+
+  // 💡 초성/장르 클릭 시 특수 필터를 해제하고 검색하는 핸들러
+  const handleInitialClick = (init: string) => {
+    setSpecialFilter('all');
+    setSelectedInitial(init);
+    setSelectedGenre('전체');
+  };
+
+  const handleGenreClick = (genre: string) => {
+    setSpecialFilter('all');
+    setSelectedGenre(genre);
+    setSelectedInitial('전체');
+  };
 
   const handleCopySong = async (song: Song) => {
     const textToCopy = `${song.artist} - ${song.title}`;
@@ -261,28 +274,23 @@ export default function Home() {
     return now.getTime() - created.getTime() < 30 * 24 * 60 * 60 * 1000;
   };
 
-  // 🌟 [수정] NEW 및 TOP100 조건 반영 필터링 & 정렬 로직
+  // 필터링 & 정렬 로직
   const filtered = songs.filter(s => {
-    // 1. 특수 필터 (NEW 또는 TOP100)
     if (specialFilter === 'new') {
       if (!isNew(s.created_at)) return false;
     } else if (specialFilter === 'top100') {
-      // history 내부 URL(바로가기) 개수 계산
       const validHistoryCount = s.history?.filter(h => h.url && h.url.trim() !== '').length || 0;
       if (validHistoryCount === 0) return false;
     } else {
-      // 일반 모드일 때만 초성 / 장르 필터링 적용
       const isInitialMatch = selectedInitial === '전체' || getInitialSound(s.artist) === selectedInitial;
       const isGenreMatch = selectedGenre === '전체' || s.genre === selectedGenre;
       if (!isInitialMatch || !isGenreMatch) return false;
     }
 
-    // 2. 검색어 필터 (공통)
     const cleanSearch = searchTerm.replace(/\s+/g, '').toLowerCase();
     const isSearchMatch = !cleanSearch || (s.artist + s.title).replace(/\s+/g, '').toLowerCase().includes(cleanSearch);
     return isSearchMatch;
   }).sort((a, b) => {
-    // TOP100 모드일 경우: history 내 바로가기(url) 개수 많은 순(내림차순) 정렬
     if (specialFilter === 'top100') {
       const countA = a.history?.filter(h => h.url && h.url.trim() !== '').length || 0;
       const countB = b.history?.filter(h => h.url && h.url.trim() !== '').length || 0;
@@ -291,11 +299,10 @@ export default function Home() {
       }
     }
 
-    // 기본 정렬: 가수 이름 ㄱ,ㄴ,ㄷ -> 노래 제목 ㄱ,ㄴ,ㄷ
     const artistCompare = a.artist.localeCompare(b.artist, 'ko');
     if (artistCompare !== 0) return artistCompare;
     return a.title.localeCompare(b.title, 'ko');
-  }).slice(0, specialFilter === 'top100' ? 100 : undefined); // TOP100 선택 시 상위 100개 제한
+  }).slice(0, specialFilter === 'top100' ? 100 : undefined);
 
   if (loading) return <div className="p-10 text-center text-gray-400 font-sans">목록을 불러오는 중...</div>;
 
@@ -410,31 +417,11 @@ export default function Home() {
               </div>
               
               <div className="flex flex-col gap-1.5 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
-                {/* 🌟 [추가] 특수 필터 탭 (TOP100 / NEW / 전체) */}
+                {/* 🌟 특수 필터 탭 (NEW 곡 / TOP 100 만 노출, 재클릭 시 해제) */}
                 <div className="flex gap-1.5 pb-1 border-b border-gray-100">
                   <button
-                    onClick={() => setSpecialFilter('all')}
-                    className={`px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all ${
-                      specialFilter === 'all'
-                        ? 'bg-indigo-600 text-white shadow-sm'
-                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                    }`}
-                  >
-                    🎵 전체 노래
-                  </button>
-                  <button
-                    onClick={() => setSpecialFilter('top100')}
-                    className={`px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1 ${
-                      specialFilter === 'top100'
-                        ? 'bg-amber-500 text-white shadow-sm'
-                        : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
-                    }`}
-                  >
-                    <span>🔥 TOP 100</span>
-                  </button>
-                  <button
-                    onClick={() => setSpecialFilter('new')}
-                    className={`px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1 ${
+                    onClick={() => setSpecialFilter(prev => prev === 'new' ? 'all' : 'new')}
+                    className={`px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1 cursor-pointer ${
                       specialFilter === 'new'
                         ? 'bg-red-500 text-white shadow-sm'
                         : 'bg-red-50 text-red-600 hover:bg-red-100'
@@ -442,28 +429,46 @@ export default function Home() {
                   >
                     <span>✨ NEW 곡</span>
                   </button>
+                  <button
+                    onClick={() => setSpecialFilter(prev => prev === 'top100' ? 'all' : 'top100')}
+                    className={`px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1 cursor-pointer ${
+                      specialFilter === 'top100'
+                        ? 'bg-amber-500 text-white shadow-sm'
+                        : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                    }`}
+                  >
+                    <span>🔥 TOP 100</span>
+                  </button>
                 </div>
 
-                {/* 초성 필터 (특수 필터가 'all'일 때 활성화 안내) */}
-                <div className={`flex overflow-x-auto gap-1 no-scrollbar transition-opacity ${specialFilter !== 'all' ? 'opacity-40 pointer-events-none' : ''}`}>
+                {/* 초성 필터 (클릭 시 자동으로 전체 노래 모드로 전환하며 작동) */}
+                <div className="flex overflow-x-auto gap-1 no-scrollbar">
                   {initials.map(init => (
                     <button 
                       key={init} 
-                      onClick={() => { setSelectedInitial(init); setSelectedGenre('전체'); }} 
-                      className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs md:text-sm font-semibold ${selectedInitial === init ? 'bg-indigo-600 text-white' : 'text-gray-400'}`}
+                      onClick={() => handleInitialClick(init)} 
+                      className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs md:text-sm font-semibold cursor-pointer ${
+                        specialFilter === 'all' && selectedInitial === init
+                          ? 'bg-indigo-600 text-white' 
+                          : 'text-gray-400 hover:bg-gray-100'
+                      }`}
                     >
                       {init}
                     </button>
                   ))}
                 </div>
 
-                {/* 장르 필터 */}
-                <div className={`flex overflow-x-auto gap-1.5 no-scrollbar border-t border-gray-50 pt-1.5 transition-opacity ${specialFilter !== 'all' ? 'opacity-40 pointer-events-none' : ''}`}>
+                {/* 장르 필터 (클릭 시 자동으로 전체 노래 모드로 전환하며 작동) */}
+                <div className="flex overflow-x-auto gap-1.5 no-scrollbar border-t border-gray-50 pt-1.5">
                   {genres.map(genre => (
                     <button 
                       key={genre} 
-                      onClick={() => { setSelectedGenre(genre); setSelectedInitial('전체'); }} 
-                      className={`flex-shrink-0 px-3 py-1 rounded-md text-xs md:text-sm font-bold ${selectedGenre === genre ? 'bg-black text-white' : 'text-gray-400'}`}
+                      onClick={() => handleGenreClick(genre)} 
+                      className={`flex-shrink-0 px-3 py-1 rounded-md text-xs md:text-sm font-bold cursor-pointer ${
+                        specialFilter === 'all' && selectedGenre === genre 
+                          ? 'bg-black text-white' 
+                          : 'text-gray-400 hover:bg-gray-100'
+                      }`}
                     >
                       {genre}
                     </button>
