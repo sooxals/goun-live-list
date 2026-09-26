@@ -28,6 +28,10 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedInitial, setSelectedInitial] = useState('전체');
   const [selectedGenre, setSelectedGenre] = useState('전체');
+
+  // 🌟 [추가] 특수 필터 상태 관리 ('all' | 'new' | 'top100')
+  const [specialFilter, setSpecialFilter] = useState<'all' | 'new' | 'top100'>('all');
+
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [editingSong, setEditingSong] = useState<Song | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -250,27 +254,48 @@ export default function Home() {
     }
   };
 
-  const filtered = songs.filter(s => {
-    const isInitialMatch = selectedInitial === '전체' || getInitialSound(s.artist) === selectedInitial;
-    const isGenreMatch = selectedGenre === '전체' || s.genre === selectedGenre;
-    const cleanSearch = searchTerm.replace(/\s+/g, '').toLowerCase();
-    const isSearchMatch = !cleanSearch || (s.artist+s.title).replace(/\s+/g, '').toLowerCase().includes(cleanSearch);
-    return isInitialMatch && isGenreMatch && isSearchMatch;
-  }).sort((a, b) => {
-    // 1차 기준: 가수 이름 ㄱ, ㄴ, ㄷ 순 정렬
-    const artistCompare = a.artist.localeCompare(b.artist, 'ko');
-    if (artistCompare !== 0) return artistCompare;
-    
-    // 2차 기준: 가수 이름이 같다면 노래 제목 ㄱ, ㄴ, ㄷ 순 정렬
-    return a.title.localeCompare(b.title, 'ko');
-  });
-
   const isNew = (dateStr: string) => {
     if (!dateStr) return false;
     const created = new Date(dateStr);
     const now = new Date();
     return now.getTime() - created.getTime() < 30 * 24 * 60 * 60 * 1000;
   };
+
+  // 🌟 [수정] NEW 및 TOP100 조건 반영 필터링 & 정렬 로직
+  const filtered = songs.filter(s => {
+    // 1. 특수 필터 (NEW 또는 TOP100)
+    if (specialFilter === 'new') {
+      if (!isNew(s.created_at)) return false;
+    } else if (specialFilter === 'top100') {
+      // history 내부 URL(바로가기) 개수 계산
+      const validHistoryCount = s.history?.filter(h => h.url && h.url.trim() !== '').length || 0;
+      if (validHistoryCount === 0) return false;
+    } else {
+      // 일반 모드일 때만 초성 / 장르 필터링 적용
+      const isInitialMatch = selectedInitial === '전체' || getInitialSound(s.artist) === selectedInitial;
+      const isGenreMatch = selectedGenre === '전체' || s.genre === selectedGenre;
+      if (!isInitialMatch || !isGenreMatch) return false;
+    }
+
+    // 2. 검색어 필터 (공통)
+    const cleanSearch = searchTerm.replace(/\s+/g, '').toLowerCase();
+    const isSearchMatch = !cleanSearch || (s.artist + s.title).replace(/\s+/g, '').toLowerCase().includes(cleanSearch);
+    return isSearchMatch;
+  }).sort((a, b) => {
+    // TOP100 모드일 경우: history 내 바로가기(url) 개수 많은 순(내림차순) 정렬
+    if (specialFilter === 'top100') {
+      const countA = a.history?.filter(h => h.url && h.url.trim() !== '').length || 0;
+      const countB = b.history?.filter(h => h.url && h.url.trim() !== '').length || 0;
+      if (countA !== countB) {
+        return countB - countA;
+      }
+    }
+
+    // 기본 정렬: 가수 이름 ㄱ,ㄴ,ㄷ -> 노래 제목 ㄱ,ㄴ,ㄷ
+    const artistCompare = a.artist.localeCompare(b.artist, 'ko');
+    if (artistCompare !== 0) return artistCompare;
+    return a.title.localeCompare(b.title, 'ko');
+  }).slice(0, specialFilter === 'top100' ? 100 : undefined); // TOP100 선택 시 상위 100개 제한
 
   if (loading) return <div className="p-10 text-center text-gray-400 font-sans">목록을 불러오는 중...</div>;
 
@@ -336,7 +361,8 @@ export default function Home() {
                     setSearchTerm('');          
                     resetForm();
                     setSelectedInitial('전체'); 
-                    setSelectedGenre('전체');   
+                    setSelectedGenre('전체');
+                    setSpecialFilter('all');
                     setShowList(false);
                   }}
                   className="cursor-pointer select-none group flex items-center gap-2"
@@ -384,7 +410,42 @@ export default function Home() {
               </div>
               
               <div className="flex flex-col gap-1.5 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
-                <div className="flex overflow-x-auto gap-1 no-scrollbar">
+                {/* 🌟 [추가] 특수 필터 탭 (TOP100 / NEW / 전체) */}
+                <div className="flex gap-1.5 pb-1 border-b border-gray-100">
+                  <button
+                    onClick={() => setSpecialFilter('all')}
+                    className={`px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all ${
+                      specialFilter === 'all'
+                        ? 'bg-indigo-600 text-white shadow-sm'
+                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                    }`}
+                  >
+                    🎵 전체 노래
+                  </button>
+                  <button
+                    onClick={() => setSpecialFilter('top100')}
+                    className={`px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1 ${
+                      specialFilter === 'top100'
+                        ? 'bg-amber-500 text-white shadow-sm'
+                        : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                    }`}
+                  >
+                    <span>🔥 TOP 100</span>
+                  </button>
+                  <button
+                    onClick={() => setSpecialFilter('new')}
+                    className={`px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1 ${
+                      specialFilter === 'new'
+                        ? 'bg-red-500 text-white shadow-sm'
+                        : 'bg-red-50 text-red-600 hover:bg-red-100'
+                    }`}
+                  >
+                    <span>✨ NEW 곡</span>
+                  </button>
+                </div>
+
+                {/* 초성 필터 (특수 필터가 'all'일 때 활성화 안내) */}
+                <div className={`flex overflow-x-auto gap-1 no-scrollbar transition-opacity ${specialFilter !== 'all' ? 'opacity-40 pointer-events-none' : ''}`}>
                   {initials.map(init => (
                     <button 
                       key={init} 
@@ -395,7 +456,9 @@ export default function Home() {
                     </button>
                   ))}
                 </div>
-                <div className="flex overflow-x-auto gap-1.5 no-scrollbar border-t border-gray-50 pt-1.5">
+
+                {/* 장르 필터 */}
+                <div className={`flex overflow-x-auto gap-1.5 no-scrollbar border-t border-gray-50 pt-1.5 transition-opacity ${specialFilter !== 'all' ? 'opacity-40 pointer-events-none' : ''}`}>
                   {genres.map(genre => (
                     <button 
                       key={genre} 
@@ -513,74 +576,95 @@ export default function Home() {
 
             {/* 노래 카드 목록 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-              {filtered.map((song) => (
-                <div 
-                  key={song.id} 
-                  className="bg-white px-4 py-3 rounded-xl shadow-sm flex items-center justify-between border border-transparent hover:border-indigo-100 transition-all gap-2"
-                >
-                  {/* 🎵 노래 정보 (클릭 시 상세 모달 열림) */}
-                  <div 
-                    onClick={() => setSelectedSongDetail(song)}
-                    className="overflow-hidden flex-1 min-w-0 pr-1 cursor-pointer group"
-                  >
-                    <div className="flex items-center gap-2 mb-0.5">
-                      {isNew(song.created_at) && (
-                        <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-black rounded shrink-0 animate-pulse">
-                          NEW
-                        </span>
-                      )}
-                      <h3 className="font-extrabold text-[16px] md:text-[18px] truncate text-gray-950 tracking-tight leading-tight group-hover:text-indigo-600 transition-colors">
-                        {song.artist}
-                      </h3>
-                      <span className="text-[11px] bg-gray-50 px-1.5 py-0.5 rounded text-gray-400 font-bold uppercase shrink-0">
-                        {song.genre}
-                      </span>
-                      {song.history && song.history.length > 0 && (
-                        <span className="text-[10px] bg-indigo-50 text-indigo-600 font-bold px-1.5 py-0.5 rounded shrink-0 flex items-center gap-0.5">
-                          🎬 {song.history.length}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-gray-600 font-semibold text-[14px] md:text-[16px] truncate ml-0.5 group-hover:text-indigo-900 transition-colors">
-                      {song.title}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <button
-                      onClick={() => handleCopySong(song)}
-                      className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
-                        copiedId === song.id
-                          ? 'bg-indigo-600 text-white shadow-sm scale-95'
-                          : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 active:scale-95'
-                      }`}
-                    >
-                      {copiedId === song.id ? (
-                        <>
-                          <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
-                            <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
-                          </svg>
-                          <span>복사됨!</span>
-                        </>
-                      ) : (
-                        <>
-                          <svg className="w-3 h-3 fill-current opacity-70" viewBox="0 0 24 24">
-                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-                          </svg>
-                          <span>복사</span>
-                        </>
-                      )}
-                    </button>
-
-                    {isAdminMode && (
-                      <div className="flex gap-1 pl-1 border-l border-gray-100">
-                        <button onClick={() => handleStartEdit(song)} className="p-1.5 text-gray-400 hover:text-gray-600 bg-gray-50 rounded-lg text-xs">✏️</button>
-                        <button onClick={async () => { if (confirm('삭제할까요?')) { await deleteSongServer(song.id); await fetchSongs(); router.refresh(); } }} className="p-1.5 text-red-400 hover:text-red-600 bg-red-50 rounded-lg text-xs">🗑️</button>
-                      </div>
-                    )}
-                  </div>
+              {filtered.length === 0 ? (
+                <div className="col-span-full bg-white p-10 rounded-2xl text-center text-gray-400 font-bold">
+                  조건에 맞는 곡이 없습니다.
                 </div>
-              ))}
+              ) : (
+                filtered.map((song, index) => {
+                  const validHistoryCount = song.history?.filter(h => h.url && h.url.trim() !== '').length || 0;
+
+                  return (
+                    <div 
+                      key={song.id} 
+                      className="bg-white px-4 py-3 rounded-xl shadow-sm flex items-center justify-between border border-transparent hover:border-indigo-100 transition-all gap-2"
+                    >
+                      {/* 🎵 노래 정보 (클릭 시 상세 모달 열림) */}
+                      <div 
+                        onClick={() => setSelectedSongDetail(song)}
+                        className="overflow-hidden flex-1 min-w-0 pr-1 cursor-pointer group"
+                      >
+                        <div className="flex items-center gap-2 mb-0.5">
+                          {/* 🔥 TOP 100 탭 선택 시 순위 뱃지 */}
+                          {specialFilter === 'top100' && (
+                            <span className="px-1.5 py-0.5 bg-amber-500 text-white text-[10px] font-black rounded shrink-0">
+                              {index + 1}위
+                            </span>
+                          )}
+
+                          {/* ✨ NEW 뱃지 */}
+                          {isNew(song.created_at) && (
+                            <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-black rounded shrink-0 animate-pulse">
+                              NEW
+                            </span>
+                          )}
+
+                          <h3 className="font-extrabold text-[16px] md:text-[18px] truncate text-gray-950 tracking-tight leading-tight group-hover:text-indigo-600 transition-colors">
+                            {song.artist}
+                          </h3>
+                          <span className="text-[11px] bg-gray-50 px-1.5 py-0.5 rounded text-gray-400 font-bold uppercase shrink-0">
+                            {song.genre}
+                          </span>
+
+                          {/* 🎬 바로가기 영상 수 표시 */}
+                          {validHistoryCount > 0 && (
+                            <span className="text-[10px] bg-indigo-50 text-indigo-600 font-bold px-1.5 py-0.5 rounded shrink-0 flex items-center gap-0.5">
+                              🎬 {validHistoryCount}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-gray-600 font-semibold text-[14px] md:text-[16px] truncate ml-0.5 group-hover:text-indigo-900 transition-colors">
+                          {song.title}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          onClick={() => handleCopySong(song)}
+                          className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                            copiedId === song.id
+                              ? 'bg-indigo-600 text-white shadow-sm scale-95'
+                              : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 active:scale-95'
+                          }`}
+                        >
+                          {copiedId === song.id ? (
+                            <>
+                              <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
+                                <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
+                              </svg>
+                              <span>복사됨!</span>
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-3 h-3 fill-current opacity-70" viewBox="0 0 24 24">
+                                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
+                              </svg>
+                              <span>복사</span>
+                            </>
+                          )}
+                        </button>
+
+                        {isAdminMode && (
+                          <div className="flex gap-1 pl-1 border-l border-gray-100">
+                            <button onClick={() => handleStartEdit(song)} className="p-1.5 text-gray-400 hover:text-gray-600 bg-gray-50 rounded-lg text-xs">✏️</button>
+                            <button onClick={async () => { if (confirm('삭제할까요?')) { await deleteSongServer(song.id); await fetchSongs(); router.refresh(); } }} className="p-1.5 text-red-400 hover:text-red-600 bg-red-50 rounded-lg text-xs">🗑️</button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
         </>
