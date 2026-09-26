@@ -194,6 +194,18 @@ export default function Home() {
     setFormHistory(formHistory.filter((_, i) => i !== index));
   };
 
+  // ↕️ 히스토리 순서 위/아래 이동 함수
+  const handleMoveHistoryRow = (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= formHistory.length) return;
+    
+    const updated = [...formHistory];
+    const temp = updated[index];
+    updated[index] = updated[targetIndex];
+    updated[targetIndex] = temp;
+    setFormHistory(updated);
+  };
+
   const handleStartEdit = (song: Song) => {
     setEditingSong(song);
     setFormArtist(song.artist);
@@ -448,10 +460,34 @@ export default function Home() {
                               onChange={e => handleHistoryChange(idx, 'url', e.target.value)}
                               className="flex-1 p-2 bg-white rounded-lg text-xs border border-gray-200 outline-none"
                             />
+                            
+                            {/* ↕️ 위로/아래로 이동 버튼 */}
+                            <div className="flex flex-col shrink-0">
+                              <button 
+                                type="button" 
+                                onClick={() => handleMoveHistoryRow(idx, 'up')}
+                                disabled={idx === 0}
+                                className={`text-[10px] px-1.5 py-0.5 rounded bg-white border border-gray-200 font-bold ${idx === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-100 text-gray-700'}`}
+                                title="위로"
+                              >
+                                ▲
+                              </button>
+                              <button 
+                                type="button" 
+                                onClick={() => handleMoveHistoryRow(idx, 'down')}
+                                disabled={idx === formHistory.length - 1}
+                                className={`text-[10px] px-1.5 py-0.5 rounded bg-white border border-gray-200 font-bold mt-0.5 ${idx === formHistory.length - 1 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-100 text-gray-700'}`}
+                                title="아래로"
+                              >
+                                ▼
+                              </button>
+                            </div>
+
                             <button 
                               type="button" 
                               onClick={() => handleRemoveHistoryRow(idx)} 
-                              className="text-xs text-red-500 font-bold px-2 py-1 bg-red-50 rounded-lg hover:bg-red-100 shrink-0"
+                              className="text-xs text-red-500 font-bold px-2 py-2 bg-red-50 rounded-lg hover:bg-red-100 shrink-0"
+                              title="삭제"
                             >
                               ✕
                             </button>
