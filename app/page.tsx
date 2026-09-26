@@ -28,6 +28,10 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedInitial, setSelectedInitial] = useState('전체');
   const [selectedGenre, setSelectedGenre] = useState('전체');
+  
+  // 🌟 [추가] 특별 필터 상태 관리 ('all' | 'new' | 'top100')
+  const [specialFilter, setSpecialFilter] = useState<'all' | 'new' | 'top100'>('all');
+
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [editingSong, setEditingSong] = useState<Song | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -171,7 +175,6 @@ export default function Home() {
     else alert("비밀번호가 변경되었습니다.");
   };
 
-  // 📝 관리자 히스토리 동적 추가/수정 관련 함수
   const resetForm = () => {
     setFormArtist('');
     setFormTitle('');
@@ -194,7 +197,6 @@ export default function Home() {
     setFormHistory(formHistory.filter((_, i) => i !== index));
   };
 
-  // ↕️ 히스토리 순서 위/아래 이동 함수
   const handleMoveHistoryRow = (index: number, direction: 'up' | 'down') => {
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
     if (targetIndex < 0 || targetIndex >= formHistory.length) return;
@@ -218,7 +220,6 @@ export default function Home() {
     e.preventDefault();
     if (!formArtist || !formTitle) return alert('입력란을 확인해주세요.');
 
-    // 빈 항목 필터링
     const cleanHistory = formHistory.filter(item => item.date.trim() || item.url.trim());
 
     try {
@@ -250,14 +251,6 @@ export default function Home() {
     }
   };
 
-  const filtered = songs.filter(s => {
-    const isInitialMatch = selectedInitial === '전체' || getInitialSound(s.artist) === selectedInitial;
-    const isGenreMatch = selectedGenre === '전체' || s.genre === selectedGenre;
-    const cleanSearch = searchTerm.replace(/\s+/g, '').toLowerCase();
-    const isSearchMatch = !cleanSearch || (s.artist+s.title).replace(/\s+/g, '').toLowerCase().includes(cleanSearch);
-    return isInitialMatch && isGenreMatch && isSearchMatch;
-  });
-
   const isNew = (dateStr: string) => {
     if (!dateStr) return false;
     const created = new Date(dateStr);
@@ -265,12 +258,47 @@ export default function Home() {
     return now.getTime() - created.getTime() < 30 * 24 * 60 * 60 * 1000;
   };
 
+  // 🌟 필터 및 정렬 로직 (NEW, TOP100 조건 반영 + ㄱㄴㄷ 순 정렬 유지)
+  const filtered = songs.filter(s => {
+    // 특수 필터 (NEW 또는 TOP100) 적용 시 초성/장르 필터는 무시하고 해당 조건만 검사
+    if (specialFilter === 'new') {
+      if (!isNew(s.created_at)) return false;
+    } else if (specialFilter === 'top100') {
+      // 히스토리가 아예 없으면 제외
+      const hCount = s.history?.length || 0;
+      if (hCount === 0) return false;
+    } else {
+      // 일반 필터 모드
+      const isInitialMatch = selectedInitial === '전체' || getInitialSound(s.artist) === selectedInitial;
+      const isGenreMatch = selectedGenre === '전체' || s.genre === selectedGenre;
+      if (!isInitialMatch || !isGenreMatch) return false;
+    }
+
+    // 검색어 공통 필터
+    const cleanSearch = searchTerm.replace(/\s+/g, '').toLowerCase();
+    const isSearchMatch = !cleanSearch || (s.artist + s.title).replace(/\s+/g, '').toLowerCase().includes(cleanSearch);
+    return isSearchMatch;
+  }).sort((a, b) => {
+    // TOP100 모드일 때는 1차적으로 히스토리 많은 순으로 정렬 후, 개수가 같다면 ㄱㄴㄷ순 정렬
+    if (specialFilter === 'top100') {
+      const countA = a.history?.length || 0;
+      const countB = b.history?.length || 0;
+      if (countA !== countB) {
+        return countB - countA; // 내림차순 (많은 순)
+      }
+    }
+
+    // 기본 정렬: 가수 이름 ㄱ, ㄴ, ㄷ 순 → 제목 ㄱ, ㄴ, ㄷ 순
+    const artistCompare = a.artist.localeCompare(b.artist, 'ko');
+    if (artistCompare !== 0) return artistCompare;
+    return a.title.localeCompare(b.title, 'ko');
+  }).slice(0, specialFilter === 'top100' ? 100 : undefined); // TOP100은 최대 100개 제한
+
   if (loading) return <div className="p-10 text-center text-gray-400 font-sans">목록을 불러오는 중...</div>;
 
   return (
     <main className="min-h-screen bg-[#F8F9FD] text-[#1D1D1F] pb-10 font-sans relative">
       
-      {/* 1. 메인 랜딩 화면 */}
       {!showList ? (
         <section className="min-h-screen flex flex-col items-center justify-center p-6 text-center max-w-4xl md:max-w-5xl mx-auto">
           <div className="mb-6 space-y-4 flex flex-col items-center">
@@ -319,7 +347,6 @@ export default function Home() {
         </section>
       ) : (
 
-        /* 2. 노래 리스트 화면 */
         <>
           <div className="sticky top-0 z-40 bg-[#F8F9FD]/95 backdrop-blur-md pt-5 pb-2 px-4 shadow-sm border-b border-gray-100">
             <div className="max-w-5xl mx-auto">
@@ -330,6 +357,7 @@ export default function Home() {
                     resetForm();
                     setSelectedInitial('전체'); 
                     setSelectedGenre('전체');   
+                    setSpecialFilter('all');
                     setShowList(false);
                   }}
                   className="cursor-pointer select-none group flex items-center gap-2"
@@ -377,12 +405,42 @@ export default function Home() {
               </div>
               
               <div className="flex flex-col gap-1.5 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
+                {/* 🌟 [추가] 상단 NEW / TOP100 바로가기 버튼 영역 */}
+                <div className="flex items-center gap-1.5 pb-1.5 border-b border-gray-50">
+                  <button
+                    onClick={() => setSpecialFilter('all')}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                      specialFilter === 'all' ? 'bg-gray-900 text-white shadow-sm' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                    }`}
+                  >
+                    🏠 전체 목록
+                  </button>
+                  <button
+                    onClick={() => setSpecialFilter('new')}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                      specialFilter === 'new' ? 'bg-red-500 text-white shadow-sm' : 'bg-red-50 text-red-500 hover:bg-red-100'
+                    }`}
+                  >
+                    <span>🔥</span>
+                    <span>NEW</span>
+                  </button>
+                  <button
+                    onClick={() => setSpecialFilter('top100')}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                      specialFilter === 'top100' ? 'bg-amber-500 text-white shadow-sm' : 'bg-amber-50 text-amber-600 hover:bg-amber-100'
+                    }`}
+                  >
+                    <span>👑</span>
+                    <span>TOP 100</span>
+                  </button>
+                </div>
+
                 <div className="flex overflow-x-auto gap-1 no-scrollbar">
                   {initials.map(init => (
                     <button 
                       key={init} 
-                      onClick={() => { setSelectedInitial(init); setSelectedGenre('전체'); }} 
-                      className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs md:text-sm font-semibold ${selectedInitial === init ? 'bg-indigo-600 text-white' : 'text-gray-400'}`}
+                      onClick={() => { setSelectedInitial(init); setSelectedGenre('전체'); setSpecialFilter('all'); }} 
+                      className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs md:text-sm font-semibold ${selectedInitial === init && specialFilter === 'all' ? 'bg-indigo-600 text-white' : 'text-gray-400'}`}
                     >
                       {init}
                     </button>
@@ -392,8 +450,8 @@ export default function Home() {
                   {genres.map(genre => (
                     <button 
                       key={genre} 
-                      onClick={() => { setSelectedGenre(genre); setSelectedInitial('전체'); }} 
-                      className={`flex-shrink-0 px-3 py-1 rounded-md text-xs md:text-sm font-bold ${selectedGenre === genre ? 'bg-black text-white' : 'text-gray-400'}`}
+                      onClick={() => { setSelectedGenre(genre); setSelectedInitial('전체'); setSpecialFilter('all'); }} 
+                      className={`flex-shrink-0 px-3 py-1 rounded-md text-xs md:text-sm font-bold ${selectedGenre === genre && specialFilter === 'all' ? 'bg-black text-white' : 'text-gray-400'}`}
                     >
                       {genre}
                     </button>
@@ -404,7 +462,6 @@ export default function Home() {
           </div>
 
           <div className="max-w-5xl mx-auto px-4 mt-6">
-            {/* 🛠️ 관리자 모드 등록/수정 폼 */}
             {isAdminMode && (
               <div className="mb-6 bg-white p-5 rounded-2xl shadow-lg border border-indigo-100">
                 <div className="flex items-center justify-between mb-3">
@@ -427,7 +484,6 @@ export default function Home() {
                     </select>
                   </div>
 
-                  {/* 📺 동적 라이브 히스토리 입력 영역 */}
                   <div className="bg-indigo-50/50 p-3.5 rounded-xl border border-indigo-100 mt-1">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-bold text-indigo-900">📺 방송 라이브 날짜 & 영상 링크</span>
@@ -461,7 +517,6 @@ export default function Home() {
                               className="flex-1 p-2 bg-white rounded-lg text-xs border border-gray-200 outline-none"
                             />
                             
-                            {/* ↕️ 위로/아래로 이동 버튼 */}
                             <div className="flex flex-col shrink-0">
                               <button 
                                 type="button" 
@@ -504,19 +559,23 @@ export default function Home() {
               </div>
             )}
 
-            {/* 노래 카드 목록 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-              {filtered.map((song) => (
+              {filtered.map((song, index) => (
                 <div 
                   key={song.id} 
                   className="bg-white px-4 py-3 rounded-xl shadow-sm flex items-center justify-between border border-transparent hover:border-indigo-100 transition-all gap-2"
                 >
-                  {/* 🎵 노래 정보 (클릭 시 상세 모달 열림) */}
                   <div 
                     onClick={() => setSelectedSongDetail(song)}
                     className="overflow-hidden flex-1 min-w-0 pr-1 cursor-pointer group"
                   >
                     <div className="flex items-center gap-2 mb-0.5">
+                      {/* TOP100 모드일 때 순위 번호 표시 */}
+                      {specialFilter === 'top100' && (
+                        <span className="px-1.5 py-0.5 bg-amber-500 text-white text-[10px] font-black rounded shrink-0">
+                          {index + 1}위
+                        </span>
+                      )}
                       {isNew(song.created_at) && (
                         <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-black rounded shrink-0 animate-pulse">
                           NEW
@@ -583,7 +642,6 @@ export default function Home() {
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-6 right-6 w-12 h-12 bg-indigo-600 text-white rounded-full shadow-2xl flex items-center justify-center font-black text-xs z-50 animate-bounce">TOP</button>
       )}
 
-      {/* 🎬 노래 상세 보기 및 라이브 영상 이동 모달 */}
       {selectedSongDetail && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-100 text-center relative max-h-[90vh] flex flex-col">
@@ -649,7 +707,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* 📋 SOOP iframe 차단 대응 복사 모달 */}
       {copyModalText && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-5 w-full max-w-xs shadow-2xl border border-gray-100 text-center">
@@ -690,7 +747,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* 🔐 관리자 로그인 모달 */}
       {showLoginModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-100">
@@ -703,7 +759,7 @@ export default function Home() {
                 className="p-3 bg-gray-50 rounded-xl text-sm outline-none border border-gray-200 focus:border-indigo-600" 
                 placeholder="비밀번호" 
                 value={inputPassword} 
-                onChange={e => setInputPassword(e.target.value)} 
+                onChange={e => getInputPassword(e.target.value)} 
                 autoFocus
               />
               <div className="flex gap-2 mt-1">
