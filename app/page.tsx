@@ -349,11 +349,15 @@ export default function Home() {
       {/* 1. 메인 랜딩 화면 */}
       {!showList ? (
         <section className="min-h-screen flex flex-col items-center justify-center p-6 text-center max-w-4xl md:max-w-5xl mx-auto">
+          {/* 👑 메인 타이틀 로고 이미지 적용 */}
           <div className="mb-6 space-y-4 flex flex-col items-center">
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100 tracking-tight flex items-center justify-center gap-3 drop-shadow-md">
-              <span>🎧</span>
-              <span>고운이 LIVE LIST</span>
-            </h1>
+            <div className="max-w-[320px] sm:max-w-[450px] w-full px-2">
+              <img 
+                src="/main-title-logo.png" 
+                alt="고운이 LIVE LIST" 
+                className="w-full h-auto object-contain drop-shadow-[0_10px_20px_rgba(212,175,55,0.25)]"
+              />
+            </div>
 
             <div className="flex items-center justify-center gap-2.5 pt-1">
               <a
@@ -385,9 +389,10 @@ export default function Home() {
             <img src="/hero-mobile.png" alt="가수 고운 메인 (모바일)" className="block sm:hidden w-full h-auto object-cover transform group-hover:scale-[1.01] transition-transform duration-500" />
           </div>
 
+          {/* ✨ 톤앤매너 재조정된 [전체 노래 리스트 둘러보기] 버튼 */}
           <button
             onClick={() => setShowList(true)}
-            className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-zinc-950 font-black rounded-2xl shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-base md:text-xl flex items-center justify-center gap-2.5 cursor-pointer"
+            className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-[#D4AF37] via-[#F3E5AB] to-[#AA771C] hover:brightness-110 text-zinc-950 font-black rounded-2xl shadow-[0_10px_25px_rgba(212,175,55,0.3)] transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-base md:text-xl flex items-center justify-center gap-2.5 cursor-pointer border border-amber-200/50"
           >
             <span className="text-xl">🎵</span>
             <span>전체 노래 리스트 둘러보기</span>
@@ -397,85 +402,82 @@ export default function Home() {
 
         /* 2. 노래 리스트 화면 */
         <>
-          <div className="sticky top-0 z-40 bg-[#0F0F12]/95 backdrop-blur-md pt-3 pb-2 px-4 shadow-xl border-b border-zinc-800">
-            <div className="max-w-5xl mx-auto">
-              
-              {/* 👑 상단 다크 골드 타이틀 이미지 배너 (클릭 이동 없음) */}
-              <div className="w-full mb-3 rounded-2xl overflow-hidden shadow-2xl border border-amber-500/30 bg-zinc-900">
-                <img 
-                  src="/title-banner.png" 
-                  alt="치명적인 보이스 치명적인 매력 이고운" 
-                  className="w-full h-auto object-cover block"
-                />
-              </div>
+          {/* 📜 스크롤할 때 같이 위로 올라가는 일반 상단 영역 */}
+          <div className="pt-3 px-4 max-w-5xl mx-auto">
+            
+            {/* 👑 타이틀 이미지 배너 (png 적용) */}
+            <div className="w-full mb-3 rounded-2xl overflow-hidden shadow-2xl border border-amber-500/30 bg-zinc-900">
+              <img 
+                src="/title-banner.png" 
+                alt="치명적인 보이스 치명적인 매력 이고운" 
+                className="w-full h-auto object-cover block"
+              />
+            </div>
 
-              {/* 📌 메인 이동 버튼 & 관리자 설정 버튼 */}
-              <div className="flex justify-between items-center mb-2 px-0.5">
-                <button 
-                  onClick={() => {
-                    setSearchTerm('');          
-                    resetForm();
-                    setSelectedInitial('전체'); 
-                    setSelectedGenre('전체');
-                    setSpecialFilter('all');
-                    setShowList(false);
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-amber-400 font-extrabold text-xs md:text-sm rounded-xl transition-all active:scale-95 cursor-pointer shadow-md"
-                  title="처음 화면으로 이동"
-                >
-                  <span>←</span>
-                  <span>메인</span>
-                </button>
+            {/* 📌 메인 이동 버튼 & 관리자 설정 버튼 */}
+            <div className="flex justify-between items-center mb-3 px-0.5">
+              <button 
+                onClick={() => {
+                  setSearchTerm('');          
+                  resetForm();
+                  setSelectedInitial('전체'); 
+                  setSelectedGenre('전체');
+                  setSpecialFilter('all');
+                  setShowList(false);
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-amber-400 font-extrabold text-xs md:text-sm rounded-xl transition-all active:scale-95 cursor-pointer shadow-md"
+                title="처음 화면으로 이동"
+              >
+                <span>←</span>
+                <span>메인</span>
+              </button>
 
-                <div className="flex items-center gap-2">
-                  {isAdminMode && (
-                    <>
-                      <button onClick={changePassword} className="text-[10px] bg-zinc-800 text-amber-400 border border-zinc-700 px-2 py-1 rounded font-bold">비번 변경</button>
-                      <button onClick={resetNewTags} className="text-[10px] bg-rose-950 text-rose-300 border border-rose-800 px-2 py-1 rounded font-bold">NEW 초기화</button>
-                      <button onClick={downloadCSV} className="text-[10px] bg-zinc-800 text-zinc-300 border border-zinc-700 px-2 py-1 rounded font-bold">CSV</button>
-                    </>
-                  )}
-                  <button 
-                    onClick={handleAdminToggle} 
-                    className="p-1.5 text-zinc-400 hover:text-amber-400 transition-all text-base rounded-lg hover:bg-zinc-800"
-                    title="관리자 설정"
-                  >
-                    {isAdminMode ? '✕' : '⚙️'}
-                  </button>
-                </div>
-              </div>
-
-              {/* 🔍 검색창 */}
-              <div className="relative mb-2">
-                <input 
-                  className="w-full p-2.5 pl-10 pr-10 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-amber-500/60 text-zinc-100 placeholder-zinc-500 shadow-inner outline-none text-sm md:text-base transition-colors" 
-                  placeholder="찾고 싶은 노래나 가수를 입력하세요" 
-                  value={searchTerm} 
-                  onChange={e => {
-                    const val = e.target.value;
-                    setSearchTerm(val);
-                    if (val) {
-                      setSelectedInitial('전체');
-                      setSelectedGenre('전체');
-                      setSpecialFilter('all');
-                    }
-                  }} 
-                />
-                <span className="absolute left-3.5 top-2.5 text-base md:text-lg opacity-50">🔍</span>
-
-                {searchTerm && (
-                  <button 
-                    onClick={() => setSearchTerm('')} 
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 rounded-full flex items-center justify-center text-xs font-bold transition-all"
-                  >
-                    ✕
-                  </button>
+              <div className="flex items-center gap-2">
+                {isAdminMode && (
+                  <>
+                    <button onClick={changePassword} className="text-[10px] bg-zinc-800 text-amber-400 border border-zinc-700 px-2 py-1 rounded font-bold">비번 변경</button>
+                    <button onClick={resetNewTags} className="text-[10px] bg-rose-950 text-rose-300 border border-rose-800 px-2 py-1 rounded font-bold">NEW 초기화</button>
+                    <button onClick={downloadCSV} className="text-[10px] bg-zinc-800 text-zinc-300 border border-zinc-700 px-2 py-1 rounded font-bold">CSV</button>
+                  </>
                 )}
+                <button 
+                  onClick={handleAdminToggle} 
+                  className="p-1.5 text-zinc-400 hover:text-amber-400 transition-all text-base rounded-lg hover:bg-zinc-800"
+                  title="관리자 설정"
+                >
+                  {isAdminMode ? '✕' : '⚙️'}
+                </button>
               </div>
+            </div>
+
+            {/* 🔤 초성 필터 (스크롤 시 위로 사라짐) */}
+            <div className="bg-zinc-900/90 p-2 rounded-xl shadow-md border border-zinc-800 mb-2">
+              <div className="flex overflow-x-auto gap-1 no-scrollbar">
+                {initials.map(init => (
+                  <button 
+                    key={init} 
+                    onClick={() => handleInitialClick(init)} 
+                    className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs md:text-sm font-semibold cursor-pointer transition-colors ${
+                      specialFilter === 'all' && selectedInitial === init
+                        ? 'bg-amber-500 text-zinc-950 font-bold' 
+                        : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'
+                    }`}
+                  >
+                    {init}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 📌 [Sticky] NEW/TOP100 행 + 장르 필터 + 검색창 상단 고정 영역 */}
+          <div className="sticky top-0 z-40 bg-[#0F0F12]/95 backdrop-blur-md py-2 px-4 shadow-xl border-b border-zinc-800/80">
+            <div className="max-w-5xl mx-auto flex flex-col gap-2">
               
-              {/* 🎛️ 필터 영역 */}
+              {/* 특수 필터 & 장르 필터 */}
               <div className="flex flex-col gap-1.5 bg-zinc-900/90 p-2 rounded-xl shadow-md border border-zinc-800">
-                {/* 특수 필터 */}
+                
+                {/* 1) NEW / TOP100 / 랜덤 버튼 행 */}
                 <div className="flex items-center gap-1.5 pb-1 border-b border-zinc-800/80 overflow-x-auto no-scrollbar">
                   <button
                     onClick={() => setSpecialFilter(prev => prev === 'new' ? 'all' : 'new')}
@@ -511,25 +513,8 @@ export default function Home() {
                   </button>
                 </div>
 
-                {/* 초성 필터 */}
-                <div className="flex overflow-x-auto gap-1 no-scrollbar">
-                  {initials.map(init => (
-                    <button 
-                      key={init} 
-                      onClick={() => handleInitialClick(init)} 
-                      className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs md:text-sm font-semibold cursor-pointer transition-colors ${
-                        specialFilter === 'all' && selectedInitial === init
-                          ? 'bg-amber-500 text-zinc-950 font-bold' 
-                          : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'
-                      }`}
-                    >
-                      {init}
-                    </button>
-                  ))}
-                </div>
-
-                {/* 장르 필터 */}
-                <div className="flex overflow-x-auto gap-1.5 no-scrollbar border-t border-zinc-800/60 pt-1.5">
+                {/* 2) 장르 필터 */}
+                <div className="flex overflow-x-auto gap-1.5 no-scrollbar pt-0.5">
                   {genres.map(genre => (
                     <button 
                       key={genre} 
@@ -545,10 +530,40 @@ export default function Home() {
                   ))}
                 </div>
               </div>
+
+              {/* 3) 🔍 검색창 (장르 필터 하단 배치 & 최종 고정) */}
+              <div className="relative">
+                <input 
+                  className="w-full p-2.5 pl-10 pr-10 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-amber-500/60 text-zinc-100 placeholder-zinc-500 shadow-inner outline-none text-sm md:text-base transition-colors" 
+                  placeholder="찾고 싶은 노래나 가수를 입력하세요" 
+                  value={searchTerm} 
+                  onChange={e => {
+                    const val = e.target.value;
+                    setSearchTerm(val);
+                    if (val) {
+                      setSelectedInitial('전체');
+                      setSelectedGenre('전체');
+                      setSpecialFilter('all');
+                    }
+                  }} 
+                />
+                <span className="absolute left-3.5 top-2.5 text-base md:text-lg opacity-50">🔍</span>
+
+                {searchTerm && (
+                  <button 
+                    onClick={() => setSearchTerm('')} 
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 rounded-full flex items-center justify-center text-xs font-bold transition-all"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+
             </div>
           </div>
 
-          <div className="max-w-5xl mx-auto px-4 mt-6">
+          {/* 🎵 노래 카드 목록 */}
+          <div className="max-w-5xl mx-auto px-4 mt-4">
             {/* 🛠️ 관리자 모드 폼 */}
             {isAdminMode && (
               <div className="mb-6 bg-zinc-900 p-5 rounded-2xl shadow-xl border border-amber-500/30">
@@ -644,7 +659,6 @@ export default function Home() {
               </div>
             )}
 
-            {/* 🎵 노래 카드 목록 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
               {filtered.length === 0 ? (
                 <div className="col-span-full bg-zinc-900 p-10 rounded-2xl text-center text-zinc-500 font-bold border border-zinc-800">
