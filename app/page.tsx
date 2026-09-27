@@ -293,6 +293,7 @@ export default function Home() {
     const isSearchMatch = !cleanSearch || (s.artist + s.title).replace(/\s+/g, '').toLowerCase().includes(cleanSearch);
     return isSearchMatch;
   }).sort((a, b) => {
+    // 1. TOP 100 필터 시 라이브 횟수 우선 정렬
     if (specialFilter === 'top100') {
       const countA = a.history?.filter(h => h.url && h.url.trim() !== '').length || 0;
       const countB = b.history?.filter(h => h.url && h.url.trim() !== '').length || 0;
@@ -301,9 +302,17 @@ export default function Home() {
       }
     }
 
-    const artistCompare = a.artist.localeCompare(b.artist, 'ko');
+    // 2. 가수명 정렬 (앞뒤 공백 제거 및 한글/영문 통합 비교)
+    const artistA = a.artist.trim();
+    const artistB = b.artist.trim();
+    const artistCompare = artistA.localeCompare(artistB, 'ko', { sensitivity: 'base' });
+    
     if (artistCompare !== 0) return artistCompare;
-    return a.title.localeCompare(b.title, 'ko');
+
+    // 3. 같은 가수일 경우: 노래 제목 기준 ㄱ ㄴ ㄷ ㄹ(오름차순) 정렬
+    const titleA = a.title.trim();
+    const titleB = b.title.trim();
+    return titleA.localeCompare(titleB, 'ko', { sensitivity: 'base' });
   }).slice(0, specialFilter === 'top100' ? 100 : undefined);
 
   const handlePickRandomSong = () => {
