@@ -389,7 +389,6 @@ export default function Home() {
             <img src="/hero-mobile.png" alt="가수 고운 메인 (모바일)" className="block sm:hidden w-full h-auto object-cover transform group-hover:scale-[1.01] transition-transform duration-500" />
           </div>
 
-          {/* ✨ 톤앤매너 재조정된 [전체 노래 리스트 둘러보기] 버튼 */}
           <button
             onClick={() => setShowList(true)}
             className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-[#D4AF37] via-[#F3E5AB] to-[#AA771C] hover:brightness-110 text-zinc-950 font-black rounded-2xl shadow-[0_10px_25px_rgba(212,175,55,0.3)] transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-base md:text-xl flex items-center justify-center gap-2.5 cursor-pointer border border-amber-200/50"
@@ -402,10 +401,10 @@ export default function Home() {
 
         /* 2. 노래 리스트 화면 */
         <>
-          {/* 📜 스크롤할 때 같이 위로 올라가는 일반 상단 영역 */}
+          {/* 📜 스크롤할 때 같이 위로 올라가는 일반 상단 영역 (타이틀 배너 + 메인/관리자 버튼) */}
           <div className="pt-3 px-4 max-w-5xl mx-auto">
             
-            {/* 👑 타이틀 이미지 배너 (png 적용) */}
+            {/* 👑 타이틀 이미지 배너 */}
             <div className="w-full mb-3 rounded-2xl overflow-hidden shadow-2xl border border-amber-500/30 bg-zinc-900">
               <img 
                 src="/title-banner.png" 
@@ -449,35 +448,16 @@ export default function Home() {
                 </button>
               </div>
             </div>
-
-            {/* 🔤 초성 필터 (스크롤 시 위로 사라짐) */}
-            <div className="bg-zinc-900/90 p-2 rounded-xl shadow-md border border-zinc-800 mb-2">
-              <div className="flex overflow-x-auto gap-1 no-scrollbar">
-                {initials.map(init => (
-                  <button 
-                    key={init} 
-                    onClick={() => handleInitialClick(init)} 
-                    className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs md:text-sm font-semibold cursor-pointer transition-colors ${
-                      specialFilter === 'all' && selectedInitial === init
-                        ? 'bg-amber-500 text-zinc-950 font-bold' 
-                        : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'
-                    }`}
-                  >
-                    {init}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
 
-          {/* 📌 [Sticky] NEW/TOP100 행 + 장르 필터 + 검색창 상단 고정 영역 */}
+          {/* 📌 [Sticky] NEW/TOP100 행 ➔ 초성 필터 ➔ 장르 필터 ➔ 검색창 상단 고정 영역 */}
           <div className="sticky top-0 z-40 bg-[#0F0F12]/95 backdrop-blur-md py-2 px-4 shadow-xl border-b border-zinc-800/80">
             <div className="max-w-5xl mx-auto flex flex-col gap-2">
               
-              {/* 특수 필터 & 장르 필터 */}
-              <div className="flex flex-col gap-1.5 bg-zinc-900/90 p-2 rounded-xl shadow-md border border-zinc-800">
+              {/* 필터 컨트롤 박스 */}
+              <div className="flex flex-col gap-2 bg-zinc-900/90 p-2.5 rounded-xl shadow-md border border-zinc-800">
                 
-                {/* 1) NEW / TOP100 / 랜덤 버튼 행 */}
+                {/* 1️⃣ NEW / TOP100 / 랜덤 버튼 행 */}
                 <div className="flex items-center gap-1.5 pb-1 border-b border-zinc-800/80 overflow-x-auto no-scrollbar">
                   <button
                     onClick={() => setSpecialFilter(prev => prev === 'new' ? 'all' : 'new')}
@@ -513,7 +493,24 @@ export default function Home() {
                   </button>
                 </div>
 
-                {/* 2) 장르 필터 */}
+                {/* 2️⃣ 초성 필터 */}
+                <div className="flex overflow-x-auto gap-1 no-scrollbar border-b border-zinc-800/80 pb-1">
+                  {initials.map(init => (
+                    <button 
+                      key={init} 
+                      onClick={() => handleInitialClick(init)} 
+                      className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs md:text-sm font-semibold cursor-pointer transition-colors ${
+                        specialFilter === 'all' && selectedInitial === init
+                          ? 'bg-amber-500 text-zinc-950 font-bold' 
+                          : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'
+                      }`}
+                    >
+                      {init}
+                    </button>
+                  ))}
+                </div>
+
+                {/* 3️⃣ 장르 필터 */}
                 <div className="flex overflow-x-auto gap-1.5 no-scrollbar pt-0.5">
                   {genres.map(genre => (
                     <button 
@@ -531,7 +528,7 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 3) 🔍 검색창 (장르 필터 하단 배치 & 최종 고정) */}
+              {/* 4️⃣ 🔍 검색창 (최하단 고정) */}
               <div className="relative">
                 <input 
                   className="w-full p-2.5 pl-10 pr-10 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-amber-500/60 text-zinc-100 placeholder-zinc-500 shadow-inner outline-none text-sm md:text-base transition-colors" 
