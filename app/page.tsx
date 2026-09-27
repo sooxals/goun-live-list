@@ -490,7 +490,7 @@ export default function Home() {
                   </button>
                 </div>
 
-                {/* 2️⃣ 초성 필터 (반투명 스타일 적용) */}
+                {/* 2️⃣ 초성 필터 */}
                 <div className="flex overflow-x-auto gap-1 no-scrollbar border-b border-zinc-800/80 pb-1">
                   {initials.map(init => (
                     <button 
@@ -507,7 +507,7 @@ export default function Home() {
                   ))}
                 </div>
 
-                {/* 3️⃣ 장르 필터 (반투명 스타일 적용) */}
+                {/* 3️⃣ 장르 필터 */}
                 <div className="flex overflow-x-auto gap-1.5 no-scrollbar pt-0.5">
                   {genres.map(genre => (
                     <button 
@@ -753,7 +753,7 @@ export default function Home() {
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-6 right-6 w-12 h-12 bg-amber-500/30 border border-amber-500/60 text-amber-300 rounded-full shadow-2xl backdrop-blur-md flex items-center justify-center font-black text-xs z-50 animate-bounce cursor-pointer">TOP</button>
       )}
 
-      {/* 🎲 랜덤 노래 모달 (선택 및 뽑기 버튼 반투명 처리) */}
+      {/* 🎲 랜덤 노래 모달 (선택 및 버튼들을 반투명 회색톤으로 수정) */}
       {showRandomModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-zinc-900/90 rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-zinc-800 relative backdrop-blur-md">
@@ -772,13 +772,13 @@ export default function Home() {
             <div className="mb-4">
               <label className="block text-xs font-extrabold text-zinc-300 mb-1.5 ml-1">추첨 대상</label>
               <div className="grid grid-cols-3 gap-1.5 bg-zinc-950/70 p-1 rounded-xl border border-zinc-800">
-                {/* 🎵 전체 노래 선택 버튼 (반투명 적용) */}
+                {/* 🎵 전체 노래 버튼 (반투명 회색톤 적용) */}
                 <button
                   type="button"
                   onClick={() => setRandomTarget('all')}
                   className={`py-2 rounded-lg text-xs font-bold transition-all ${
                     randomTarget === 'all'
-                      ? 'bg-amber-500/20 border border-amber-500/50 text-amber-300 font-black shadow-sm backdrop-blur-md'
+                      ? 'bg-zinc-700/50 border border-zinc-500 text-zinc-100 font-black shadow-sm backdrop-blur-md'
                       : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
                   }`}
                 >
@@ -828,19 +828,19 @@ export default function Home() {
             </div>
 
             {pickedSong && (
-              <div className="bg-zinc-950/80 p-4 rounded-xl border border-amber-500/30 my-4 text-center">
-                <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/40 font-extrabold px-2 py-0.5 rounded-full uppercase">
+              <div className="bg-zinc-950/80 p-4 rounded-xl border border-zinc-700/80 my-4 text-center">
+                <span className="text-[10px] bg-zinc-800 text-zinc-300 border border-zinc-700 font-extrabold px-2 py-0.5 rounded-full uppercase">
                   {pickedSong.genre}
                 </span>
-                <h4 className="text-lg font-black text-amber-300 mt-2 tracking-tight">{pickedSong.title}</h4>
-                <p className="text-sm font-bold text-zinc-300 mt-0.5">{pickedSong.artist}</p>
+                <p className="text-sm font-extrabold text-zinc-100 mt-2">{pickedSong.artist}</p>
+                <h4 className="text-lg font-black text-zinc-300 mt-0.5 tracking-tight">{pickedSong.title}</h4>
               </div>
             )}
 
-            {/* 🎲 랜덤 노래 뽑기 버튼 (반투명 적용) */}
+            {/* 🎲 랜덤 노래 뽑기 / 다시 뽑기 버튼 (반투명 회색톤 적용) */}
             <button
               onClick={handlePickRandomSong}
-              className="w-full bg-amber-500/25 border border-amber-500/40 hover:bg-amber-500/35 text-amber-300 py-3 rounded-xl font-bold text-sm transition-all shadow-md active:scale-95 cursor-pointer mt-2 backdrop-blur-md"
+              className="w-full bg-zinc-800/80 border border-zinc-600 hover:bg-zinc-700/80 text-zinc-200 py-3 rounded-xl font-bold text-sm transition-all shadow-md active:scale-95 cursor-pointer mt-2 backdrop-blur-md"
             >
               {pickedSong ? '🔄 다시 뽑기' : '🎲 랜덤 노래 뽑기'}
             </button>
@@ -848,7 +848,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* 🎬 노래 상세 보기 모달 (히스토리 영상 보기 버튼 반투명 처리) */}
+      {/* 🎬 노래 상세 보기 모달 (순서: 가수명 윗줄, 노래제목 아래줄 & 화이트 톤 반영) */}
       {selectedSongDetail && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-zinc-900/90 rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-zinc-800 text-center relative max-h-[90vh] flex flex-col backdrop-blur-md">
@@ -859,12 +859,13 @@ export default function Home() {
               ✕
             </button>
 
+            {/* 🎤 모달 상단 정보: 윗줄(가수명), 아래줄(노래제목 화이트 톤) */}
             <div className="shrink-0 mb-3 pt-1">
               <span className="text-[11px] bg-zinc-800/80 text-amber-400 border border-zinc-700 font-bold px-2.5 py-1 rounded-full uppercase">
                 {selectedSongDetail.genre}
               </span>
-              <h3 className="text-xl font-black text-amber-200 mt-2 tracking-tight">{selectedSongDetail.title}</h3>
-              <p className="text-sm font-bold text-zinc-400">{selectedSongDetail.artist}</p>
+              <p className="text-sm font-extrabold text-zinc-100 mt-2.5">{selectedSongDetail.artist}</p>
+              <h3 className="text-xl font-black text-zinc-100 mt-0.5 tracking-tight">{selectedSongDetail.title}</h3>
             </div>
 
             <div className="flex-1 overflow-y-auto my-2 pr-1 space-y-2 no-scrollbar text-left">
@@ -886,7 +887,6 @@ export default function Home() {
                       </span>
                     </div>
 
-                    {/* 히스토리 내부 [영상 보기] 이동 버튼 (반투명 적용) */}
                     {item.url ? (
                       <a
                         href={item.url}
