@@ -403,7 +403,7 @@ export default function Home() {
               {/* 👑 상단 다크 골드 타이틀 이미지 배너 (클릭 이동 없음) */}
               <div className="w-full mb-3 rounded-2xl overflow-hidden shadow-2xl border border-amber-500/30 bg-zinc-900">
                 <img 
-                  src="/title-banner.jpg" 
+                  src="/title-banner.png" 
                   alt="치명적인 보이스 치명적인 매력 이고운" 
                   className="w-full h-auto object-cover block"
                 />
