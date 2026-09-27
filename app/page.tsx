@@ -349,7 +349,6 @@ export default function Home() {
       {/* 1. 메인 랜딩 화면 */}
       {!showList ? (
         <section className="min-h-screen flex flex-col items-center justify-center p-6 text-center max-w-4xl md:max-w-5xl mx-auto">
-          {/* 👑 메인 타이틀 로고 이미지 적용 */}
           <div className="mb-6 space-y-4 flex flex-col items-center">
             <div className="max-w-[320px] sm:max-w-[450px] w-full px-2">
               <img 
@@ -359,7 +358,6 @@ export default function Home() {
               />
             </div>
 
-            {/* 🔗 SOOP & YouTube 바로가기 버튼 */}
             <div className="flex items-center justify-center gap-2.5 pt-1">
               <a
                 href="https://www.sooplive.com/station/kjnw7643"
@@ -399,20 +397,11 @@ export default function Home() {
 
         /* 2. 노래 리스트 화면 */
         <>
-          {/* 스크롤할 때 같이 위로 올라가는 일반 상단 영역 */}
+          {/* 스크롤할 때 같이 위로 올라가는 상단 영역 */}
           <div className="pt-3 px-4 max-w-5xl mx-auto">
             
-            {/* 타이틀 이미지 배너 */}
-            <div className="w-full mb-3 rounded-2xl overflow-hidden shadow-2xl border border-zinc-800/80 bg-zinc-900">
-              <img 
-                src="/title-banner.png" 
-                alt="치명적인 보이스 치명적인 매력 이고운" 
-                className="w-full h-auto object-cover block"
-              />
-            </div>
-
-            {/* 메인 이동 버튼(회색톤 반영) & 관리자 설정 버튼 */}
-            <div className="flex justify-between items-center mb-3 px-0.5">
+            {/* 📍 [요청 반영] 메인 이동 버튼 & 관리자 설정 메뉴를 메인 배너 '상단'으로 이동 */}
+            <div className="flex justify-between items-center mb-2 px-0.5">
               <button 
                 onClick={() => {
                   setSearchTerm('');          
@@ -446,6 +435,16 @@ export default function Home() {
                 </button>
               </div>
             </div>
+
+            {/* 타이틀 이미지 배너 */}
+            <div className="w-full mb-3 rounded-2xl overflow-hidden shadow-2xl border border-zinc-800/80 bg-zinc-900">
+              <img 
+                src="/title-banner.png" 
+                alt="치명적인 보이스 치명적인 매력 이고운" 
+                className="w-full h-auto object-cover block"
+              />
+            </div>
+
           </div>
 
           {/* NEW/TOP100 행 ➔ 초성 필터 ➔ 장르 필터 ➔ 검색창 상단 고정 영역 */}
@@ -454,7 +453,7 @@ export default function Home() {
               
               <div className="flex flex-col gap-2 bg-zinc-900/90 p-2.5 rounded-xl shadow-md border border-zinc-800">
                 
-                {/* 1️⃣ NEW / TOP100 / 랜덤 버튼 행 (선택 시에만 반투명 주황/골드) */}
+                {/* 1️⃣ NEW / TOP100 / 랜덤 버튼 행 */}
                 <div className="flex items-center gap-1.5 pb-1 border-b border-zinc-800/80 overflow-x-auto no-scrollbar">
                   <button
                     onClick={() => setSpecialFilter(prev => prev === 'new' ? 'all' : 'new')}
@@ -490,7 +489,7 @@ export default function Home() {
                   </button>
                 </div>
 
-                {/* 2️⃣ 초성 필터 (디폴트 굵기 유지를 위해 font-semibold 적용) */}
+                {/* 2️⃣ 초성 필터 */}
                 <div className="flex overflow-x-auto gap-1 no-scrollbar border-b border-zinc-800/80 pb-1">
                   {initials.map(init => (
                     <button 
@@ -507,7 +506,7 @@ export default function Home() {
                   ))}
                 </div>
 
-                {/* 3️⃣ 장르 필터 (디폴트 굵기 유지를 위해 font-semibold 적용) */}
+                {/* 3️⃣ 장르 필터 */}
                 <div className="flex overflow-x-auto gap-1.5 no-scrollbar pt-0.5">
                   {genres.map(genre => (
                     <button 
@@ -525,10 +524,10 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 4️⃣ 🔍 검색창 */}
+              {/* 4️⃣ 🔍 검색창 (📍 [요청 반영] placeholder 색상 한 톤 밝게 text-zinc-400 조정) */}
               <div className="relative">
                 <input 
-                  className="w-full p-2.5 pl-10 pr-10 rounded-xl bg-zinc-900/90 border border-zinc-800 focus:border-zinc-600 text-zinc-100 placeholder-zinc-500 shadow-inner outline-none text-sm md:text-base transition-colors backdrop-blur-md" 
+                  className="w-full p-2.5 pl-10 pr-10 rounded-xl bg-zinc-900/90 border border-zinc-800 focus:border-zinc-600 text-zinc-100 placeholder-zinc-400 shadow-inner outline-none text-sm md:text-base transition-colors backdrop-blur-md" 
                   placeholder="찾고 싶은 노래나 가수를 입력하세요" 
                   value={searchTerm} 
                   onChange={e => {
@@ -541,7 +540,7 @@ export default function Home() {
                     }
                   }} 
                 />
-                <span className="absolute left-3.5 top-2.5 text-base md:text-lg opacity-50">🔍</span>
+                <span className="absolute left-3.5 top-2.5 text-base md:text-lg opacity-60">🔍</span>
 
                 {searchTerm && (
                   <button 
@@ -684,7 +683,7 @@ export default function Home() {
                             </span>
                           )}
 
-                          {/* 🎤 기본 화면 가수명: 얇아진 굵기 적용 (font-bold) */}
+                          {/* 🎤 기본 화면 가수명 */}
                           <h3 className="font-bold text-[16px] md:text-[18px] truncate text-[#F4F4F6] tracking-tight leading-tight transition-colors">
                             {song.artist}
                             {isNew(song.created_at) && (
@@ -704,8 +703,8 @@ export default function Home() {
                           )}
                         </div>
 
-                        {/* 🎵 기본 화면 노래제목: 기존 디폴트 굵기(font-semibold) 유지 */}
-                        <p className="text-zinc-400 font-semibold text-[14px] md:text-[16px] truncate ml-0.5 group-hover:text-zinc-200 transition-colors">
+                        {/* 🎵 [요청 반영] 기본 화면 노래제목: 기존 text-zinc-400에서 한 톤 밝은 text-zinc-300으로 조정 */}
+                        <p className="text-zinc-300 font-semibold text-[14px] md:text-[16px] truncate ml-0.5 group-hover:text-zinc-100 transition-colors">
                           {song.title}
                         </p>
                       </div>
@@ -756,7 +755,7 @@ export default function Home() {
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-6 right-6 w-12 h-12 bg-zinc-800/80 border border-zinc-600 text-zinc-200 rounded-full shadow-2xl backdrop-blur-md flex items-center justify-center font-bold text-xs z-50 animate-bounce cursor-pointer">TOP</button>
       )}
 
-      {/* 🎲 랜덤 노래 모달 (전반적으로 슬림해진 폰트 굵기 적용) */}
+      {/* 🎲 랜덤 노래 모달 */}
       {showRandomModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-zinc-900/90 rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-zinc-800 relative backdrop-blur-md">
@@ -849,7 +848,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* 🎬 노래 상세 보기 모달 (히스토리 창: 가수명 회색, 제목 회색톤/슬림, 장르&영상보기 회색톤) */}
+      {/* 🎬 노래 상세 보기 모달 */}
       {selectedSongDetail && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-zinc-900/90 rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-zinc-800 text-center relative max-h-[90vh] flex flex-col backdrop-blur-md">
@@ -860,7 +859,6 @@ export default function Home() {
               ✕
             </button>
 
-            {/* 🎤 모달 상단 정보: 윗줄(가수명-회색톤), 아래줄(노래제목-회색톤&슬림한 굵기) */}
             <div className="shrink-0 mb-3 pt-1">
               <span className="text-[11px] bg-zinc-800/80 text-zinc-300 border border-zinc-700 font-bold px-2.5 py-1 rounded-full uppercase">
                 {selectedSongDetail.genre}
@@ -957,7 +955,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* 🔐 관리자 로그인 모달 (회색톤 반영) */}
+      {/* 🔐 관리자 로그인 모달 */}
       {showLoginModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-zinc-900/90 rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-zinc-800 backdrop-blur-md">
