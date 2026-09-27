@@ -52,7 +52,7 @@ export default function Home() {
   // 🎵 곡 상세 보기 모달 State
   const [selectedSongDetail, setSelectedSongDetail] = useState<Song | null>(null);
 
-  // 🎲 랜덤 노래 모달 State (대상 범위 & 장르 선택)
+  // 🎲 랜덤 노래 모달 State
   const [showRandomModal, setShowRandomModal] = useState(false);
   const [randomTarget, setRandomTarget] = useState<'all' | 'new' | 'top100'>('all');
   const [randomGenre, setRandomGenre] = useState('전체');
@@ -61,7 +61,6 @@ export default function Home() {
   const genres = ['전체', '가요', '트로트', 'POP', 'J-POP', '뮤지컬'];
   const initials = ['전체', '0-9', 'A-Z', 'ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
 
-  // 💡 초성/장르 클릭 시 특수 필터를 해제하고 검색하는 핸들러
   const handleInitialClick = (init: string) => {
     setSpecialFilter('all');
     setSelectedInitial(init);
@@ -293,7 +292,6 @@ export default function Home() {
     const isSearchMatch = !cleanSearch || (s.artist + s.title).replace(/\s+/g, '').toLowerCase().includes(cleanSearch);
     return isSearchMatch;
   }).sort((a, b) => {
-    // 1. TOP 100 필터 시 라이브 횟수 우선 정렬
     if (specialFilter === 'top100') {
       const countA = a.history?.filter(h => h.url && h.url.trim() !== '').length || 0;
       const countB = b.history?.filter(h => h.url && h.url.trim() !== '').length || 0;
@@ -302,14 +300,12 @@ export default function Home() {
       }
     }
 
-    // 2. 가수명 정렬 (앞뒤 공백 제거 및 한글/영문 통합 비교)
     const artistA = a.artist.trim();
     const artistB = b.artist.trim();
     const artistCompare = artistA.localeCompare(artistB, 'ko', { sensitivity: 'base' });
     
     if (artistCompare !== 0) return artistCompare;
 
-    // 3. 같은 가수일 경우: 노래 제목 기준 ㄱ ㄴ ㄷ ㄹ(오름차순) 정렬
     const titleA = a.title.trim();
     const titleB = b.title.trim();
     return titleA.localeCompare(titleB, 'ko', { sensitivity: 'base' });
@@ -345,16 +341,16 @@ export default function Home() {
     setPickedSong(pool[randomIndex]);
   };
 
-  if (loading) return <div className="p-10 text-center text-gray-400 font-sans">목록을 불러오는 중...</div>;
+  if (loading) return <div className="p-10 text-center text-amber-500 font-sans bg-[#0F0F12] min-h-screen flex items-center justify-center">목록을 불러오는 중...</div>;
 
   return (
-    <main className="min-h-screen bg-[#F8F9FD] text-[#1D1D1F] pb-10 font-sans relative">
+    <main className="min-h-screen bg-[#0F0F12] text-[#F3F4F6] pb-10 font-sans relative">
       
       {/* 1. 메인 랜딩 화면 */}
       {!showList ? (
         <section className="min-h-screen flex flex-col items-center justify-center p-6 text-center max-w-4xl md:max-w-5xl mx-auto">
           <div className="mb-6 space-y-4 flex flex-col items-center">
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-gray-900 tracking-tight flex items-center justify-center gap-3">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100 tracking-tight flex items-center justify-center gap-3 drop-shadow-md">
               <span>🎧</span>
               <span>고운이 LIVE LIST</span>
             </h1>
@@ -364,34 +360,34 @@ export default function Home() {
                 href="https://www.sooplive.com/station/kjnw7643"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-sm"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 border border-amber-500/30 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-lg"
               >
                 <img src="/soop-icon.png" alt="SOOP" className="h-5 w-auto object-contain shrink-0" />
-                <span className="text-gray-900 font-bold text-sm sm:text-base">SOOP</span>
+                <span className="text-zinc-100 font-bold text-sm sm:text-base">SOOP</span>
               </a>
 
               <a
                 href="https://www.youtube.com/@Singer_LGU"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-sm"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 border border-amber-500/30 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-lg"
               >
                 <svg className="w-5 h-5 fill-[#FF0000] shrink-0" viewBox="0 0 24 24">
                   <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                 </svg>
-                <span className="text-gray-900 font-bold text-sm sm:text-base">YouTube</span>
+                <span className="text-zinc-100 font-bold text-sm sm:text-base">YouTube</span>
               </a>
             </div>
           </div>
 
-          <div className="w-full relative rounded-3xl overflow-hidden shadow-2xl border border-gray-100 mb-8 bg-white group">
+          <div className="w-full relative rounded-3xl overflow-hidden shadow-2xl border border-amber-500/20 mb-8 bg-zinc-900 group">
             <img src="/hero-pc.png" alt="가수 고운 메인 (PC)" className="hidden sm:block w-full h-auto max-h-[550px] object-cover transform group-hover:scale-[1.01] transition-transform duration-500" />
             <img src="/hero-mobile.png" alt="가수 고운 메인 (모바일)" className="block sm:hidden w-full h-auto object-cover transform group-hover:scale-[1.01] transition-transform duration-500" />
           </div>
 
           <button
             onClick={() => setShowList(true)}
-            className="w-full sm:w-auto px-10 py-4 bg-slate-800 hover:bg-slate-900 text-white font-extrabold rounded-2xl shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-base md:text-xl flex items-center justify-center gap-2.5 cursor-pointer"
+            className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-zinc-950 font-black rounded-2xl shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-base md:text-xl flex items-center justify-center gap-2.5 cursor-pointer"
           >
             <span className="text-xl">🎵</span>
             <span>전체 노래 리스트 둘러보기</span>
@@ -401,10 +397,21 @@ export default function Home() {
 
         /* 2. 노래 리스트 화면 */
         <>
-          <div className="sticky top-0 z-40 bg-[#F8F9FD]/95 backdrop-blur-md pt-5 pb-2 px-4 shadow-sm border-b border-gray-100">
+          <div className="sticky top-0 z-40 bg-[#0F0F12]/95 backdrop-blur-md pt-3 pb-2 px-4 shadow-xl border-b border-zinc-800">
             <div className="max-w-5xl mx-auto">
-              <header className="flex justify-between items-center mb-4">
-                <div 
+              
+              {/* 👑 상단 다크 골드 타이틀 이미지 배너 (클릭 이동 없음) */}
+              <div className="w-full mb-3 rounded-2xl overflow-hidden shadow-2xl border border-amber-500/30 bg-zinc-900">
+                <img 
+                  src="/title-banner.jpg" 
+                  alt="치명적인 보이스 치명적인 매력 이고운" 
+                  className="w-full h-auto object-cover block"
+                />
+              </div>
+
+              {/* 📌 메인 이동 버튼 & 관리자 설정 버튼 */}
+              <div className="flex justify-between items-center mb-2 px-0.5">
+                <button 
                   onClick={() => {
                     setSearchTerm('');          
                     resetForm();
@@ -413,40 +420,40 @@ export default function Home() {
                     setSpecialFilter('all');
                     setShowList(false);
                   }}
-                  className="cursor-pointer select-none group flex items-center gap-2"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-amber-400 font-extrabold text-xs md:text-sm rounded-xl transition-all active:scale-95 cursor-pointer shadow-md"
                   title="처음 화면으로 이동"
                 >
-                  <span className="text-sm font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg group-hover:bg-slate-200 transition-colors">
-                    ← 메인
-                  </span>
-                  <h1 className="text-xl md:text-3xl font-black text-gray-900 tracking-tight group-hover:opacity-80 transition-opacity whitespace-nowrap">
-                    🎧 고운이 LIVE LIST
-                  </h1>
-                </div>
+                  <span>←</span>
+                  <span>메인</span>
+                </button>
 
                 <div className="flex items-center gap-2">
                   {isAdminMode && (
                     <>
-                      <button onClick={changePassword} className="text-[10px] bg-slate-100 text-slate-700 px-2 py-1 rounded font-bold">비번 변경</button>
-                      <button onClick={resetNewTags} className="text-[10px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold">NEW 초기화</button>
-                      <button onClick={downloadCSV} className="text-[10px] bg-gray-200 px-2 py-1 rounded font-bold">CSV</button>
+                      <button onClick={changePassword} className="text-[10px] bg-zinc-800 text-amber-400 border border-zinc-700 px-2 py-1 rounded font-bold">비번 변경</button>
+                      <button onClick={resetNewTags} className="text-[10px] bg-rose-950 text-rose-300 border border-rose-800 px-2 py-1 rounded font-bold">NEW 초기화</button>
+                      <button onClick={downloadCSV} className="text-[10px] bg-zinc-800 text-zinc-300 border border-zinc-700 px-2 py-1 rounded font-bold">CSV</button>
                     </>
                   )}
-                  <button onClick={handleAdminToggle} className="text-gray-300 hover:text-slate-600 transition-all text-base">
+                  <button 
+                    onClick={handleAdminToggle} 
+                    className="p-1.5 text-zinc-400 hover:text-amber-400 transition-all text-base rounded-lg hover:bg-zinc-800"
+                    title="관리자 설정"
+                  >
                     {isAdminMode ? '✕' : '⚙️'}
                   </button>
                 </div>
-              </header>
+              </div>
 
+              {/* 🔍 검색창 */}
               <div className="relative mb-2">
                 <input 
-                  className="w-full p-2.5 pl-10 pr-10 rounded-xl border-none shadow-md outline-none text-sm md:text-base" 
+                  className="w-full p-2.5 pl-10 pr-10 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-amber-500/60 text-zinc-100 placeholder-zinc-500 shadow-inner outline-none text-sm md:text-base transition-colors" 
                   placeholder="찾고 싶은 노래나 가수를 입력하세요" 
                   value={searchTerm} 
                   onChange={e => {
                     const val = e.target.value;
                     setSearchTerm(val);
-                    // 💡 검색어를 입력할 때 기존 적용된 모든 필터 해제
                     if (val) {
                       setSelectedInitial('전체');
                       setSelectedGenre('전체');
@@ -454,27 +461,28 @@ export default function Home() {
                     }
                   }} 
                 />
-                <span className="absolute left-4 top-2.5 text-base md:text-lg opacity-30">🔍</span>
+                <span className="absolute left-3.5 top-2.5 text-base md:text-lg opacity-50">🔍</span>
 
                 {searchTerm && (
                   <button 
                     onClick={() => setSearchTerm('')} 
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-xs font-bold transition-all"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 rounded-full flex items-center justify-center text-xs font-bold transition-all"
                   >
                     ✕
                   </button>
                 )}
               </div>
               
-              <div className="flex flex-col gap-1.5 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
-                {/* 🌟 상단 특수 필터 */}
-                <div className="flex items-center gap-1.5 pb-1 border-b border-gray-100 overflow-x-auto no-scrollbar">
+              {/* 🎛️ 필터 영역 */}
+              <div className="flex flex-col gap-1.5 bg-zinc-900/90 p-2 rounded-xl shadow-md border border-zinc-800">
+                {/* 특수 필터 */}
+                <div className="flex items-center gap-1.5 pb-1 border-b border-zinc-800/80 overflow-x-auto no-scrollbar">
                   <button
                     onClick={() => setSpecialFilter(prev => prev === 'new' ? 'all' : 'new')}
                     className={`px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
                       specialFilter === 'new'
-                        ? 'bg-rose-400 text-white shadow-sm'
-                        : 'bg-rose-50 text-rose-600 hover:bg-rose-100'
+                        ? 'bg-rose-500 text-white shadow-md'
+                        : 'bg-rose-950/40 border border-rose-900/50 text-rose-400 hover:bg-rose-900/30'
                     }`}
                   >
                     <span>✨ NEW</span>
@@ -483,8 +491,8 @@ export default function Home() {
                     onClick={() => setSpecialFilter(prev => prev === 'top100' ? 'all' : 'top100')}
                     className={`px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
                       specialFilter === 'top100'
-                        ? 'bg-amber-400 text-white shadow-sm'
-                        : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                        ? 'bg-amber-500 text-zinc-950 font-black shadow-md'
+                        : 'bg-amber-950/40 border border-amber-800/50 text-amber-400 hover:bg-amber-900/30'
                     }`}
                   >
                     <span>🔥 TOP 100</span>
@@ -497,7 +505,7 @@ export default function Home() {
                       setPickedSong(null);
                       setShowRandomModal(true);
                     }}
-                    className="px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1 cursor-pointer shrink-0 active:scale-95"
+                    className="px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 transition-all flex items-center gap-1 cursor-pointer shrink-0 active:scale-95"
                   >
                     <span>🎲 랜덤 노래</span>
                   </button>
@@ -509,10 +517,10 @@ export default function Home() {
                     <button 
                       key={init} 
                       onClick={() => handleInitialClick(init)} 
-                      className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs md:text-sm font-semibold cursor-pointer ${
+                      className={`flex-shrink-0 px-2.5 py-1 rounded-md text-xs md:text-sm font-semibold cursor-pointer transition-colors ${
                         specialFilter === 'all' && selectedInitial === init
-                          ? 'bg-slate-700 text-white' 
-                          : 'text-gray-400 hover:bg-gray-100'
+                          ? 'bg-amber-500 text-zinc-950 font-bold' 
+                          : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'
                       }`}
                     >
                       {init}
@@ -521,15 +529,15 @@ export default function Home() {
                 </div>
 
                 {/* 장르 필터 */}
-                <div className="flex overflow-x-auto gap-1.5 no-scrollbar border-t border-gray-50 pt-1.5">
+                <div className="flex overflow-x-auto gap-1.5 no-scrollbar border-t border-zinc-800/60 pt-1.5">
                   {genres.map(genre => (
                     <button 
                       key={genre} 
                       onClick={() => handleGenreClick(genre)} 
-                      className={`flex-shrink-0 px-3 py-1 rounded-md text-xs md:text-sm font-bold cursor-pointer ${
+                      className={`flex-shrink-0 px-3 py-1 rounded-md text-xs md:text-sm font-bold cursor-pointer transition-colors ${
                         specialFilter === 'all' && selectedGenre === genre 
-                          ? 'bg-slate-700 text-white' 
-                          : 'text-gray-400 hover:bg-gray-100'
+                          ? 'bg-amber-500 text-zinc-950' 
+                          : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'
                       }`}
                     >
                       {genre}
@@ -541,15 +549,15 @@ export default function Home() {
           </div>
 
           <div className="max-w-5xl mx-auto px-4 mt-6">
-            {/* 🛠️ 관리자 모드 등록/수정 폼 */}
+            {/* 🛠️ 관리자 모드 폼 */}
             {isAdminMode && (
-              <div className="mb-6 bg-white p-5 rounded-2xl shadow-lg border border-slate-100">
+              <div className="mb-6 bg-zinc-900 p-5 rounded-2xl shadow-xl border border-amber-500/30">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-bold text-gray-800 text-sm">
+                  <h3 className="font-bold text-amber-400 text-sm">
                     {editingSong ? '✏️ 곡 정보 수정 중' : '➕ 새 노래 추가하기'}
                   </h3>
                   {editingSong && (
-                    <button onClick={resetForm} className="text-xs text-red-500 font-bold hover:underline">
+                    <button onClick={resetForm} className="text-xs text-rose-400 font-bold hover:underline">
                       수정 취소
                     </button>
                   )}
@@ -557,27 +565,27 @@ export default function Home() {
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    <input className="p-3 bg-gray-50 rounded-xl text-sm outline-none border border-gray-100 focus:border-slate-500" placeholder="가수명" value={formArtist} onChange={e=>setFormArtist(e.target.value)} />
-                    <input className="p-3 bg-gray-50 rounded-xl text-sm outline-none border border-gray-100 focus:border-slate-500" placeholder="노래제목" value={formTitle} onChange={e=>setFormTitle(e.target.value)} />
-                    <select className="p-3 bg-gray-50 rounded-xl text-sm outline-none border border-gray-100" value={formGenre} onChange={e=>setFormGenre(e.target.value)}>
+                    <input className="p-3 bg-zinc-800 rounded-xl text-sm outline-none border border-zinc-700 text-zinc-100 focus:border-amber-500" placeholder="가수명" value={formArtist} onChange={e=>setFormArtist(e.target.value)} />
+                    <input className="p-3 bg-zinc-800 rounded-xl text-sm outline-none border border-zinc-700 text-zinc-100 focus:border-amber-500" placeholder="노래제목" value={formTitle} onChange={e=>setFormTitle(e.target.value)} />
+                    <select className="p-3 bg-zinc-800 rounded-xl text-sm outline-none border border-zinc-700 text-zinc-100" value={formGenre} onChange={e=>setFormGenre(e.target.value)}>
                       {genres.slice(1).map(g => <option key={g} value={g}>{g}</option>)}
                     </select>
                   </div>
 
-                  <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100 mt-1">
+                  <div className="bg-zinc-950 p-3.5 rounded-xl border border-zinc-800 mt-1">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold text-slate-800">📺 방송 라이브 날짜 & 영상 링크</span>
+                      <span className="text-xs font-bold text-zinc-300">📺 방송 라이브 날짜 & 영상 링크</span>
                       <button 
                         type="button" 
                         onClick={handleAddHistoryRow}
-                        className="text-xs bg-slate-700 text-white font-bold px-2.5 py-1 rounded-lg hover:bg-slate-800 transition-colors"
+                        className="text-xs bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold px-2.5 py-1 rounded-lg transition-colors"
                       >
                         + 날짜 추가
                       </button>
                     </div>
 
                     {formHistory.length === 0 ? (
-                      <p className="text-xs text-gray-400 text-center py-2">등록된 라이브 영상 링크가 없습니다. [+ 날짜 추가]를 눌러보세요.</p>
+                      <p className="text-xs text-zinc-500 text-center py-2">등록된 라이브 영상 링크가 없습니다.</p>
                     ) : (
                       <div className="flex flex-col gap-2">
                         {formHistory.map((item, idx) => (
@@ -587,14 +595,14 @@ export default function Home() {
                               placeholder="예: 2026-06-15" 
                               value={item.date} 
                               onChange={e => handleHistoryChange(idx, 'date', e.target.value)}
-                              className="w-1/3 p-2 bg-white rounded-lg text-xs border border-gray-200 outline-none"
+                              className="w-1/3 p-2 bg-zinc-900 text-zinc-100 rounded-lg text-xs border border-zinc-700 outline-none"
                             />
                             <input 
                               type="text" 
-                              placeholder="영상/다시보기 URL (https://...)" 
+                              placeholder="영상 URL" 
                               value={item.url} 
                               onChange={e => handleHistoryChange(idx, 'url', e.target.value)}
-                              className="flex-1 p-2 bg-white rounded-lg text-xs border border-gray-200 outline-none"
+                              className="flex-1 p-2 bg-zinc-900 text-zinc-100 rounded-lg text-xs border border-zinc-700 outline-none"
                             />
                             
                             <div className="flex flex-col shrink-0">
@@ -602,8 +610,7 @@ export default function Home() {
                                 type="button" 
                                 onClick={() => handleMoveHistoryRow(idx, 'up')}
                                 disabled={idx === 0}
-                                className={`text-[10px] px-1.5 py-0.5 rounded bg-white border border-gray-200 font-bold ${idx === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-100 text-gray-700'}`}
-                                title="위로"
+                                className={`text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-bold ${idx === 0 ? 'opacity-30' : 'hover:bg-zinc-700'}`}
                               >
                                 ▲
                               </button>
@@ -611,8 +618,7 @@ export default function Home() {
                                 type="button" 
                                 onClick={() => handleMoveHistoryRow(idx, 'down')}
                                 disabled={idx === formHistory.length - 1}
-                                className={`text-[10px] px-1.5 py-0.5 rounded bg-white border border-gray-200 font-bold mt-0.5 ${idx === formHistory.length - 1 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-100 text-gray-700'}`}
-                                title="아래로"
+                                className={`text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-bold mt-0.5 ${idx === formHistory.length - 1 ? 'opacity-30' : 'hover:bg-zinc-700'}`}
                               >
                                 ▼
                               </button>
@@ -621,8 +627,7 @@ export default function Home() {
                             <button 
                               type="button" 
                               onClick={() => handleRemoveHistoryRow(idx)} 
-                              className="text-xs text-red-500 font-bold px-2 py-2 bg-red-50 rounded-lg hover:bg-red-100 shrink-0"
-                              title="삭제"
+                              className="text-xs text-rose-400 font-bold px-2 py-2 bg-rose-950/50 rounded-lg hover:bg-rose-900/50 shrink-0"
                             >
                               ✕
                             </button>
@@ -632,17 +637,17 @@ export default function Home() {
                     )}
                   </div>
 
-                  <button className="bg-slate-700 hover:bg-slate-800 text-white p-3 rounded-xl font-bold text-sm transition-colors mt-1">
+                  <button className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-zinc-950 p-3 rounded-xl font-bold text-sm transition-colors mt-1 cursor-pointer">
                     {editingSong ? '수정 완료하기' : '곡 저장하기'}
                   </button>
                 </form>
               </div>
             )}
 
-            {/* 노래 카드 목록 */}
+            {/* 🎵 노래 카드 목록 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
               {filtered.length === 0 ? (
-                <div className="col-span-full bg-white p-10 rounded-2xl text-center text-gray-400 font-bold">
+                <div className="col-span-full bg-zinc-900 p-10 rounded-2xl text-center text-zinc-500 font-bold border border-zinc-800">
                   조건에 맞는 곡이 없습니다.
                 </div>
               ) : (
@@ -652,39 +657,39 @@ export default function Home() {
                   return (
                     <div 
                       key={song.id} 
-                      className="bg-white px-4 py-3 rounded-xl shadow-sm flex items-center justify-between border border-transparent hover:border-slate-200 transition-all gap-2"
+                      className="bg-zinc-900/90 px-4 py-3 rounded-xl shadow-md flex items-center justify-between border border-zinc-800/80 hover:border-amber-500/40 transition-all gap-2 group"
                     >
                       <div 
                         onClick={() => setSelectedSongDetail(song)}
-                        className="overflow-hidden flex-1 min-w-0 pr-1 cursor-pointer group"
+                        className="overflow-hidden flex-1 min-w-0 pr-1 cursor-pointer"
                       >
                         <div className="flex items-center gap-2 mb-0.5">
                           {specialFilter === 'top100' && (
-                            <span className="px-1.5 py-0.5 bg-amber-400 text-white text-[10px] font-black rounded shrink-0">
+                            <span className="px-1.5 py-0.5 bg-amber-500 text-zinc-950 text-[10px] font-black rounded shrink-0">
                               {index + 1}위
                             </span>
                           )}
 
                           {isNew(song.created_at) && (
-                            <span className="px-1.5 py-0.5 bg-rose-400 text-white text-[10px] font-black rounded shrink-0 animate-pulse">
+                            <span className="px-1.5 py-0.5 bg-rose-500 text-white text-[10px] font-black rounded shrink-0 animate-pulse">
                               NEW
                             </span>
                           )}
 
-                          <h3 className="font-extrabold text-[16px] md:text-[18px] truncate text-gray-950 tracking-tight leading-tight group-hover:text-slate-600 transition-colors">
+                          <h3 className="font-extrabold text-[16px] md:text-[18px] truncate text-amber-100 tracking-tight leading-tight group-hover:text-amber-400 transition-colors">
                             {song.artist}
                           </h3>
-                          <span className="text-[11px] bg-gray-50 px-1.5 py-0.5 rounded text-gray-400 font-bold uppercase shrink-0">
+                          <span className="text-[11px] bg-zinc-800 border border-zinc-700/60 px-1.5 py-0.5 rounded text-zinc-400 font-bold uppercase shrink-0">
                             {song.genre}
                           </span>
 
                           {validHistoryCount > 0 && (
-                            <span className="text-[10px] bg-slate-100 text-slate-700 font-bold px-1.5 py-0.5 rounded shrink-0 flex items-center gap-0.5">
+                            <span className="text-[10px] bg-zinc-800 border border-amber-500/20 text-amber-300 font-bold px-1.5 py-0.5 rounded shrink-0 flex items-center gap-0.5">
                               🎬 {validHistoryCount}
                             </span>
                           )}
                         </div>
-                        <p className="text-gray-600 font-semibold text-[14px] md:text-[16px] truncate ml-0.5 group-hover:text-slate-900 transition-colors">
+                        <p className="text-zinc-400 font-semibold text-[14px] md:text-[16px] truncate ml-0.5 group-hover:text-zinc-200 transition-colors">
                           {song.title}
                         </p>
                       </div>
@@ -694,8 +699,8 @@ export default function Home() {
                           onClick={() => handleCopySong(song)}
                           className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
                             copiedId === song.id
-                              ? 'bg-slate-700 text-white shadow-sm scale-95'
-                              : 'bg-slate-100 hover:bg-slate-200 text-slate-700 active:scale-95'
+                              ? 'bg-amber-500 text-zinc-950 shadow-sm scale-95'
+                              : 'bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 text-zinc-200 active:scale-95'
                           }`}
                         >
                           {copiedId === song.id ? (
@@ -716,9 +721,9 @@ export default function Home() {
                         </button>
 
                         {isAdminMode && (
-                          <div className="flex gap-1 pl-1 border-l border-gray-100">
-                            <button onClick={() => handleStartEdit(song)} className="p-1.5 text-gray-400 hover:text-gray-600 bg-gray-50 rounded-lg text-xs">✏️</button>
-                            <button onClick={async () => { if (confirm('삭제할까요?')) { await deleteSongServer(song.id); await fetchSongs(); router.refresh(); } }} className="p-1.5 text-red-400 hover:text-red-600 bg-red-50 rounded-lg text-xs">🗑️</button>
+                          <div className="flex gap-1 pl-1 border-l border-zinc-800">
+                            <button onClick={() => handleStartEdit(song)} className="p-1.5 text-zinc-400 hover:text-zinc-200 bg-zinc-800 rounded-lg text-xs">✏️</button>
+                            <button onClick={async () => { if (confirm('삭제할까요?')) { await deleteSongServer(song.id); await fetchSongs(); router.refresh(); } }} className="p-1.5 text-rose-400 hover:text-rose-300 bg-rose-950/40 rounded-lg text-xs">🗑️</button>
                           </div>
                         )}
                       </div>
@@ -732,35 +737,35 @@ export default function Home() {
       )}
 
       {showList && showTopBtn && (
-        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-6 right-6 w-12 h-12 bg-slate-700 text-white rounded-full shadow-2xl flex items-center justify-center font-black text-xs z-50 animate-bounce">TOP</button>
+        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-6 right-6 w-12 h-12 bg-amber-500 text-zinc-950 rounded-full shadow-2xl flex items-center justify-center font-black text-xs z-50 animate-bounce cursor-pointer">TOP</button>
       )}
 
-      {/* 🎲 랜덤 노래 뽑기 모달 */}
+      {/* 🎲 랜덤 노래 모달 */}
       {showRandomModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-100 relative">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+          <div className="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-zinc-800 relative">
             <button 
               onClick={() => setShowRandomModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-sm w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center"
+              className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-200 font-bold text-sm w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center"
             >
               ✕
             </button>
 
-            <h3 className="text-lg font-black text-gray-900 mb-4 text-center flex items-center justify-center gap-1.5">
+            <h3 className="text-lg font-black text-amber-400 mb-4 text-center flex items-center justify-center gap-1.5">
               <span>🎲</span>
               <span>랜덤 노래 추천</span>
             </h3>
 
             <div className="mb-4">
-              <label className="block text-xs font-extrabold text-gray-700 mb-1.5 ml-1">추첨 대상</label>
-              <div className="grid grid-cols-3 gap-1.5 bg-gray-50 p-1 rounded-xl border border-gray-100">
+              <label className="block text-xs font-extrabold text-zinc-300 mb-1.5 ml-1">추첨 대상</label>
+              <div className="grid grid-cols-3 gap-1.5 bg-zinc-950 p-1 rounded-xl border border-zinc-800">
                 <button
                   type="button"
                   onClick={() => setRandomTarget('all')}
                   className={`py-2 rounded-lg text-xs font-bold transition-all ${
                     randomTarget === 'all'
-                      ? 'bg-slate-700 text-white shadow-sm'
-                      : 'text-gray-500 hover:text-gray-900'
+                      ? 'bg-amber-500 text-zinc-950 shadow-sm'
+                      : 'text-zinc-400 hover:text-zinc-200'
                   }`}
                 >
                   🎵 전체 노래
@@ -770,8 +775,8 @@ export default function Home() {
                   onClick={() => setRandomTarget('new')}
                   className={`py-2 rounded-lg text-xs font-bold transition-all ${
                     randomTarget === 'new'
-                      ? 'bg-rose-100 text-rose-700 font-black shadow-sm'
-                      : 'text-gray-500 hover:text-gray-900'
+                      ? 'bg-rose-950/80 text-rose-300 border border-rose-800 font-black shadow-sm'
+                      : 'text-zinc-400 hover:text-zinc-200'
                   }`}
                 >
                   ✨ NEW
@@ -781,8 +786,8 @@ export default function Home() {
                   onClick={() => setRandomTarget('top100')}
                   className={`py-2 rounded-lg text-xs font-bold transition-all ${
                     randomTarget === 'top100'
-                      ? 'bg-amber-100 text-amber-800 font-black shadow-sm'
-                      : 'text-gray-500 hover:text-gray-900'
+                      ? 'bg-amber-950/80 text-amber-300 border border-amber-800 font-black shadow-sm'
+                      : 'text-zinc-400 hover:text-zinc-200'
                   }`}
                 >
                   🔥 TOP 100
@@ -791,36 +796,36 @@ export default function Home() {
             </div>
 
             <div className="mb-4">
-              <label className="block text-xs font-extrabold text-gray-700 mb-1.5 ml-1">장르</label>
+              <label className="block text-xs font-extrabold text-zinc-300 mb-1.5 ml-1">장르</label>
               <div className="relative">
                 <select
                   value={randomGenre}
                   onChange={(e) => setRandomGenre(e.target.value)}
-                  className="w-full p-3 bg-gray-50 border border-gray-200 text-gray-800 font-bold rounded-xl text-sm appearance-none outline-none focus:ring-2 focus:ring-slate-500 cursor-pointer pr-10"
+                  className="w-full p-3 bg-zinc-950 border border-zinc-800 text-zinc-100 font-bold rounded-xl text-sm appearance-none outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer pr-10"
                 >
                   {genres.map(g => (
                     <option key={g} value={g}>{g}</option>
                   ))}
                 </select>
-                <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">
+                <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500 text-xs">
                   ▼
                 </div>
               </div>
             </div>
 
             {pickedSong && (
-              <div className="bg-slate-100/80 p-4 rounded-xl border border-slate-200 my-4 text-center animate-fadeIn">
-                <span className="text-[10px] bg-slate-700 text-white font-extrabold px-2 py-0.5 rounded-full uppercase">
+              <div className="bg-zinc-950 p-4 rounded-xl border border-amber-500/30 my-4 text-center">
+                <span className="text-[10px] bg-amber-500 text-zinc-950 font-extrabold px-2 py-0.5 rounded-full uppercase">
                   {pickedSong.genre}
                 </span>
-                <h4 className="text-lg font-black text-gray-900 mt-2 tracking-tight">{pickedSong.title}</h4>
-                <p className="text-sm font-bold text-slate-700 mt-0.5">{pickedSong.artist}</p>
+                <h4 className="text-lg font-black text-amber-300 mt-2 tracking-tight">{pickedSong.title}</h4>
+                <p className="text-sm font-bold text-zinc-300 mt-0.5">{pickedSong.artist}</p>
               </div>
             )}
 
             <button
               onClick={handlePickRandomSong}
-              className="w-full bg-slate-700 hover:bg-slate-800 text-white py-3 rounded-xl font-bold text-sm transition-all shadow-md active:scale-95 cursor-pointer mt-2"
+              className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-zinc-950 py-3 rounded-xl font-bold text-sm transition-all shadow-md active:scale-95 cursor-pointer mt-2"
             >
               {pickedSong ? '🔄 다시 뽑기' : '🎲 랜덤 노래 뽑기'}
             </button>
@@ -830,38 +835,38 @@ export default function Home() {
 
       {/* 🎬 노래 상세 보기 모달 */}
       {selectedSongDetail && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-100 text-center relative max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+          <div className="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-zinc-800 text-center relative max-h-[90vh] flex flex-col">
             <button 
               onClick={() => setSelectedSongDetail(null)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-sm w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center"
+              className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-200 font-bold text-sm w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center"
             >
               ✕
             </button>
 
             <div className="shrink-0 mb-3 pt-1">
-              <span className="text-[11px] bg-slate-100 text-slate-700 font-bold px-2.5 py-1 rounded-full uppercase">
+              <span className="text-[11px] bg-zinc-800 text-amber-400 border border-zinc-700 font-bold px-2.5 py-1 rounded-full uppercase">
                 {selectedSongDetail.genre}
               </span>
-              <h3 className="text-xl font-black text-gray-900 mt-2 tracking-tight">{selectedSongDetail.title}</h3>
-              <p className="text-sm font-bold text-gray-500">{selectedSongDetail.artist}</p>
+              <h3 className="text-xl font-black text-amber-200 mt-2 tracking-tight">{selectedSongDetail.title}</h3>
+              <p className="text-sm font-bold text-zinc-400">{selectedSongDetail.artist}</p>
             </div>
 
             <div className="flex-1 overflow-y-auto my-2 pr-1 space-y-2 no-scrollbar text-left">
-              <p className="text-xs font-bold text-gray-400 px-1 mb-1">
+              <p className="text-xs font-bold text-zinc-400 px-1 mb-1">
                 🎤 방송 라이브 히스토리 ({selectedSongDetail.history?.length || 0}회)
               </p>
 
               {!selectedSongDetail.history || selectedSongDetail.history.length === 0 ? (
-                <div className="bg-gray-50 p-6 rounded-xl text-center">
-                  <p className="text-xs text-gray-400 font-semibold">아직 등록된 방송 다시보기 링크가 없습니다.</p>
+                <div className="bg-zinc-950 p-6 rounded-xl text-center border border-zinc-800">
+                  <p className="text-xs text-zinc-500 font-semibold">아직 등록된 방송 다시보기 링크가 없습니다.</p>
                 </div>
               ) : (
                 selectedSongDetail.history.map((item, idx) => (
-                  <div key={idx} className="bg-gray-50 p-3 rounded-xl flex items-center justify-between border border-gray-100 hover:border-slate-200 transition-all">
+                  <div key={idx} className="bg-zinc-950 p-3 rounded-xl flex items-center justify-between border border-zinc-800/80 hover:border-amber-500/30 transition-all">
                     <div className="flex items-center gap-2">
-                      <span className="text-slate-500 font-bold text-xs">📅</span>
-                      <span className="text-xs font-extrabold text-gray-800">
+                      <span className="text-amber-400 font-bold text-xs">📅</span>
+                      <span className="text-xs font-extrabold text-zinc-200">
                         {item.date || '날짜 미지정'}
                       </span>
                     </div>
@@ -871,13 +876,13 @@ export default function Home() {
                         href={item.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs rounded-lg transition-all flex items-center gap-1 shadow-sm shrink-0"
+                        className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs rounded-lg transition-all flex items-center gap-1 shadow-sm shrink-0"
                       >
                         <span>영상 보기</span>
                         <span className="text-[10px]">➔</span>
                       </a>
                     ) : (
-                      <span className="text-[11px] text-gray-400 font-bold">링크 없음</span>
+                      <span className="text-[11px] text-zinc-500 font-bold">링크 없음</span>
                     )}
                   </div>
                 ))
@@ -886,7 +891,7 @@ export default function Home() {
 
             <button
               onClick={() => setSelectedSongDetail(null)}
-              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 py-2.5 rounded-xl font-bold text-xs mt-3 shrink-0"
+              className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-2.5 rounded-xl font-bold text-xs mt-3 shrink-0"
             >
               닫기
             </button>
@@ -896,10 +901,10 @@ export default function Home() {
 
       {/* 📋 SOOP iframe 차단 대응 복사 모달 */}
       {copyModalText && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-5 w-full max-w-xs shadow-2xl border border-gray-100 text-center">
-            <h3 className="text-base font-black text-gray-900 mb-1">📋 신청곡 복사</h3>
-            <p className="text-xs text-gray-500 mb-3">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+          <div className="bg-zinc-900 rounded-2xl p-5 w-full max-w-xs shadow-2xl border border-zinc-800 text-center">
+            <h3 className="text-base font-black text-amber-400 mb-1">📋 신청곡 복사</h3>
+            <p className="text-xs text-zinc-400 mb-3">
               [전체 선택 & 복사] 버튼을 누르면<br />
               즉시 클립보드에 복사됩니다!
             </p>
@@ -910,22 +915,22 @@ export default function Home() {
               readOnly
               value={copyModalText}
               onClick={handleSelectText}
-              className="w-full p-3 bg-slate-50 border border-slate-200 text-slate-900 font-bold rounded-xl text-center text-sm outline-none mb-3 focus:ring-2 focus:ring-slate-500"
+              className="w-full p-3 bg-zinc-950 border border-zinc-800 text-amber-200 font-bold rounded-xl text-center text-sm outline-none mb-3 focus:ring-2 focus:ring-amber-500"
             />
 
             <div className="flex gap-2">
               <button 
                 onClick={() => setCopyModalText(null)} 
-                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 py-2.5 rounded-xl font-bold text-xs cursor-pointer"
+                className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-2.5 rounded-xl font-bold text-xs cursor-pointer"
               >
                 닫기
               </button>
               <button 
                 onClick={handleSelectText} 
-                className={`flex-1 text-white py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
+                className={`flex-1 text-zinc-950 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
                   isModalSelected
-                    ? 'bg-emerald-600'
-                    : 'bg-slate-700 hover:bg-slate-800'
+                    ? 'bg-emerald-500'
+                    : 'bg-amber-500 hover:bg-amber-400'
                 }`}
               >
                 {isModalSelected ? '✓ 복사 완료!' : '전체 선택 & 복사'}
@@ -937,23 +942,23 @@ export default function Home() {
 
       {/* 🔐 관리자 로그인 모달 */}
       {showLoginModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-100">
-            <h3 className="text-lg font-black text-gray-900 mb-2">🔐 관리자 로그인</h3>
-            <p className="text-xs text-gray-500 mb-4">관리자 비밀번호를 입력해주세요.</p>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-zinc-800">
+            <h3 className="text-lg font-black text-amber-400 mb-2">🔐 관리자 로그인</h3>
+            <p className="text-xs text-zinc-400 mb-4">관리자 비밀번호를 입력해주세요.</p>
             
             <form onSubmit={handleLoginSubmit} className="flex flex-col gap-3">
               <input 
                 type="password" 
-                className="p-3 bg-gray-50 rounded-xl text-sm outline-none border border-gray-200 focus:border-slate-600" 
+                className="p-3 bg-zinc-950 border border-zinc-800 text-zinc-100 rounded-xl text-sm outline-none focus:border-amber-500" 
                 placeholder="비밀번호" 
                 value={inputPassword} 
                 onChange={e => setInputPassword(e.target.value)} 
                 autoFocus
               />
               <div className="flex gap-2 mt-1">
-                <button type="button" onClick={() => setShowLoginModal(false)} className="flex-1 bg-gray-100 text-gray-600 p-3 rounded-xl font-bold text-sm">취소</button>
-                <button type="submit" className="flex-1 bg-slate-700 text-white p-3 rounded-xl font-bold text-sm">확인</button>
+                <button type="button" onClick={() => setShowLoginModal(false)} className="flex-1 bg-zinc-800 text-zinc-300 p-3 rounded-xl font-bold text-sm">취소</button>
+                <button type="submit" className="flex-1 bg-amber-500 text-zinc-950 p-3 rounded-xl font-bold text-sm">확인</button>
               </div>
             </form>
           </div>
