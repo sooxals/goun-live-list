@@ -61,6 +61,34 @@ export default function Home() {
   const genres = ['전체', '가요', '트로트', 'POP', 'J-POP', '뮤지컬'];
   const initials = ['전체', '0-9', 'A-Z', 'ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
 
+  // 🌐 모바일 전용 외부 브라우저(Safari/Chrome) 강제 이동 함수
+  const handleOpenExternal = () => {
+    if (typeof window === 'undefined') return;
+
+    const currentUrl = window.location.href;
+    const userAgent = navigator.userAgent || navigator.vendor;
+
+    // Android: intent 스키마 이용 Chrome으로 열기
+    if (/android/i.test(userAgent)) {
+      const cleanUrl = currentUrl.replace(/^https?:\/\//, '');
+      window.location.href = `intent://${cleanUrl}#Intent;scheme=https;package=com.android.chrome;end`;
+      return;
+    }
+
+    // iOS (iPhone/iPad): 주소 복사 안내 및 브라우저 열기 유도
+    if (/iPhone|iPad|iPod/i.test(userAgent)) {
+      navigator.clipboard.writeText(currentUrl).then(() => {
+        alert('주소가 복사되었습니다! Safari나 Chrome 앱을 열고 주소창에 붙여넣어 주세요.');
+      }).catch(() => {
+        alert('Safari나 Chrome 브라우저 주소창에 현재 주소를 복사해 접속해주세요.');
+      });
+      return;
+    }
+
+    // PC 등 일반 환경
+    window.open(currentUrl, '_blank', 'noopener,noreferrer');
+  };
+
   const handleInitialClick = (init: string) => {
     setSpecialFilter('all');
     setSelectedInitial(init);
@@ -349,6 +377,20 @@ export default function Home() {
       {/* 1. 메인 랜딩 화면 */}
       {!showList ? (
         <section className="min-h-screen flex flex-col items-center justify-center p-6 text-center max-w-4xl md:max-w-5xl mx-auto">
+          {/* 🌐 모바일 랜딩 화면 상단: 다른 브라우저로 열기 버튼 */}
+          <div className="w-full flex justify-end mb-2 sm:hidden">
+            <button
+              type="button"
+              onClick={handleOpenExternal}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800/90 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold rounded-full border border-zinc-700/80 shadow-md transition-all active:scale-95 cursor-pointer backdrop-blur-md"
+            >
+              <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              <span>다른 브라우저로 열기</span>
+            </button>
+          </div>
+
           <div className="mb-6 space-y-4 flex flex-col items-center">
             <div className="max-w-[320px] sm:max-w-[450px] w-full px-2">
               <img 
@@ -397,10 +439,10 @@ export default function Home() {
 
         /* 2. 노래 리스트 화면 */
         <>
-          {/* 스크롤할 때 같이 위로 올라가는 상단 영역 */}
+          {/* 상단 컨트롤 영역 */}
           <div className="pt-3 px-4 max-w-5xl mx-auto">
             
-            {/* 📍 [요청 반영] 메인 이동 버튼 & 관리자 설정 메뉴를 메인 배너 '상단'으로 이동 */}
+            {/* 메인 이동 버튼 & 관리자 설정 & 모바일 전용 다른 브라우저로 열기 */}
             <div className="flex justify-between items-center mb-2 px-0.5">
               <button 
                 onClick={() => {
@@ -419,6 +461,19 @@ export default function Home() {
               </button>
 
               <div className="flex items-center gap-2">
+                {/* 🌐 노래 리스트 상단: 모바일 전용 다른 브라우저로 열기 버튼 */}
+                <button
+                  type="button"
+                  onClick={handleOpenExternal}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-700 text-zinc-200 font-semibold text-xs rounded-xl transition-all active:scale-95 cursor-pointer shadow-md backdrop-blur-md sm:hidden"
+                  title="다른 브라우저로 열기"
+                >
+                  <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  <span>다른 브라우저로 열기</span>
+                </button>
+
                 {isAdminMode && (
                   <>
                     <button onClick={changePassword} className="text-[10px] bg-zinc-800/80 text-zinc-300 border border-zinc-700 px-2 py-1 rounded font-bold">비번 변경</button>
@@ -447,7 +502,7 @@ export default function Home() {
 
           </div>
 
-          {/* NEW/TOP100 행 ➔ 초성 필터 ➔ 장르 필터 ➔ 검색창 상단 고정 영역 */}
+          {/* NEW/TOP100 ➔ 초성 ➔ 장르 ➔ 검색창 고정 영역 */}
           <div className="sticky top-0 z-40 bg-[#0F0F12]/95 backdrop-blur-md py-2 px-4 shadow-xl border-b border-zinc-800/80">
             <div className="max-w-5xl mx-auto flex flex-col gap-2">
               
@@ -524,7 +579,7 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 4️⃣ 🔍 검색창 (📍 [요청 반영] placeholder 색상 한 톤 밝게 text-zinc-400 조정) */}
+              {/* 4️⃣ 🔍 검색창 */}
               <div className="relative">
                 <input 
                   className="w-full p-2.5 pl-10 pr-10 rounded-xl bg-zinc-900/90 border border-zinc-800 focus:border-zinc-600 text-zinc-100 placeholder-zinc-400 shadow-inner outline-none text-sm md:text-base transition-colors backdrop-blur-md" 
@@ -683,7 +738,6 @@ export default function Home() {
                             </span>
                           )}
 
-                          {/* 🎤 기본 화면 가수명 */}
                           <h3 className="font-bold text-[16px] md:text-[18px] truncate text-[#F4F4F6] tracking-tight leading-tight transition-colors">
                             {song.artist}
                             {isNew(song.created_at) && (
@@ -703,7 +757,6 @@ export default function Home() {
                           )}
                         </div>
 
-                        {/* 🎵 [요청 반영] 기본 화면 노래제목: 기존 text-zinc-400에서 한 톤 밝은 text-zinc-300으로 조정 */}
                         <p className="text-zinc-300 font-semibold text-[14px] md:text-[16px] truncate ml-0.5 group-hover:text-zinc-100 transition-colors">
                           {song.title}
                         </p>
