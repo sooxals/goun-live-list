@@ -389,11 +389,11 @@ export default function Home() {
             <img src="/hero-mobile.png" alt="가수 고운 메인 (모바일)" className="block sm:hidden w-full h-auto object-cover transform group-hover:scale-[1.01] transition-transform duration-500" />
           </div>
 
+          {/* ✨ 개선된 '전체 노래 리스트 둘러보기' 버튼 (음표 아이콘 제거 & 모던 미니멀 Glassmorphism 디자인 적용) */}
           <button
             onClick={() => setShowList(true)}
-            className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-[#D4AF37] via-[#F3E5AB] to-[#AA771C] hover:brightness-110 text-zinc-950 font-black rounded-2xl shadow-[0_10px_25px_rgba(212,175,55,0.3)] transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-base md:text-xl flex items-center justify-center gap-2.5 cursor-pointer border border-amber-200/50"
+            className="w-full sm:w-auto px-9 py-3.5 bg-white/5 hover:bg-white/10 text-zinc-100 font-semibold rounded-2xl border border-white/15 backdrop-blur-md shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-base md:text-lg flex items-center justify-center cursor-pointer tracking-tight hover:border-white/30 hover:text-white"
           >
-            <span className="text-xl">🎵</span>
             <span>전체 노래 리스트 둘러보기</span>
           </button>
         </section>
@@ -457,14 +457,14 @@ export default function Home() {
               {/* 필터 컨트롤 박스 */}
               <div className="flex flex-col gap-2 bg-zinc-900/90 p-2.5 rounded-xl shadow-md border border-zinc-800">
                 
-                {/* 1️⃣ NEW / TOP100 / 랜덤 버튼 행 */}
+                {/* 1️⃣ NEW / TOP100 / 랜덤 버튼 행 (코랄 & 은은한 파스텔 피치 톤 변경) */}
                 <div className="flex items-center gap-1.5 pb-1 border-b border-zinc-800/80 overflow-x-auto no-scrollbar">
                   <button
                     onClick={() => setSpecialFilter(prev => prev === 'new' ? 'all' : 'new')}
                     className={`px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
                       specialFilter === 'new'
-                        ? 'bg-rose-500 text-white shadow-md'
-                        : 'bg-rose-950/40 border border-rose-900/50 text-rose-400 hover:bg-rose-900/30'
+                        ? 'bg-[#F8B195] text-zinc-950 shadow-md'
+                        : 'bg-[#F8B195]/10 border border-[#F8B195]/30 text-[#F8B195] hover:bg-[#F8B195]/20'
                     }`}
                   >
                     <span>✨ NEW</span>
@@ -473,8 +473,8 @@ export default function Home() {
                     onClick={() => setSpecialFilter(prev => prev === 'top100' ? 'all' : 'top100')}
                     className={`px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
                       specialFilter === 'top100'
-                        ? 'bg-amber-500 text-zinc-950 font-black shadow-md'
-                        : 'bg-amber-950/40 border border-amber-800/50 text-amber-400 hover:bg-amber-900/30'
+                        ? 'bg-[#F6D55C] text-zinc-950 shadow-md'
+                        : 'bg-[#F6D55C]/10 border border-[#F6D55C]/30 text-[#F6D55C] hover:bg-[#F6D55C]/20'
                     }`}
                   >
                     <span>🔥 TOP 100</span>
@@ -675,20 +675,28 @@ export default function Home() {
                         className="overflow-hidden flex-1 min-w-0 pr-1 cursor-pointer"
                       >
                         <div className="flex items-center gap-2 mb-0.5">
+                          {/* TOP100 순위: 차분하게 톤 다운된 디자인 적용 */}
                           {specialFilter === 'top100' && (
-                            <span className="px-1.5 py-0.5 bg-amber-500 text-zinc-950 text-[10px] font-black rounded shrink-0">
+                            <span className="px-1.5 py-0.5 bg-[#F6D55C]/20 border border-[#F6D55C]/30 text-[#F6D55C] text-[10px] font-extrabold rounded shrink-0">
                               {index + 1}위
                             </span>
                           )}
 
+                          {/* NEW 뱃지: 은은한 파스텔 코랄 톤 적용 */}
                           {isNew(song.created_at) && (
-                            <span className="px-1.5 py-0.5 bg-rose-500 text-white text-[10px] font-black rounded shrink-0 animate-pulse">
+                            <span className="px-1.5 py-0.5 bg-[#F8B195]/20 border border-[#F8B195]/40 text-[#F8B195] text-[10px] font-extrabold rounded shrink-0 animate-pulse">
                               NEW
                             </span>
                           )}
 
-                          <h3 className="font-extrabold text-[16px] md:text-[18px] truncate text-amber-100 tracking-tight leading-tight group-hover:text-amber-400 transition-colors">
+                          {/* 가수명: 한 톤 다운된 오프화이트(#F4F4F6)로 가독성 향상 + 코랄 글로우 반짝임 적용 */}
+                          <h3 className="font-extrabold text-[16px] md:text-[18px] truncate text-[#F4F4F6] tracking-tight leading-tight transition-colors">
                             {song.artist}
+                            {isNew(song.created_at) && (
+                              <span className="inline-block ml-1 text-[#F8B195] text-[12px] opacity-75 animate-pulse drop-shadow-[0_0_4px_rgba(248,177,149,0.3)]">
+                                ✨
+                              </span>
+                            )}
                           </h3>
                           <span className="text-[11px] bg-zinc-800 border border-zinc-700/60 px-1.5 py-0.5 rounded text-zinc-400 font-bold uppercase shrink-0">
                             {song.genre}
@@ -786,7 +794,7 @@ export default function Home() {
                   onClick={() => setRandomTarget('new')}
                   className={`py-2 rounded-lg text-xs font-bold transition-all ${
                     randomTarget === 'new'
-                      ? 'bg-rose-950/80 text-rose-300 border border-rose-800 font-black shadow-sm'
+                      ? 'bg-[#F8B195]/20 text-[#F8B195] border border-[#F8B195]/40 font-black shadow-sm'
                       : 'text-zinc-400 hover:text-zinc-200'
                   }`}
                 >
@@ -797,7 +805,7 @@ export default function Home() {
                   onClick={() => setRandomTarget('top100')}
                   className={`py-2 rounded-lg text-xs font-bold transition-all ${
                     randomTarget === 'top100'
-                      ? 'bg-amber-950/80 text-amber-300 border border-amber-800 font-black shadow-sm'
+                      ? 'bg-[#F6D55C]/20 text-[#F6D55C] border border-[#F6D55C]/40 font-black shadow-sm'
                       : 'text-zinc-400 hover:text-zinc-200'
                   }`}
                 >
