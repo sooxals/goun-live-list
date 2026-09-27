@@ -341,7 +341,7 @@ export default function Home() {
     setPickedSong(pool[randomIndex]);
   };
 
-  if (loading) return <div className="p-10 text-center text-amber-500 font-sans bg-[#0F0F12] min-h-screen flex items-center justify-center">목록을 불러오는 중...</div>;
+  if (loading) return <div className="p-10 text-center text-zinc-400 font-sans bg-[#0F0F12] min-h-screen flex items-center justify-center">목록을 불러오는 중...</div>;
 
   return (
     <main className="min-h-screen bg-[#0F0F12] text-[#F3F4F6] pb-10 font-sans relative">
@@ -355,7 +355,7 @@ export default function Home() {
               <img 
                 src="/main-title-logo.png" 
                 alt="고운이 LIVE LIST" 
-                className="w-full h-auto object-contain drop-shadow-[0_10px_20px_rgba(212,175,55,0.25)]"
+                className="w-full h-auto object-contain drop-shadow-[0_10px_20px_rgba(255,255,255,0.1)]"
               />
             </div>
 
@@ -365,7 +365,7 @@ export default function Home() {
                 href="https://www.sooplive.com/station/kjnw7643"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900/80 hover:bg-zinc-800/80 border border-amber-500/30 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-lg backdrop-blur-md"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-700/80 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-lg backdrop-blur-md"
               >
                 <img src="/soop-icon.png" alt="SOOP" className="h-5 w-auto object-contain shrink-0" />
                 <span className="text-zinc-100 font-bold text-sm sm:text-base">SOOP</span>
@@ -375,7 +375,7 @@ export default function Home() {
                 href="https://www.youtube.com/@Singer_LGU"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900/80 hover:bg-zinc-800/80 border border-amber-500/30 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-lg backdrop-blur-md"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-700/80 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-lg backdrop-blur-md"
               >
                 <img src="/youtube-icon.png" alt="YouTube" className="h-5 w-auto object-contain shrink-0" />
                 <span className="text-zinc-100 font-bold text-sm sm:text-base">YouTube</span>
@@ -383,7 +383,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="w-full relative rounded-3xl overflow-hidden shadow-2xl border border-amber-500/20 mb-8 bg-zinc-900 group">
+          <div className="w-full relative rounded-3xl overflow-hidden shadow-2xl border border-zinc-800/80 mb-8 bg-zinc-900 group">
             <img src="/hero-pc.png" alt="가수 고운 메인 (PC)" className="hidden sm:block w-full h-auto max-h-[550px] object-cover transform group-hover:scale-[1.01] transition-transform duration-500" />
             <img src="/hero-mobile.png" alt="가수 고운 메인 (모바일)" className="block sm:hidden w-full h-auto object-cover transform group-hover:scale-[1.01] transition-transform duration-500" />
           </div>
@@ -403,7 +403,7 @@ export default function Home() {
           <div className="pt-3 px-4 max-w-5xl mx-auto">
             
             {/* 타이틀 이미지 배너 */}
-            <div className="w-full mb-3 rounded-2xl overflow-hidden shadow-2xl border border-amber-500/30 bg-zinc-900">
+            <div className="w-full mb-3 rounded-2xl overflow-hidden shadow-2xl border border-zinc-800/80 bg-zinc-900">
               <img 
                 src="/title-banner.png" 
                 alt="치명적인 보이스 치명적인 매력 이고운" 
@@ -411,7 +411,7 @@ export default function Home() {
               />
             </div>
 
-            {/* 메인 이동 버튼 & 관리자 설정 버튼 */}
+            {/* 메인 이동 버튼(회색톤 반영) & 관리자 설정 버튼 */}
             <div className="flex justify-between items-center mb-3 px-0.5">
               <button 
                 onClick={() => {
@@ -422,7 +422,7 @@ export default function Home() {
                   setSpecialFilter('all');
                   setShowList(false);
                 }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-700 text-amber-400 font-extrabold text-xs md:text-sm rounded-xl transition-all active:scale-95 cursor-pointer shadow-md backdrop-blur-md"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-700 text-zinc-200 font-bold text-xs md:text-sm rounded-xl transition-all active:scale-95 cursor-pointer shadow-md backdrop-blur-md"
                 title="처음 화면으로 이동"
               >
                 <span>←</span>
@@ -432,14 +432,14 @@ export default function Home() {
               <div className="flex items-center gap-2">
                 {isAdminMode && (
                   <>
-                    <button onClick={changePassword} className="text-[10px] bg-zinc-800/80 text-amber-400 border border-zinc-700 px-2 py-1 rounded font-bold">비번 변경</button>
+                    <button onClick={changePassword} className="text-[10px] bg-zinc-800/80 text-zinc-300 border border-zinc-700 px-2 py-1 rounded font-bold">비번 변경</button>
                     <button onClick={resetNewTags} className="text-[10px] bg-rose-950/80 text-rose-300 border border-rose-800 px-2 py-1 rounded font-bold">NEW 초기화</button>
                     <button onClick={downloadCSV} className="text-[10px] bg-zinc-800/80 text-zinc-300 border border-zinc-700 px-2 py-1 rounded font-bold">CSV</button>
                   </>
                 )}
                 <button 
                   onClick={handleAdminToggle} 
-                  className="p-1.5 text-zinc-400 hover:text-amber-400 transition-all text-base rounded-lg hover:bg-zinc-800/80"
+                  className="p-1.5 text-zinc-400 hover:text-zinc-200 transition-all text-base rounded-lg hover:bg-zinc-800/80"
                   title="관리자 설정"
                 >
                   {isAdminMode ? '✕' : '⚙️'}
@@ -454,7 +454,7 @@ export default function Home() {
               
               <div className="flex flex-col gap-2 bg-zinc-900/90 p-2.5 rounded-xl shadow-md border border-zinc-800">
                 
-                {/* 1️⃣ NEW / TOP100 / 랜덤 버튼 행 */}
+                {/* 1️⃣ NEW / TOP100 / 랜덤 버튼 행 (선택 시에만 반투명 주황/골드) */}
                 <div className="flex items-center gap-1.5 pb-1 border-b border-zinc-800/80 overflow-x-auto no-scrollbar">
                   <button
                     onClick={() => setSpecialFilter(prev => prev === 'new' ? 'all' : 'new')}
@@ -484,13 +484,13 @@ export default function Home() {
                       setPickedSong(null);
                       setShowRandomModal(true);
                     }}
-                    className="px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-700/80 text-zinc-200 transition-all flex items-center gap-1 cursor-pointer shrink-0 active:scale-95 backdrop-blur-md"
+                    className="px-3 py-1 rounded-lg text-xs md:text-sm font-bold bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-700/80 text-zinc-200 transition-all flex items-center gap-1 cursor-pointer shrink-0 active:scale-95 backdrop-blur-md"
                   >
                     <span>🎲 랜덤 노래</span>
                   </button>
                 </div>
 
-                {/* 2️⃣ 초성 필터 */}
+                {/* 2️⃣ 초성 필터 (디폴트 굵기 유지를 위해 font-semibold 적용) */}
                 <div className="flex overflow-x-auto gap-1 no-scrollbar border-b border-zinc-800/80 pb-1">
                   {initials.map(init => (
                     <button 
@@ -507,15 +507,15 @@ export default function Home() {
                   ))}
                 </div>
 
-                {/* 3️⃣ 장르 필터 */}
+                {/* 3️⃣ 장르 필터 (디폴트 굵기 유지를 위해 font-semibold 적용) */}
                 <div className="flex overflow-x-auto gap-1.5 no-scrollbar pt-0.5">
                   {genres.map(genre => (
                     <button 
                       key={genre} 
                       onClick={() => handleGenreClick(genre)} 
-                      className={`flex-shrink-0 px-3 py-1 rounded-md text-xs md:text-sm font-bold cursor-pointer transition-all ${
+                      className={`flex-shrink-0 px-3 py-1 rounded-md text-xs md:text-sm font-semibold cursor-pointer transition-all ${
                         specialFilter === 'all' && selectedGenre === genre 
-                          ? 'bg-amber-500/20 border border-amber-500/50 text-amber-300 backdrop-blur-md shadow-sm' 
+                          ? 'bg-amber-500/20 border border-amber-500/50 text-amber-300 font-bold backdrop-blur-md shadow-sm' 
                           : 'text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200 border border-transparent'
                       }`}
                     >
@@ -528,7 +528,7 @@ export default function Home() {
               {/* 4️⃣ 🔍 검색창 */}
               <div className="relative">
                 <input 
-                  className="w-full p-2.5 pl-10 pr-10 rounded-xl bg-zinc-900/90 border border-zinc-800 focus:border-amber-500/60 text-zinc-100 placeholder-zinc-500 shadow-inner outline-none text-sm md:text-base transition-colors backdrop-blur-md" 
+                  className="w-full p-2.5 pl-10 pr-10 rounded-xl bg-zinc-900/90 border border-zinc-800 focus:border-zinc-600 text-zinc-100 placeholder-zinc-500 shadow-inner outline-none text-sm md:text-base transition-colors backdrop-blur-md" 
                   placeholder="찾고 싶은 노래나 가수를 입력하세요" 
                   value={searchTerm} 
                   onChange={e => {
@@ -560,9 +560,9 @@ export default function Home() {
           <div className="max-w-5xl mx-auto px-4 mt-4">
             {/* 🛠️ 관리자 모드 폼 */}
             {isAdminMode && (
-              <div className="mb-6 bg-zinc-900/90 p-5 rounded-2xl shadow-xl border border-amber-500/30 backdrop-blur-md">
+              <div className="mb-6 bg-zinc-900/90 p-5 rounded-2xl shadow-xl border border-zinc-700/80 backdrop-blur-md">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-bold text-amber-400 text-sm">
+                  <h3 className="font-bold text-zinc-200 text-sm">
                     {editingSong ? '✏️ 곡 정보 수정 중' : '➕ 새 노래 추가하기'}
                   </h3>
                   {editingSong && (
@@ -574,8 +574,8 @@ export default function Home() {
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    <input className="p-3 bg-zinc-800/80 rounded-xl text-sm outline-none border border-zinc-700 text-zinc-100 focus:border-amber-500" placeholder="가수명" value={formArtist} onChange={e=>setFormArtist(e.target.value)} />
-                    <input className="p-3 bg-zinc-800/80 rounded-xl text-sm outline-none border border-zinc-700 text-zinc-100 focus:border-amber-500" placeholder="노래제목" value={formTitle} onChange={e=>setFormTitle(e.target.value)} />
+                    <input className="p-3 bg-zinc-800/80 rounded-xl text-sm outline-none border border-zinc-700 text-zinc-100 focus:border-zinc-500" placeholder="가수명" value={formArtist} onChange={e=>setFormArtist(e.target.value)} />
+                    <input className="p-3 bg-zinc-800/80 rounded-xl text-sm outline-none border border-zinc-700 text-zinc-100 focus:border-zinc-500" placeholder="노래제목" value={formTitle} onChange={e=>setFormTitle(e.target.value)} />
                     <select className="p-3 bg-zinc-800/80 rounded-xl text-sm outline-none border border-zinc-700 text-zinc-100" value={formGenre} onChange={e=>setFormGenre(e.target.value)}>
                       {genres.slice(1).map(g => <option key={g} value={g}>{g}</option>)}
                     </select>
@@ -587,7 +587,7 @@ export default function Home() {
                       <button 
                         type="button" 
                         onClick={handleAddHistoryRow}
-                        className="text-xs bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500/30 text-amber-300 font-bold px-2.5 py-1 rounded-lg transition-colors"
+                        className="text-xs bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 text-zinc-200 font-bold px-2.5 py-1 rounded-lg transition-colors"
                       >
                         + 날짜 추가
                       </button>
@@ -646,7 +646,7 @@ export default function Home() {
                     )}
                   </div>
 
-                  <button className="bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500/30 text-amber-300 p-3 rounded-xl font-bold text-sm transition-colors mt-1 cursor-pointer">
+                  <button className="bg-zinc-800 border border-zinc-600 hover:bg-zinc-700 text-zinc-200 p-3 rounded-xl font-bold text-sm transition-colors mt-1 cursor-pointer">
                     {editingSong ? '수정 완료하기' : '곡 저장하기'}
                   </button>
                 </form>
@@ -665,7 +665,7 @@ export default function Home() {
                   return (
                     <div 
                       key={song.id} 
-                      className="bg-zinc-900/90 px-4 py-3 rounded-xl shadow-md flex items-center justify-between border border-zinc-800/80 hover:border-amber-500/40 transition-all gap-2 group"
+                      className="bg-zinc-900/90 px-4 py-3 rounded-xl shadow-md flex items-center justify-between border border-zinc-800/80 hover:border-zinc-700 transition-all gap-2 group"
                     >
                       <div 
                         onClick={() => setSelectedSongDetail(song)}
@@ -684,7 +684,8 @@ export default function Home() {
                             </span>
                           )}
 
-                          <h3 className="font-extrabold text-[16px] md:text-[18px] truncate text-[#F4F4F6] tracking-tight leading-tight transition-colors">
+                          {/* 🎤 기본 화면 가수명: 얇아진 굵기 적용 (font-bold) */}
+                          <h3 className="font-bold text-[16px] md:text-[18px] truncate text-[#F4F4F6] tracking-tight leading-tight transition-colors">
                             {song.artist}
                             {isNew(song.created_at) && (
                               <span className="inline-block ml-1 text-[#F8B195] text-[12px] opacity-75 animate-pulse drop-shadow-[0_0_4px_rgba(248,177,149,0.3)]">
@@ -697,11 +698,13 @@ export default function Home() {
                           </span>
 
                           {validHistoryCount > 0 && (
-                            <span className="text-[10px] bg-zinc-800/80 border border-amber-500/20 text-amber-300 font-bold px-1.5 py-0.5 rounded shrink-0 flex items-center gap-0.5">
+                            <span className="text-[10px] bg-zinc-800/80 border border-zinc-700 text-zinc-300 font-bold px-1.5 py-0.5 rounded shrink-0 flex items-center gap-0.5">
                               🎬 {validHistoryCount}
                             </span>
                           )}
                         </div>
+
+                        {/* 🎵 기본 화면 노래제목: 기존 디폴트 굵기(font-semibold) 유지 */}
                         <p className="text-zinc-400 font-semibold text-[14px] md:text-[16px] truncate ml-0.5 group-hover:text-zinc-200 transition-colors">
                           {song.title}
                         </p>
@@ -712,7 +715,7 @@ export default function Home() {
                           onClick={() => handleCopySong(song)}
                           className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
                             copiedId === song.id
-                              ? 'bg-amber-500/30 border border-amber-500/60 text-amber-200 shadow-sm scale-95'
+                              ? 'bg-zinc-700 border border-zinc-500 text-zinc-100 shadow-sm scale-95'
                               : 'bg-zinc-800/80 border border-zinc-700/80 hover:bg-zinc-700/80 text-zinc-200 active:scale-95'
                           }`}
                         >
@@ -750,10 +753,10 @@ export default function Home() {
       )}
 
       {showList && showTopBtn && (
-        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-6 right-6 w-12 h-12 bg-amber-500/30 border border-amber-500/60 text-amber-300 rounded-full shadow-2xl backdrop-blur-md flex items-center justify-center font-black text-xs z-50 animate-bounce cursor-pointer">TOP</button>
+        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-6 right-6 w-12 h-12 bg-zinc-800/80 border border-zinc-600 text-zinc-200 rounded-full shadow-2xl backdrop-blur-md flex items-center justify-center font-bold text-xs z-50 animate-bounce cursor-pointer">TOP</button>
       )}
 
-      {/* 🎲 랜덤 노래 모달 (선택 및 버튼들을 반투명 회색톤으로 수정) */}
+      {/* 🎲 랜덤 노래 모달 (전반적으로 슬림해진 폰트 굵기 적용) */}
       {showRandomModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-zinc-900/90 rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-zinc-800 relative backdrop-blur-md">
@@ -764,21 +767,20 @@ export default function Home() {
               ✕
             </button>
 
-            <h3 className="text-lg font-black text-amber-400 mb-4 text-center flex items-center justify-center gap-1.5">
+            <h3 className="text-base font-bold text-zinc-100 mb-4 text-center flex items-center justify-center gap-1.5">
               <span>🎲</span>
               <span>랜덤 노래 추천</span>
             </h3>
 
             <div className="mb-4">
-              <label className="block text-xs font-extrabold text-zinc-300 mb-1.5 ml-1">추첨 대상</label>
+              <label className="block text-xs font-semibold text-zinc-300 mb-1.5 ml-1">추첨 대상</label>
               <div className="grid grid-cols-3 gap-1.5 bg-zinc-950/70 p-1 rounded-xl border border-zinc-800">
-                {/* 🎵 전체 노래 버튼 (반투명 회색톤 적용) */}
                 <button
                   type="button"
                   onClick={() => setRandomTarget('all')}
-                  className={`py-2 rounded-lg text-xs font-bold transition-all ${
+                  className={`py-2 rounded-lg text-xs font-semibold transition-all ${
                     randomTarget === 'all'
-                      ? 'bg-zinc-700/50 border border-zinc-500 text-zinc-100 font-black shadow-sm backdrop-blur-md'
+                      ? 'bg-zinc-700/50 border border-zinc-500 text-zinc-100 font-bold shadow-sm backdrop-blur-md'
                       : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
                   }`}
                 >
@@ -787,9 +789,9 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => setRandomTarget('new')}
-                  className={`py-2 rounded-lg text-xs font-bold transition-all ${
+                  className={`py-2 rounded-lg text-xs font-semibold transition-all ${
                     randomTarget === 'new'
-                      ? 'bg-[#F8B195]/20 text-[#F8B195] border border-[#F8B195]/40 font-black shadow-sm backdrop-blur-md'
+                      ? 'bg-[#F8B195]/20 text-[#F8B195] border border-[#F8B195]/40 font-bold shadow-sm backdrop-blur-md'
                       : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
                   }`}
                 >
@@ -798,9 +800,9 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => setRandomTarget('top100')}
-                  className={`py-2 rounded-lg text-xs font-bold transition-all ${
+                  className={`py-2 rounded-lg text-xs font-semibold transition-all ${
                     randomTarget === 'top100'
-                      ? 'bg-[#F6D55C]/20 text-[#F6D55C] border border-[#F6D55C]/40 font-black shadow-sm backdrop-blur-md'
+                      ? 'bg-[#F6D55C]/20 text-[#F6D55C] border border-[#F6D55C]/40 font-bold shadow-sm backdrop-blur-md'
                       : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
                   }`}
                 >
@@ -810,12 +812,12 @@ export default function Home() {
             </div>
 
             <div className="mb-4">
-              <label className="block text-xs font-extrabold text-zinc-300 mb-1.5 ml-1">장르</label>
+              <label className="block text-xs font-semibold text-zinc-300 mb-1.5 ml-1">장르</label>
               <div className="relative">
                 <select
                   value={randomGenre}
                   onChange={(e) => setRandomGenre(e.target.value)}
-                  className="w-full p-3 bg-zinc-950/80 border border-zinc-800 text-zinc-100 font-bold rounded-xl text-sm appearance-none outline-none focus:ring-2 focus:ring-amber-500/50 cursor-pointer pr-10"
+                  className="w-full p-3 bg-zinc-950/80 border border-zinc-800 text-zinc-100 font-medium rounded-xl text-sm appearance-none outline-none focus:ring-2 focus:ring-zinc-600 cursor-pointer pr-10"
                 >
                   {genres.map(g => (
                     <option key={g} value={g}>{g}</option>
@@ -829,18 +831,17 @@ export default function Home() {
 
             {pickedSong && (
               <div className="bg-zinc-950/80 p-4 rounded-xl border border-zinc-700/80 my-4 text-center">
-                <span className="text-[10px] bg-zinc-800 text-zinc-300 border border-zinc-700 font-extrabold px-2 py-0.5 rounded-full uppercase">
+                <span className="text-[10px] bg-zinc-800 text-zinc-300 border border-zinc-700 font-bold px-2 py-0.5 rounded-full uppercase">
                   {pickedSong.genre}
                 </span>
-                <p className="text-sm font-extrabold text-zinc-100 mt-2">{pickedSong.artist}</p>
-                <h4 className="text-lg font-black text-zinc-300 mt-0.5 tracking-tight">{pickedSong.title}</h4>
+                <p className="text-xs font-semibold text-zinc-400 mt-2">{pickedSong.artist}</p>
+                <h4 className="text-base font-bold text-zinc-100 mt-0.5 tracking-tight">{pickedSong.title}</h4>
               </div>
             )}
 
-            {/* 🎲 랜덤 노래 뽑기 / 다시 뽑기 버튼 (반투명 회색톤 적용) */}
             <button
               onClick={handlePickRandomSong}
-              className="w-full bg-zinc-800/80 border border-zinc-600 hover:bg-zinc-700/80 text-zinc-200 py-3 rounded-xl font-bold text-sm transition-all shadow-md active:scale-95 cursor-pointer mt-2 backdrop-blur-md"
+              className="w-full bg-zinc-800/80 border border-zinc-600 hover:bg-zinc-700/80 text-zinc-200 py-3 rounded-xl font-semibold text-sm transition-all shadow-md active:scale-95 cursor-pointer mt-2 backdrop-blur-md"
             >
               {pickedSong ? '🔄 다시 뽑기' : '🎲 랜덤 노래 뽑기'}
             </button>
@@ -848,7 +849,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* 🎬 노래 상세 보기 모달 (순서: 가수명 윗줄, 노래제목 아래줄 & 화이트 톤 반영) */}
+      {/* 🎬 노래 상세 보기 모달 (히스토리 창: 가수명 회색, 제목 회색톤/슬림, 장르&영상보기 회색톤) */}
       {selectedSongDetail && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-zinc-900/90 rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-zinc-800 text-center relative max-h-[90vh] flex flex-col backdrop-blur-md">
@@ -859,13 +860,13 @@ export default function Home() {
               ✕
             </button>
 
-            {/* 🎤 모달 상단 정보: 윗줄(가수명), 아래줄(노래제목 화이트 톤) */}
+            {/* 🎤 모달 상단 정보: 윗줄(가수명-회색톤), 아래줄(노래제목-회색톤&슬림한 굵기) */}
             <div className="shrink-0 mb-3 pt-1">
-              <span className="text-[11px] bg-zinc-800/80 text-amber-400 border border-zinc-700 font-bold px-2.5 py-1 rounded-full uppercase">
+              <span className="text-[11px] bg-zinc-800/80 text-zinc-300 border border-zinc-700 font-bold px-2.5 py-1 rounded-full uppercase">
                 {selectedSongDetail.genre}
               </span>
-              <p className="text-sm font-extrabold text-zinc-100 mt-2.5">{selectedSongDetail.artist}</p>
-              <h3 className="text-xl font-black text-zinc-100 mt-0.5 tracking-tight">{selectedSongDetail.title}</h3>
+              <p className="text-sm font-semibold text-zinc-400 mt-2.5">{selectedSongDetail.artist}</p>
+              <h3 className="text-lg font-bold text-zinc-100 mt-0.5 tracking-tight">{selectedSongDetail.title}</h3>
             </div>
 
             <div className="flex-1 overflow-y-auto my-2 pr-1 space-y-2 no-scrollbar text-left">
@@ -879,10 +880,10 @@ export default function Home() {
                 </div>
               ) : (
                 selectedSongDetail.history.map((item, idx) => (
-                  <div key={idx} className="bg-zinc-950/80 p-3 rounded-xl flex items-center justify-between border border-zinc-800/80 hover:border-amber-500/30 transition-all">
+                  <div key={idx} className="bg-zinc-950/80 p-3 rounded-xl flex items-center justify-between border border-zinc-800/80 hover:border-zinc-700 transition-all">
                     <div className="flex items-center gap-2">
-                      <span className="text-amber-400 font-bold text-xs">📅</span>
-                      <span className="text-xs font-extrabold text-zinc-200">
+                      <span className="text-zinc-400 font-bold text-xs">📅</span>
+                      <span className="text-xs font-bold text-zinc-300">
                         {item.date || '날짜 미지정'}
                       </span>
                     </div>
@@ -892,7 +893,7 @@ export default function Home() {
                         href={item.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-3 py-1.5 bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500/35 text-amber-300 font-bold text-xs rounded-lg transition-all flex items-center gap-1 shadow-sm shrink-0 backdrop-blur-md"
+                        className="px-3 py-1.5 bg-zinc-800/80 border border-zinc-700 hover:bg-zinc-700/80 text-zinc-200 font-semibold text-xs rounded-lg transition-all flex items-center gap-1 shadow-sm shrink-0 backdrop-blur-md"
                       >
                         <span>영상 보기</span>
                         <span className="text-[10px]">➔</span>
@@ -919,7 +920,7 @@ export default function Home() {
       {copyModalText && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-zinc-900/90 rounded-2xl p-5 w-full max-w-xs shadow-2xl border border-zinc-800 text-center backdrop-blur-md">
-            <h3 className="text-base font-black text-amber-400 mb-1">📋 신청곡 복사</h3>
+            <h3 className="text-base font-bold text-zinc-200 mb-1">📋 신청곡 복사</h3>
             <p className="text-xs text-zinc-400 mb-3">
               [전체 선택 & 복사] 버튼을 누르면<br />
               즉시 클립보드에 복사됩니다!
@@ -931,7 +932,7 @@ export default function Home() {
               readOnly
               value={copyModalText}
               onClick={handleSelectText}
-              className="w-full p-3 bg-zinc-950/80 border border-zinc-800 text-amber-200 font-bold rounded-xl text-center text-sm outline-none mb-3 focus:ring-2 focus:ring-amber-500/50"
+              className="w-full p-3 bg-zinc-950/80 border border-zinc-800 text-zinc-200 font-bold rounded-xl text-center text-sm outline-none mb-3 focus:ring-2 focus:ring-zinc-600"
             />
 
             <div className="flex gap-2">
@@ -943,10 +944,10 @@ export default function Home() {
               </button>
               <button 
                 onClick={handleSelectText} 
-                className={`flex-1 text-zinc-950 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
+                className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
                   isModalSelected
                     ? 'bg-emerald-500/80 text-emerald-100'
-                    : 'bg-amber-500/30 border border-amber-500/50 text-amber-200 hover:bg-amber-500/40'
+                    : 'bg-zinc-800/80 border border-zinc-600 text-zinc-200 hover:bg-zinc-700/80'
                 }`}
               >
                 {isModalSelected ? '✓ 복사 완료!' : '전체 선택 & 복사'}
@@ -956,17 +957,17 @@ export default function Home() {
         </div>
       )}
 
-      {/* 🔐 관리자 로그인 모달 */}
+      {/* 🔐 관리자 로그인 모달 (회색톤 반영) */}
       {showLoginModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-zinc-900/90 rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-zinc-800 backdrop-blur-md">
-            <h3 className="text-lg font-black text-amber-400 mb-2">🔐 관리자 로그인</h3>
+            <h3 className="text-base font-bold text-zinc-200 mb-2">🔐 관리자 로그인</h3>
             <p className="text-xs text-zinc-400 mb-4">관리자 비밀번호를 입력해주세요.</p>
             
             <form onSubmit={handleLoginSubmit} className="flex flex-col gap-3">
               <input 
                 type="password" 
-                className="p-3 bg-zinc-950/80 border border-zinc-800 text-zinc-100 rounded-xl text-sm outline-none focus:border-amber-500/60" 
+                className="p-3 bg-zinc-950/80 border border-zinc-800 text-zinc-100 rounded-xl text-sm outline-none focus:border-zinc-600" 
                 placeholder="비밀번호" 
                 value={inputPassword} 
                 onChange={e => setInputPassword(e.target.value)} 
@@ -974,7 +975,7 @@ export default function Home() {
               />
               <div className="flex gap-2 mt-1">
                 <button type="button" onClick={() => setShowLoginModal(false)} className="flex-1 bg-zinc-800/80 text-zinc-300 p-3 rounded-xl font-bold text-sm">취소</button>
-                <button type="submit" className="flex-1 bg-amber-500/30 border border-amber-500/50 text-amber-300 p-3 rounded-xl font-bold text-sm hover:bg-amber-500/40">확인</button>
+                <button type="submit" className="flex-1 bg-zinc-800/80 border border-zinc-600 text-zinc-200 p-3 rounded-xl font-bold text-sm hover:bg-zinc-700/80">확인</button>
               </div>
             </form>
           </div>
