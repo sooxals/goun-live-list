@@ -359,6 +359,7 @@ export default function Home() {
               />
             </div>
 
+            {/* 🔗 SOOP & YouTube 바로가기 버튼 (동일 이미지 규격 적용) */}
             <div className="flex items-center justify-center gap-2.5 pt-1">
               <a
                 href="https://www.sooplive.com/station/kjnw7643"
@@ -376,9 +377,7 @@ export default function Home() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 border border-amber-500/30 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-lg"
               >
-                <svg className="w-5 h-5 fill-[#FF0000] shrink-0" viewBox="0 0 24 24">
-                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                </svg>
+                <img src="/youtube-icon.png" alt="YouTube" className="h-5 w-auto object-contain shrink-0" />
                 <span className="text-zinc-100 font-bold text-sm sm:text-base">YouTube</span>
               </a>
             </div>
@@ -389,7 +388,6 @@ export default function Home() {
             <img src="/hero-mobile.png" alt="가수 고운 메인 (모바일)" className="block sm:hidden w-full h-auto object-cover transform group-hover:scale-[1.01] transition-transform duration-500" />
           </div>
 
-          {/* ✨ 개선된 '전체 노래 리스트 둘러보기' 버튼 (음표 아이콘 제거 & 모던 미니멀 Glassmorphism 디자인 적용) */}
           <button
             onClick={() => setShowList(true)}
             className="w-full sm:w-auto px-9 py-3.5 bg-white/5 hover:bg-white/10 text-zinc-100 font-semibold rounded-2xl border border-white/15 backdrop-blur-md shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-base md:text-lg flex items-center justify-center cursor-pointer tracking-tight hover:border-white/30 hover:text-white"
@@ -401,10 +399,10 @@ export default function Home() {
 
         /* 2. 노래 리스트 화면 */
         <>
-          {/* 📜 스크롤할 때 같이 위로 올라가는 일반 상단 영역 (타이틀 배너 + 메인/관리자 버튼) */}
+          {/* 스크롤할 때 같이 위로 올라가는 일반 상단 영역 */}
           <div className="pt-3 px-4 max-w-5xl mx-auto">
             
-            {/* 👑 타이틀 이미지 배너 */}
+            {/* 타이틀 이미지 배너 */}
             <div className="w-full mb-3 rounded-2xl overflow-hidden shadow-2xl border border-amber-500/30 bg-zinc-900">
               <img 
                 src="/title-banner.png" 
@@ -413,7 +411,7 @@ export default function Home() {
               />
             </div>
 
-            {/* 📌 메인 이동 버튼 & 관리자 설정 버튼 */}
+            {/* 메인 이동 버튼 & 관리자 설정 버튼 */}
             <div className="flex justify-between items-center mb-3 px-0.5">
               <button 
                 onClick={() => {
@@ -450,14 +448,13 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 📌 [Sticky] NEW/TOP100 행 ➔ 초성 필터 ➔ 장르 필터 ➔ 검색창 상단 고정 영역 */}
+          {/* NEW/TOP100 행 ➔ 초성 필터 ➔ 장르 필터 ➔ 검색창 상단 고정 영역 */}
           <div className="sticky top-0 z-40 bg-[#0F0F12]/95 backdrop-blur-md py-2 px-4 shadow-xl border-b border-zinc-800/80">
             <div className="max-w-5xl mx-auto flex flex-col gap-2">
               
-              {/* 필터 컨트롤 박스 */}
               <div className="flex flex-col gap-2 bg-zinc-900/90 p-2.5 rounded-xl shadow-md border border-zinc-800">
                 
-                {/* 1️⃣ NEW / TOP100 / 랜덤 버튼 행 (코랄 & 은은한 파스텔 피치 톤 변경) */}
+                {/* 1️⃣ NEW / TOP100 / 랜덤 버튼 행 */}
                 <div className="flex items-center gap-1.5 pb-1 border-b border-zinc-800/80 overflow-x-auto no-scrollbar">
                   <button
                     onClick={() => setSpecialFilter(prev => prev === 'new' ? 'all' : 'new')}
@@ -528,7 +525,7 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 4️⃣ 🔍 검색창 (최하단 고정) */}
+              {/* 4️⃣ 🔍 검색창 */}
               <div className="relative">
                 <input 
                   className="w-full p-2.5 pl-10 pr-10 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-amber-500/60 text-zinc-100 placeholder-zinc-500 shadow-inner outline-none text-sm md:text-base transition-colors" 
@@ -675,21 +672,18 @@ export default function Home() {
                         className="overflow-hidden flex-1 min-w-0 pr-1 cursor-pointer"
                       >
                         <div className="flex items-center gap-2 mb-0.5">
-                          {/* TOP100 순위: 차분하게 톤 다운된 디자인 적용 */}
                           {specialFilter === 'top100' && (
                             <span className="px-1.5 py-0.5 bg-[#F6D55C]/20 border border-[#F6D55C]/30 text-[#F6D55C] text-[10px] font-extrabold rounded shrink-0">
                               {index + 1}위
                             </span>
                           )}
 
-                          {/* NEW 뱃지: 은은한 파스텔 코랄 톤 적용 */}
                           {isNew(song.created_at) && (
                             <span className="px-1.5 py-0.5 bg-[#F8B195]/20 border border-[#F8B195]/40 text-[#F8B195] text-[10px] font-extrabold rounded shrink-0 animate-pulse">
                               NEW
                             </span>
                           )}
 
-                          {/* 가수명: 한 톤 다운된 오프화이트(#F4F4F6)로 가독성 향상 + 코랄 글로우 반짝임 적용 */}
                           <h3 className="font-extrabold text-[16px] md:text-[18px] truncate text-[#F4F4F6] tracking-tight leading-tight transition-colors">
                             {song.artist}
                             {isNew(song.created_at) && (
