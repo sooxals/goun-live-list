@@ -980,7 +980,7 @@ export default function Home() {
         <h3 className="text-lg font-bold text-zinc-100 mt-0.5 tracking-tight">{selectedSongDetail.title}</h3>
       </div>
 
-      {/* 💡 영상보기 링크 안내 박스 (12px 단정하게 유지) */}
+      {/* 💡 영상보기 링크 안내 박스 */}
       <div className="bg-zinc-950/90 p-3 rounded-xl border border-zinc-800/80 text-left mb-3 shrink-0">
         <div className="mb-1.5 pb-1 border-b border-zinc-800/60 flex flex-col gap-0.5">
           <p className="text-xs font-semibold text-amber-400/90 flex items-center gap-1">
@@ -1013,7 +1013,6 @@ export default function Home() {
             <div key={idx} className="bg-zinc-950/80 p-3 rounded-xl flex items-center justify-between border border-zinc-800/80 hover:border-zinc-700 transition-all">
               <div className="flex items-center gap-2">
                 <span className="text-zinc-400 font-bold text-sm">📅</span>
-                {/* 📅 날짜 글씨를 14px(text-sm)로 또렷하게 강조 */}
                 <span className="text-sm font-bold text-zinc-200">
                   {item.date || '날짜 미지정'}
                 </span>
