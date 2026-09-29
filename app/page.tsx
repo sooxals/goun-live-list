@@ -971,6 +971,7 @@ export default function Home() {
         ✕
       </button>
 
+      {/* 🎵 노래 정보 */}
       <div className="shrink-0 mb-3 pt-1">
         <span className="text-[11px] bg-zinc-800/80 text-zinc-300 border border-zinc-700 font-bold px-2.5 py-1 rounded-full uppercase">
           {selectedSongDetail.genre}
@@ -979,72 +980,72 @@ export default function Home() {
         <h3 className="text-lg font-bold text-zinc-100 mt-0.5 tracking-tight">{selectedSongDetail.title}</h3>
       </div>
 
-      {/* 💡 영상보기 링크 안내 박스 */}
-<div className="bg-zinc-950/90 p-3 rounded-xl border border-zinc-800/80 text-left mb-3 shrink-0">
-  {/* 상단 타이틀 & 변경 안내 */}
-  <div className="mb-1.5 pb-1 border-b border-zinc-800/60 flex flex-col gap-0.5">
-    <p className="text-xs font-semibold text-amber-400/90 flex items-center gap-1">
-      <span>💡</span>
-      <span>영상보기 링크 안내</span>
-    </p>
-    <p className="text-[12px] text-zinc-400 font-normal">
-      ※ 2026-06-01 기점 다시보기 보존 기준 변경
-    </p>
-  </div>
+      {/* 💡 영상보기 링크 안내 박스 (12px 단정하게 유지) */}
+      <div className="bg-zinc-950/90 p-3 rounded-xl border border-zinc-800/80 text-left mb-3 shrink-0">
+        <div className="mb-1.5 pb-1 border-b border-zinc-800/60 flex flex-col gap-0.5">
+          <p className="text-xs font-semibold text-amber-400/90 flex items-center gap-1">
+            <span>💡</span>
+            <span>영상보기 링크 안내</span>
+          </p>
+          <p className="text-[12px] text-zinc-400 font-normal">
+            ※ 2026-06-01 기점 다시보기 보존 기준 변경
+          </p>
+        </div>
 
-  {/* 세부 리스트 (12px 통일) */}
-  <ul className="text-[12px] text-zinc-300 space-y-0.5 pl-0.5">
-    <li>• <span className="font-semibold text-zinc-100">2026.06.01 이전:</span> LIVE 방송 다시보기</li>
-    <li>• <span className="font-semibold text-zinc-100">2026.06.01 이후:</span> 해당 노래 클립</li>
-  </ul>
-</div>
+        <ul className="text-[12px] text-zinc-300 space-y-0.5 pl-0.5">
+          <li>• <span className="font-semibold text-zinc-100">2026.06.01 이전:</span> LIVE 방송 다시보기</li>
+          <li>• <span className="font-semibold text-zinc-100">2026.06.01 이후:</span> 해당 노래 클립</li>
+        </ul>
+      </div>
 
+      {/* 🎤 방송 라이브 히스토리 리스트 */}
       <div className="flex-1 overflow-y-auto my-2 pr-1 space-y-2 no-scrollbar text-left">
         <p className="text-xs font-bold text-zinc-400 px-1 mb-1">
           🎤 방송 라이브 히스토리 ({selectedSongDetail.history?.length || 0}회)
         </p>
 
-              {!selectedSongDetail.history || selectedSongDetail.history.length === 0 ? (
-                <div className="bg-zinc-950/80 p-6 rounded-xl text-center border border-zinc-800">
-                  <p className="text-xs text-zinc-500 font-semibold">아직 등록된 방송 다시보기 링크가 없습니다.</p>
-                </div>
-              ) : (
-                selectedSongDetail.history.map((item, idx) => (
-                  <div key={idx} className="bg-zinc-950/80 p-3 rounded-xl flex items-center justify-between border border-zinc-800/80 hover:border-zinc-700 transition-all">
-                    <div className="flex items-center gap-2">
-                      <span className="text-zinc-400 font-bold text-xs">📅</span>
-                      <span className="text-xs font-bold text-zinc-300">
-                        {item.date || '날짜 미지정'}
-                      </span>
-                    </div>
+        {!selectedSongDetail.history || selectedSongDetail.history.length === 0 ? (
+          <div className="bg-zinc-950/80 p-6 rounded-xl text-center border border-zinc-800">
+            <p className="text-xs text-zinc-500 font-semibold">아직 등록된 방송 다시보기 링크가 없습니다.</p>
+          </div>
+        ) : (
+          selectedSongDetail.history.map((item, idx) => (
+            <div key={idx} className="bg-zinc-950/80 p-3 rounded-xl flex items-center justify-between border border-zinc-800/80 hover:border-zinc-700 transition-all">
+              <div className="flex items-center gap-2">
+                <span className="text-zinc-400 font-bold text-sm">📅</span>
+                {/* 📅 날짜 글씨를 14px(text-sm)로 또렷하게 강조 */}
+                <span className="text-sm font-bold text-zinc-200">
+                  {item.date || '날짜 미지정'}
+                </span>
+              </div>
 
-                    {item.url ? (
-                      <a
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1.5 bg-zinc-800/80 border border-zinc-700 hover:bg-zinc-700/80 text-zinc-200 font-semibold text-xs rounded-lg transition-all flex items-center gap-1 shadow-sm shrink-0 backdrop-blur-md"
-                      >
-                        <span>영상 보기</span>
-                        <span className="text-[10px]">➔</span>
-                      </a>
-                    ) : (
-                      <span className="text-[11px] text-zinc-500 font-bold">링크 없음</span>
-                    )}
-                  </div>
-                ))
+              {item.url ? (
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 bg-zinc-800/80 border border-zinc-700 hover:bg-zinc-700/80 text-zinc-200 font-semibold text-xs rounded-lg transition-all flex items-center gap-1 shadow-sm shrink-0 backdrop-blur-md"
+                >
+                  <span>영상 보기</span>
+                  <span className="text-[10px]">➔</span>
+                </a>
+              ) : (
+                <span className="text-[11px] text-zinc-500 font-bold">링크 없음</span>
               )}
             </div>
+          ))
+        )}
+      </div>
 
-            <button
-              onClick={() => setSelectedSongDetail(null)}
-              className="w-full bg-zinc-800/80 hover:bg-zinc-700/80 text-zinc-300 py-2.5 rounded-xl font-bold text-xs mt-3 shrink-0"
-            >
-              닫기
-            </button>
-          </div>
-        </div>
-      )}
+      <button
+        onClick={() => setSelectedSongDetail(null)}
+        className="w-full bg-zinc-800/80 hover:bg-zinc-700/80 text-zinc-300 py-2.5 rounded-xl font-bold text-xs mt-3 shrink-0"
+      >
+        닫기
+      </button>
+    </div>
+  </div>
+)}
 
       {/* 📋 SOOP iframe 차단 대응 복사 모달 */}
       {copyModalText && (
