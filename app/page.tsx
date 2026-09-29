@@ -22,7 +22,14 @@ interface Song {
 export default function Home() {
   const router = useRouter();
   
-  const [showList, setShowList] = useState(false);
+  // 1️⃣ 새로고침 시 기존 리스트 화면 유지 (sessionStorage 감지)
+  const [showList, setShowList] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('showList') === 'true';
+    }
+    return false;
+  });
+
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -46,6 +53,7 @@ export default function Home() {
 
   // 📋 복사기능용 State
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [isRandomCopied, setIsRandomCopied] = useState(false); // 🎲 랜덤모달 전용 복사 상태
   const [copyModalText, setCopyModalText] = useState<string | null>(null);
   const [isModalSelected, setIsModalSelected] = useState(false);
 
@@ -61,6 +69,27 @@ export default function Home() {
   const genres = ['전체', '가요', '트로트', 'POP', 'J-POP', '뮤지컬'];
   const initials = ['전체', '0-9', 'A-Z', 'ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
 
+  // showList 변경 시 sessionStorage 업데이트
+  const handleSetShowList = (val: boolean) => {
+    setShowList(val);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('showList', String(val));
+    }
+  };
+
+  // 3️⃣ 모달이 열려 있을 때 배경 스크롤 차단 (PC & 모바일 터치 슬라이드 대응)
+  useEffect(() => {
+    const isModalOpen = showRandomModal || selectedSongDetail !== null || copyModalText !== null || showLoginModal;
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showRandomModal, selectedSongDetail, copyModalText, showLoginModal]);
+
   // 🌐 모바일 전용 외부 브라우저(Safari/Chrome) 강제 이동 함수
   const handleOpenExternal = () => {
     if (typeof window === 'undefined') return;
@@ -68,14 +97,12 @@ export default function Home() {
     const currentUrl = window.location.href;
     const userAgent = navigator.userAgent || navigator.vendor;
 
-    // Android: intent 스키마 이용 Chrome으로 열기
     if (/android/i.test(userAgent)) {
       const cleanUrl = currentUrl.replace(/^https?:\/\//, '');
       window.location.href = `intent://${cleanUrl}#Intent;scheme=https;package=com.android.chrome;end`;
       return;
     }
 
-    // iOS (iPhone/iPad): 주소 복사 안내 및 브라우저 열기 유도
     if (/iPhone|iPad|iPod/i.test(userAgent)) {
       navigator.clipboard.writeText(currentUrl).then(() => {
         alert('주소가 복사되었습니다! Safari나 Chrome 앱을 열고 주소창에 붙여넣어 주세요.');
@@ -85,7 +112,6 @@ export default function Home() {
       return;
     }
 
-    // PC 등 일반 환경
     window.open(currentUrl, '_blank', 'noopener,noreferrer');
   };
 
@@ -101,14 +127,19 @@ export default function Home() {
     setSelectedInitial('전체');
   };
 
-  const handleCopySong = async (song: Song) => {
+  const handleCopySong = async (song: Song, isFromRandom = false) => {
     const textToCopy = `${song.artist} - ${song.title}`;
 
     try {
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(textToCopy);
-        setCopiedId(song.id);
-        setTimeout(() => setCopiedId(null), 1500);
+        if (isFromRandom) {
+          setIsRandomCopied(true);
+          setTimeout(() => setIsRandomCopied(false), 1500);
+        } else {
+          setCopiedId(song.id);
+          setTimeout(() => setCopiedId(null), 1500);
+        }
         return;
       }
     } catch (err) {
@@ -367,6 +398,7 @@ export default function Home() {
 
     const randomIndex = Math.floor(Math.random() * pool.length);
     setPickedSong(pool[randomIndex]);
+    setIsRandomCopied(false);
   };
 
   if (loading) return <div className="p-10 text-center text-zinc-400 font-sans bg-[#0F0F12] min-h-screen flex items-center justify-center">목록을 불러오는 중...</div>;
@@ -429,7 +461,7 @@ export default function Home() {
           </div>
 
           <button
-            onClick={() => setShowList(true)}
+            onClick={() => handleSetShowList(true)}
             className="w-full sm:w-auto px-9 py-3.5 bg-white/5 hover:bg-white/10 text-zinc-100 font-semibold rounded-2xl border border-white/15 backdrop-blur-md shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-base md:text-lg flex items-center justify-center cursor-pointer tracking-tight hover:border-white/30 hover:text-white"
           >
             <span>전체 노래 리스트 둘러보기</span>
@@ -451,7 +483,7 @@ export default function Home() {
                   setSelectedInitial('전체'); 
                   setSelectedGenre('전체');
                   setSpecialFilter('all');
-                  setShowList(false);
+                  handleSetShowList(false);
                 }}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-700 text-zinc-200 font-bold text-xs md:text-sm rounded-xl transition-all active:scale-95 cursor-pointer shadow-md backdrop-blur-md"
                 title="처음 화면으로 이동"
@@ -536,6 +568,7 @@ export default function Home() {
                       setRandomTarget(specialFilter);
                       setRandomGenre('전체');
                       setPickedSong(null);
+                      setIsRandomCopied(false);
                       setShowRandomModal(true);
                     }}
                     className="px-3 py-1 rounded-lg text-xs md:text-sm font-bold bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-700/80 text-zinc-200 transition-all flex items-center gap-1 cursor-pointer shrink-0 active:scale-95 backdrop-blur-md"
@@ -808,7 +841,7 @@ export default function Home() {
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-6 right-6 w-12 h-12 bg-zinc-800/80 border border-zinc-600 text-zinc-200 rounded-full shadow-2xl backdrop-blur-md flex items-center justify-center font-bold text-xs z-50 animate-bounce cursor-pointer">TOP</button>
       )}
 
-      {/* 🎲 랜덤 노래 모달 */}
+      {/* 🎲 2️⃣ 랜턴 노래 모달 (복사 버튼 추가됨) */}
       {showRandomModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-zinc-900/90 rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-zinc-800 relative backdrop-blur-md">
@@ -882,12 +915,38 @@ export default function Home() {
             </div>
 
             {pickedSong && (
-              <div className="bg-zinc-950/80 p-4 rounded-xl border border-zinc-700/80 my-4 text-center">
+              <div className="bg-zinc-950/80 p-4 rounded-xl border border-zinc-700/80 my-4 text-center flex flex-col items-center">
                 <span className="text-[10px] bg-zinc-800 text-zinc-300 border border-zinc-700 font-bold px-2 py-0.5 rounded-full uppercase">
                   {pickedSong.genre}
                 </span>
                 <p className="text-xs font-semibold text-zinc-400 mt-2">{pickedSong.artist}</p>
                 <h4 className="text-base font-bold text-zinc-100 mt-0.5 tracking-tight">{pickedSong.title}</h4>
+
+                {/* 📋 추첨된 노래 전용 복사 버튼 (기존 동일 스타일) */}
+                <button
+                  onClick={() => handleCopySong(pickedSong, true)}
+                  className={`mt-3 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                    isRandomCopied
+                      ? 'bg-zinc-700 border border-zinc-500 text-zinc-100 shadow-sm scale-95'
+                      : 'bg-zinc-800/80 border border-zinc-700/80 hover:bg-zinc-700/80 text-zinc-200 active:scale-95'
+                  }`}
+                >
+                  {isRandomCopied ? (
+                    <>
+                      <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
+                        <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
+                      </svg>
+                      <span>복사됨!</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-3 h-3 fill-current opacity-70" viewBox="0 0 24 24">
+                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
+                      </svg>
+                      <span>복사</span>
+                    </>
+                  )}
+                </button>
               </div>
             )}
 
@@ -901,7 +960,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* 🎬 노래 상세 보기 모달 */}
+      {/* 🎬 3️⃣ 히스토리 모달 (배경 스크롤 차단 적용) */}
       {selectedSongDetail && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-zinc-900/90 rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-zinc-800 text-center relative max-h-[90vh] flex flex-col backdrop-blur-md">
