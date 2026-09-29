@@ -980,16 +980,34 @@ export default function Home() {
       </div>
 
       {/* 👇 바로 여기에 복사한 안내 문구 코드를 붙여넣으세요! */}
-      <div className="bg-zinc-950/90 p-3 rounded-xl border border-zinc-800 text-left mb-3 shrink-0">
-        <p className="text-[11px] font-semibold text-amber-400 mb-1 flex items-center gap-1">
-          <span>💡</span>
-          <span>영상보기 링크 안내</span>
-        </p>
-        <ul className="text-[11px] text-zinc-400 space-y-0.5 pl-1">
-          <li>• <span className="font-semibold text-zinc-200">2026.06.01 이전:</span> LIVE 방송 다시보기</li>
-          <li>• <span className="font-semibold text-zinc-200">2026.06.01 이후:</span> 해당 노래 클립</li>
-        </ul>
-      </div>
+      <div className="bg-zinc-950/90 p-3.5 rounded-xl border border-zinc-800 text-left mb-3 shrink-0">
+  {/* 타이틀 및 보존 기준 변경 문구 */}
+  <div className="mb-2 pb-1.5 border-b border-zinc-800/80">
+    <p className="text-sm md:text-base font-bold text-amber-400 flex items-center gap-1.5">
+      <span>💡</span>
+      <span>영상보기 링크 안내</span>
+    </p>
+    <p className="text-[12px] md:text-xs text-amber-200/80 font-medium mt-0.5 pl-0.5">
+      ※ 2026-06-01 기점 다시보기 보존 기준 변경
+    </p>
+  </div>
+
+  {/* 세부 연결 안내 (글자 크기 확대: text-xs~text-sm) */}
+  <ul className="text-xs md:text-sm text-zinc-300 space-y-1 pl-1">
+    <li className="flex items-start gap-1">
+      <span className="text-amber-400 font-bold">•</span>
+      <span>
+        <strong className="font-bold text-white">2026.06.01 이전:</strong> LIVE 방송 다시보기
+      </span>
+    </li>
+    <li className="flex items-start gap-1">
+      <span className="text-amber-400 font-bold">•</span>
+      <span>
+        <strong className="font-bold text-white">2026.06.01 이후:</strong> 해당 노래 클립
+      </span>
+    </li>
+  </ul>
+</div>
 
       <div className="flex-1 overflow-y-auto my-2 pr-1 space-y-2 no-scrollbar text-left">
         <p className="text-xs font-bold text-zinc-400 px-1 mb-1">
