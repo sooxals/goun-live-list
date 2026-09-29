@@ -960,29 +960,41 @@ export default function Home() {
         </div>
       )}
 
-      {/* 🎬 3️⃣ 히스토리 모달 (배경 스크롤 차단 적용) */}
-      {selectedSongDetail && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-          <div className="bg-zinc-900/90 rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-zinc-800 text-center relative max-h-[90vh] flex flex-col backdrop-blur-md">
-            <button 
-              onClick={() => setSelectedSongDetail(null)}
-              className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-200 font-bold text-sm w-8 h-8 rounded-full bg-zinc-800/80 flex items-center justify-center"
-            >
-              ✕
-            </button>
+      {/* 🎬 3️⃣ 히스토리 모달 */}
+{selectedSongDetail && (
+  <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+    <div className="bg-zinc-900/90 rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-zinc-800 text-center relative max-h-[90vh] flex flex-col backdrop-blur-md">
+      <button 
+        onClick={() => setSelectedSongDetail(null)}
+        className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-200 font-bold text-sm w-8 h-8 rounded-full bg-zinc-800/80 flex items-center justify-center"
+      >
+        ✕
+      </button>
 
-            <div className="shrink-0 mb-3 pt-1">
-              <span className="text-[11px] bg-zinc-800/80 text-zinc-300 border border-zinc-700 font-bold px-2.5 py-1 rounded-full uppercase">
-                {selectedSongDetail.genre}
-              </span>
-              <p className="text-sm font-semibold text-zinc-400 mt-2.5">{selectedSongDetail.artist}</p>
-              <h3 className="text-lg font-bold text-zinc-100 mt-0.5 tracking-tight">{selectedSongDetail.title}</h3>
-            </div>
+      <div className="shrink-0 mb-3 pt-1">
+        <span className="text-[11px] bg-zinc-800/80 text-zinc-300 border border-zinc-700 font-bold px-2.5 py-1 rounded-full uppercase">
+          {selectedSongDetail.genre}
+        </span>
+        <p className="text-sm font-semibold text-zinc-400 mt-2.5">{selectedSongDetail.artist}</p>
+        <h3 className="text-lg font-bold text-zinc-100 mt-0.5 tracking-tight">{selectedSongDetail.title}</h3>
+      </div>
 
-            <div className="flex-1 overflow-y-auto my-2 pr-1 space-y-2 no-scrollbar text-left">
-              <p className="text-xs font-bold text-zinc-400 px-1 mb-1">
-                🎤 방송 라이브 히스토리 ({selectedSongDetail.history?.length || 0}회)
-              </p>
+      {/* 👇 바로 여기에 복사한 안내 문구 코드를 붙여넣으세요! */}
+      <div className="bg-zinc-950/90 p-3 rounded-xl border border-zinc-800 text-left mb-3 shrink-0">
+        <p className="text-[11px] font-semibold text-amber-400 mb-1 flex items-center gap-1">
+          <span>💡</span>
+          <span>영상보기 링크 안내</span>
+        </p>
+        <ul className="text-[11px] text-zinc-400 space-y-0.5 pl-1">
+          <li>• <span className="font-semibold text-zinc-200">2026.06.01 이전:</span> LIVE 방송 다시보기</li>
+          <li>• <span className="font-semibold text-zinc-200">2026.06.01 이후:</span> 해당 노래 클립</li>
+        </ul>
+      </div>
+
+      <div className="flex-1 overflow-y-auto my-2 pr-1 space-y-2 no-scrollbar text-left">
+        <p className="text-xs font-bold text-zinc-400 px-1 mb-1">
+          🎤 방송 라이브 히스토리 ({selectedSongDetail.history?.length || 0}회)
+        </p>
 
               {!selectedSongDetail.history || selectedSongDetail.history.length === 0 ? (
                 <div className="bg-zinc-950/80 p-6 rounded-xl text-center border border-zinc-800">
