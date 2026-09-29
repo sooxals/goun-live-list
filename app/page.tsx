@@ -979,10 +979,8 @@ export default function Home() {
         <h3 className="text-lg font-bold text-zinc-100 mt-0.5 tracking-tight">{selectedSongDetail.title}</h3>
       </div>
 
-      {/* 👇 바로 여기에 복사한 안내 문구 코드를 붙여넣으세요! */}
-      <div className="bg-zinc-950/90 p-3.5 rounded-xl border border-zinc-800 text-left mb-3 shrink-0">
-  {/* 타이틀 및 보존 기준 변경 문구 */}
-  <div className="bg-zinc-950/90 p-3 rounded-xl border border-zinc-800/80 text-left mb-3 shrink-0">
+      {/* 💡 영상보기 링크 안내 박스 */}
+<div className="bg-zinc-950/90 p-3 rounded-xl border border-zinc-800/80 text-left mb-3 shrink-0">
   {/* 상단 타이틀 & 변경 안내 */}
   <div className="mb-1.5 pb-1 border-b border-zinc-800/60 flex flex-col gap-0.5">
     <p className="text-xs font-semibold text-amber-400/90 flex items-center gap-1">
@@ -994,7 +992,7 @@ export default function Home() {
     </p>
   </div>
 
-  {/* 세부 리스트 (전체 12px 통일) */}
+  {/* 세부 리스트 (12px 통일) */}
   <ul className="text-[12px] text-zinc-300 space-y-0.5 pl-0.5">
     <li>• <span className="font-semibold text-zinc-100">2026.06.01 이전:</span> LIVE 방송 다시보기</li>
     <li>• <span className="font-semibold text-zinc-100">2026.06.01 이후:</span> 해당 노래 클립</li>
