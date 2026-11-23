@@ -1,0 +1,122 @@
+name: Goun live list check
+
+on:
+  schedule:
+    - cron: '17 0 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: goun-live-list-production-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check five-day cadence
+        id: cadence
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          # 00:17 UTC is 09:17 in Korea. Use elapsed days to preserve the cadence across months.
+          today=$(date -u +%s)
+          anchor=$(date -u -d '2026-11-23' +%s)
+          if [[ "$EVENT_NAME" == workflow_dispatch ]] || (( ((today - anchor) / 86400) % 5 == 0 )); then
+            echo 'due=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Install browser
+        if: steps.cadence.outputs.due == 'true'
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Add and remove one test song
+        if: steps.cadence.outputs.due == 'true'
+        env:
+          GOUN_ADMIN_PASSWORD: ${{ secrets.GOUN_ADMIN_PASSWORD }}
+        run: |
+          node <<'NODE'
+          const { chromium } = require('playwright');
+
+          async function run() {
+            const password = process.env.GOUN_ADMIN_PASSWORD;
+            if (!password) throw new Error('Configure the GOUN_ADMIN_PASSWORD Actions secret.');
+            const title = '테스트 [자동점검 ' + require('node:crypto').randomUUID() + ']';
+            const browser = await chromium.launch();
+            let stage = '운영 사이트 접속';
+
+            try {
+              const page = await browser.newPage({ acceptDownloads: false });
+              page.setDefaultTimeout(12000);
+              let expectedDialog = '';
+
+              page.on('dialog', async dialog => {
+                if (dialog.type() === 'confirm' && expectedDialog === 'delete'
+                    && dialog.message() === '삭제할까요?') {
+                  expectedDialog = '';
+                  await dialog.accept();
+                } else {
+                  await dialog.dismiss();
+                }
+              });
+
+              await page.goto('https://goun-live-list.vercel.app/', { timeout: 30000 });
+              const trustedOrigin = 'https://goun-live-list.vercel.app';
+              if (new URL(page.url()).origin !== trustedOrigin) throw new Error();
+
+              await page.getByRole('button', { name: '전체 노래 리스트 둘러보기', exact: true }).click();
+              stage = '관리자 로그인';
+              await page.getByRole('button', { name: '관리자 설정', exact: true }).click();
+              if (new URL(page.url()).origin !== trustedOrigin) throw new Error();
+              await page.getByPlaceholder('비밀번호', { exact: true }).fill(password);
+              const login = page.getByRole('heading', { name: /관리자 로그인$/ }).locator('..');
+              await login.getByRole('button', { name: '확인', exact: true }).click();
+
+              const search = page.getByPlaceholder('찾고 싶은 노래나 가수를 입력하세요', { exact: true });
+              const add = page.getByRole('button', { name: '곡 추가', exact: true });
+              await add.waitFor();
+
+              const exactTitle = page.getByText(title, { exact: true });
+              const card = page.locator('div.group')
+                .filter({ has: exactTitle })
+                .filter({ has: page.getByRole('heading', { name: /^테스트\s*✨?$/ }) });
+
+              stage = '테스트 곡 추가';
+              console.log('테스트 곡 식별자: ' + title);
+              await search.fill(title);
+              if (await exactTitle.count() !== 0) throw new Error();
+              await add.click();
+              const editor = page.getByRole('dialog', { name: /새 노래 추가하기$/ });
+              await editor.getByRole('textbox', { name: '가수명', exact: true }).fill('테스트');
+              await editor.getByRole('textbox', { name: '노래제목', exact: true }).fill(title);
+              await editor.getByRole('button', { name: '곡 저장하기', exact: true }).click();
+
+              stage = '테스트 곡 식별';
+              await exactTitle.waitFor({ state: 'visible' });
+              if (await exactTitle.count() !== 1 || await card.count() !== 1) throw new Error();
+              const remove = card.getByRole('button', { name: '🗑️', exact: true });
+              if (await remove.count() !== 1) throw new Error();
+
+              stage = '테스트 곡 삭제 확인';
+              expectedDialog = 'delete';
+              await remove.click();
+              await exactTitle.waitFor({ state: 'hidden' });
+              if (expectedDialog !== '') throw new Error();
+              await page.reload({ timeout: 30000 });
+              await search.fill(title);
+              if (await exactTitle.count() !== 0) throw new Error();
+              console.log('테스트 곡 한 건을 추가하고 삭제했습니다.');
+            } catch {
+              throw new Error(stage + ' 단계에 실패했습니다. 테스트 곡 식별자로 잔여 데이터를 확인하세요.');
+            } finally {
+              await browser.close();
+            }
+          }
+
+          run().catch(error => {
+            console.error(error.message);
+            process.exitCode = 1;
+          });
+          NODE
