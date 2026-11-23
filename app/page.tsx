@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase, supabaseAdmin } from '@/lib/supabase';
 import { submitSongServer, deleteSongServer, checkAdminPasswordServer } from './adminActions';
@@ -40,6 +40,9 @@ export default function Home() {
   const [specialFilter, setSpecialFilter] = useState<'all' | 'new' | 'top100'>('all');
 
   const [isAdminMode, setIsAdminMode] = useState(false);
+  const [showSongEditor, setShowSongEditor] = useState(false);
+  const [isSavingSong, setIsSavingSong] = useState(false);
+  const songEditorRef = useRef<HTMLDialogElement>(null);
   const [editingSong, setEditingSong] = useState<Song | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [inputPassword, setInputPassword] = useState('');
@@ -79,7 +82,7 @@ export default function Home() {
 
   // 3️⃣ 모달이 열려 있을 때 배경 스크롤 차단 (PC & 모바일 터치 슬라이드 대응)
   useEffect(() => {
-    const isModalOpen = showRandomModal || selectedSongDetail !== null || copyModalText !== null || showLoginModal;
+    const isModalOpen = showRandomModal || selectedSongDetail !== null || copyModalText !== null || showLoginModal || showSongEditor;
     if (isModalOpen) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -88,7 +91,14 @@ export default function Home() {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [showRandomModal, selectedSongDetail, copyModalText, showLoginModal]);
+  }, [showRandomModal, selectedSongDetail, copyModalText, showLoginModal, showSongEditor]);
+
+  useEffect(() => {
+    const dialog = songEditorRef.current;
+    if (!showSongEditor || !dialog) return;
+    dialog.showModal();
+    return () => dialog.close();
+  }, [showSongEditor]);
 
   // 🌐 모바일 전용 외부 브라우저(Safari/Chrome) 강제 이동 함수
   const handleOpenExternal = () => {
@@ -260,6 +270,11 @@ export default function Home() {
     setEditingSong(null);
   };
 
+  const closeSongEditor = () => {
+    setShowSongEditor(false);
+    resetForm();
+  };
+
   const handleAddHistoryRow = () => {
     setFormHistory([...formHistory, { date: '', url: '' }]);
   };
@@ -291,14 +306,17 @@ export default function Home() {
     setFormTitle(song.title);
     setFormGenre(song.genre);
     setFormHistory(song.history || []);
+    setShowSongEditor(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSavingSong) return;
     if (!formArtist || !formTitle) return alert('입력란을 확인해주세요.');
 
     const cleanHistory = formHistory.filter(item => item.date.trim() || item.url.trim());
 
+    setIsSavingSong(true);
     try {
       if (editingSong) {
         await submitSongServer({
@@ -319,12 +337,14 @@ export default function Home() {
         });
       }
 
-      resetForm();
+      closeSongEditor();
       fetchSongs();
       alert('성공적으로 반영되었습니다!');
     } catch (error) {
       console.error(error);
       alert('작업 중 오류가 발생했습니다.');
+    } finally {
+      setIsSavingSong(false);
     }
   };
 
@@ -541,10 +561,13 @@ export default function Home() {
               <div className="flex flex-col gap-2 bg-zinc-900/90 p-2.5 rounded-xl shadow-md border border-zinc-800">
                 
                 {/* 1️⃣ NEW / TOP100 / 랜덤 버튼 행 */}
-                <div className="flex items-center gap-1.5 pb-1 border-b border-zinc-800/80 overflow-x-auto no-scrollbar">
+                <div className="flex items-center gap-1.5 pb-1 border-b border-zinc-800/80">
                   <button
-                    onClick={() => setSpecialFilter(prev => prev === 'new' ? 'all' : 'new')}
-                    className={`px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
+                    onClick={() => {
+                      setSearchTerm('');
+                      setSpecialFilter(prev => prev === 'new' ? 'all' : 'new');
+                    }}
+                    className={`px-1.5 sm:px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
                       specialFilter === 'new'
                         ? 'bg-[#F8B195]/20 border border-[#F8B195]/50 text-[#F8B195] shadow-md backdrop-blur-md'
                         : 'bg-[#F8B195]/10 border border-[#F8B195]/20 text-[#F8B195]/70 hover:bg-[#F8B195]/20 hover:text-[#F8B195]'
@@ -553,8 +576,11 @@ export default function Home() {
                     <span>✨ NEW</span>
                   </button>
                   <button
-                    onClick={() => setSpecialFilter(prev => prev === 'top100' ? 'all' : 'top100')}
-                    className={`px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
+                    onClick={() => {
+                      setSearchTerm('');
+                      setSpecialFilter(prev => prev === 'top100' ? 'all' : 'top100');
+                    }}
+                    className={`px-1.5 sm:px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
                       specialFilter === 'top100'
                         ? 'bg-[#F6D55C]/20 border border-[#F6D55C]/50 text-[#F6D55C] shadow-md backdrop-blur-md'
                         : 'bg-[#F6D55C]/10 border border-[#F6D55C]/20 text-[#F6D55C]/70 hover:bg-[#F6D55C]/20 hover:text-[#F6D55C]'
@@ -571,10 +597,24 @@ export default function Home() {
                       setIsRandomCopied(false);
                       setShowRandomModal(true);
                     }}
-                    className="px-3 py-1 rounded-lg text-xs md:text-sm font-bold bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-700/80 text-zinc-200 transition-all flex items-center gap-1 cursor-pointer shrink-0 active:scale-95 backdrop-blur-md"
+                    className="px-1.5 sm:px-3 py-1 rounded-lg text-xs md:text-sm font-bold bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-700/80 text-zinc-200 transition-all flex items-center gap-1 cursor-pointer shrink-0 active:scale-95 backdrop-blur-md"
                   >
                     <span>🎲 랜덤 노래</span>
                   </button>
+                  {isAdminMode && (
+                    <button
+                      type="button"
+                      aria-label="곡 추가"
+                      title="곡 추가"
+                      onClick={() => {
+                        resetForm();
+                        setShowSongEditor(true);
+                      }}
+                      className="ml-auto grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-zinc-700 bg-zinc-800 text-xl leading-none text-zinc-100 hover:bg-zinc-700"
+                    >
+                      <span aria-hidden="true">+</span>
+                    </button>
+                  )}
                 </div>
 
                 {/* 2️⃣ 초성 필터 */}
@@ -645,101 +685,6 @@ export default function Home() {
 
           {/* 🎵 노래 카드 목록 */}
           <div className="max-w-5xl mx-auto px-4 mt-4">
-            {/* 🛠️ 관리자 모드 폼 */}
-            {isAdminMode && (
-              <div className="mb-6 bg-zinc-900/90 p-5 rounded-2xl shadow-xl border border-zinc-700/80 backdrop-blur-md">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-bold text-zinc-200 text-sm">
-                    {editingSong ? '✏️ 곡 정보 수정 중' : '➕ 새 노래 추가하기'}
-                  </h3>
-                  {editingSong && (
-                    <button onClick={resetForm} className="text-xs text-rose-400 font-bold hover:underline">
-                      수정 취소
-                    </button>
-                  )}
-                </div>
-
-                <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    <input className="p-3 bg-zinc-800/80 rounded-xl text-sm outline-none border border-zinc-700 text-zinc-100 focus:border-zinc-500" placeholder="가수명" value={formArtist} onChange={e=>setFormArtist(e.target.value)} />
-                    <input className="p-3 bg-zinc-800/80 rounded-xl text-sm outline-none border border-zinc-700 text-zinc-100 focus:border-zinc-500" placeholder="노래제목" value={formTitle} onChange={e=>setFormTitle(e.target.value)} />
-                    <select className="p-3 bg-zinc-800/80 rounded-xl text-sm outline-none border border-zinc-700 text-zinc-100" value={formGenre} onChange={e=>setFormGenre(e.target.value)}>
-                      {genres.slice(1).map(g => <option key={g} value={g}>{g}</option>)}
-                    </select>
-                  </div>
-
-                  <div className="bg-zinc-950/80 p-3.5 rounded-xl border border-zinc-800 mt-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold text-zinc-300">📺 방송 라이브 날짜 & 영상 링크</span>
-                      <button 
-                        type="button" 
-                        onClick={handleAddHistoryRow}
-                        className="text-xs bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 text-zinc-200 font-bold px-2.5 py-1 rounded-lg transition-colors"
-                      >
-                        + 날짜 추가
-                      </button>
-                    </div>
-
-                    {formHistory.length === 0 ? (
-                      <p className="text-xs text-zinc-500 text-center py-2">등록된 라이브 영상 링크가 없습니다.</p>
-                    ) : (
-                      <div className="flex flex-col gap-2">
-                        {formHistory.map((item, idx) => (
-                          <div key={idx} className="flex items-center gap-2">
-                            <input 
-                              type="text" 
-                              placeholder="예: 2026-06-15" 
-                              value={item.date} 
-                              onChange={e => handleHistoryChange(idx, 'date', e.target.value)}
-                              className="w-1/3 p-2 bg-zinc-900/90 text-zinc-100 rounded-lg text-xs border border-zinc-700 outline-none"
-                            />
-                            <input 
-                              type="text" 
-                              placeholder="영상 URL" 
-                              value={item.url} 
-                              onChange={e => handleHistoryChange(idx, 'url', e.target.value)}
-                              className="flex-1 p-2 bg-zinc-900/90 text-zinc-100 rounded-lg text-xs border border-zinc-700 outline-none"
-                            />
-                            
-                            <div className="flex flex-col shrink-0">
-                              <button 
-                                type="button" 
-                                onClick={() => handleMoveHistoryRow(idx, 'up')}
-                                disabled={idx === 0}
-                                className={`text-[10px] px-1.5 py-0.5 rounded bg-zinc-800/80 text-zinc-300 border border-zinc-700 font-bold ${idx === 0 ? 'opacity-30' : 'hover:bg-zinc-700'}`}
-                              >
-                                ▲
-                              </button>
-                              <button 
-                                type="button" 
-                                onClick={() => handleMoveHistoryRow(idx, 'down')}
-                                disabled={idx === formHistory.length - 1}
-                                className={`text-[10px] px-1.5 py-0.5 rounded bg-zinc-800/80 text-zinc-300 border border-zinc-700 font-bold mt-0.5 ${idx === formHistory.length - 1 ? 'opacity-30' : 'hover:bg-zinc-700'}`}
-                              >
-                                ▼
-                              </button>
-                            </div>
-
-                            <button 
-                              type="button" 
-                              onClick={() => handleRemoveHistoryRow(idx)} 
-                              className="text-xs text-rose-400 font-bold px-2 py-2 bg-rose-950/50 rounded-lg hover:bg-rose-900/50 shrink-0"
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <button className="bg-zinc-800 border border-zinc-600 hover:bg-zinc-700 text-zinc-200 p-3 rounded-xl font-bold text-sm transition-colors mt-1 cursor-pointer">
-                    {editingSong ? '수정 완료하기' : '곡 저장하기'}
-                  </button>
-                </form>
-              </div>
-            )}
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
               {filtered.length === 0 ? (
                 <div className="col-span-full bg-zinc-900/90 p-10 rounded-2xl text-center text-zinc-500 font-bold border border-zinc-800">
@@ -1085,6 +1030,114 @@ export default function Home() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* 🛠️ 관리자 모드 폼 */}
+      {isAdminMode && showSongEditor && (
+        <dialog
+          ref={songEditorRef}
+          aria-labelledby="song-editor-title"
+          onCancel={event => {
+            event.preventDefault();
+            if (!isSavingSong) closeSongEditor();
+          }}
+          className="fixed inset-0 m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%_-_2rem)] max-w-2xl overflow-y-auto overscroll-contain rounded-2xl border border-zinc-700 bg-zinc-900 p-4 text-zinc-100 shadow-xl backdrop:bg-black/80 sm:p-5"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <h3 id="song-editor-title" className="font-bold text-zinc-200 text-sm">
+              {editingSong ? '✏️ 곡 정보 수정 중' : '➕ 새 노래 추가하기'}
+            </h3>
+            <button type="button" onClick={closeSongEditor} disabled={isSavingSong} className="px-2 py-1 text-sm font-bold text-zinc-300 hover:text-white">
+              닫기
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <input className="w-full min-w-0 p-3 bg-zinc-800/80 rounded-xl text-base md:text-sm outline-none border border-zinc-700 text-zinc-100 focus:border-zinc-500" aria-label="가수명" placeholder="가수명" value={formArtist} onChange={e=>setFormArtist(e.target.value)} />
+              <input className="w-full min-w-0 p-3 bg-zinc-800/80 rounded-xl text-base md:text-sm outline-none border border-zinc-700 text-zinc-100 focus:border-zinc-500" aria-label="노래제목" placeholder="노래제목" value={formTitle} onChange={e=>setFormTitle(e.target.value)} />
+              <select aria-label="장르" className="w-full min-w-0 p-3 bg-zinc-800/80 rounded-xl text-base md:text-sm outline-none border border-zinc-700 text-zinc-100" value={formGenre} onChange={e=>setFormGenre(e.target.value)}>
+                {genres.slice(1).map(g => <option key={g} value={g}>{g}</option>)}
+              </select>
+            </div>
+
+            <div className="bg-zinc-950/80 p-3.5 rounded-xl border border-zinc-800 mt-1">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className="text-xs font-bold text-zinc-300">📺 방송 라이브 날짜 & 영상 링크</span>
+                <button 
+                  type="button" 
+                  onClick={handleAddHistoryRow}
+                  className="shrink-0 text-xs bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 text-zinc-200 font-bold px-2.5 py-1 rounded-lg transition-colors"
+                >
+                  + 날짜 추가
+                </button>
+              </div>
+
+              {formHistory.length === 0 ? (
+                <p className="text-xs text-zinc-500 text-center py-2">등록된 라이브 영상 링크가 없습니다.</p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {formHistory.map((item, idx) => (
+                    <div key={idx} className="flex flex-col gap-2 rounded-lg border border-zinc-800 p-2 md:flex-row md:items-center md:border-0 md:p-0">
+                      <input 
+                        type="text" 
+                        aria-label="방송 날짜"
+                        placeholder="예: 2026-06-15" 
+                        value={item.date} 
+                        onChange={e => handleHistoryChange(idx, 'date', e.target.value)}
+                        className="w-full min-w-0 p-2 bg-zinc-900/90 text-zinc-100 rounded-lg text-base md:w-1/3 md:text-xs border border-zinc-700 outline-none"
+                      />
+                      <input 
+                        type="text" 
+                        aria-label="영상 URL"
+                        placeholder="영상 URL" 
+                        value={item.url} 
+                        onChange={e => handleHistoryChange(idx, 'url', e.target.value)}
+                        className="w-full min-w-0 p-2 bg-zinc-900/90 text-zinc-100 rounded-lg text-base md:w-auto md:flex-1 md:text-xs border border-zinc-700 outline-none"
+                      />
+                      
+                      <div className="flex items-center justify-end gap-2 md:shrink-0">
+                        <div className="flex gap-2 md:flex-col md:gap-0">
+                          <button 
+                            type="button" 
+                            aria-label="히스토리 위로 이동"
+                            onClick={() => handleMoveHistoryRow(idx, 'up')}
+                            disabled={idx === 0}
+                            className={`min-h-9 min-w-9 text-xs md:min-h-0 md:min-w-0 md:text-[10px] px-1.5 py-0.5 rounded bg-zinc-800/80 text-zinc-300 border border-zinc-700 font-bold ${idx === 0 ? 'opacity-30' : 'hover:bg-zinc-700'}`}
+                          >
+                            ▲
+                          </button>
+                          <button 
+                            type="button" 
+                            aria-label="히스토리 아래로 이동"
+                            onClick={() => handleMoveHistoryRow(idx, 'down')}
+                            disabled={idx === formHistory.length - 1}
+                            className={`min-h-9 min-w-9 text-xs md:min-h-0 md:min-w-0 md:text-[10px] px-1.5 py-0.5 rounded bg-zinc-800/80 text-zinc-300 border border-zinc-700 font-bold md:mt-0.5 ${idx === formHistory.length - 1 ? 'opacity-30' : 'hover:bg-zinc-700'}`}
+                          >
+                            ▼
+                          </button>
+                        </div>
+
+                        <button 
+                          type="button" 
+                          onClick={() => handleRemoveHistoryRow(idx)} 
+                            aria-label="히스토리 삭제"
+                          className="min-h-9 min-w-9 md:min-h-0 md:min-w-0 text-xs text-rose-400 font-bold px-2 py-2 bg-rose-950/50 rounded-lg hover:bg-rose-900/50 shrink-0"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <button type="submit" disabled={isSavingSong} className="bg-zinc-800 border border-zinc-600 hover:bg-zinc-700 text-zinc-200 p-3 rounded-xl font-bold text-sm transition-colors mt-1 cursor-pointer">
+              {editingSong ? '수정 완료하기' : '곡 저장하기'}
+            </button>
+          </form>
+        </dialog>
       )}
 
       {/* 🔐 관리자 로그인 모달 */}
