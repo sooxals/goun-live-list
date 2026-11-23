@@ -495,7 +495,7 @@ export default function Home() {
           <div className="pt-3 px-4 max-w-5xl mx-auto">
             
             {/* 메인 이동 버튼 & 관리자 설정 & 모바일 전용 다른 브라우저로 열기 */}
-            <div className="flex justify-between items-center mb-2 px-0.5">
+            <div className="flex flex-wrap items-center justify-between gap-2 px-0.5 mb-2">
               <button 
                 onClick={() => {
                   setSearchTerm('');          
@@ -505,38 +505,39 @@ export default function Home() {
                   setSpecialFilter('all');
                   handleSetShowList(false);
                 }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-700 text-zinc-200 font-bold text-xs md:text-sm rounded-xl transition-all active:scale-95 cursor-pointer shadow-md backdrop-blur-md"
+                className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1.5 bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-700 text-zinc-200 font-bold text-xs md:text-sm rounded-xl transition-all active:scale-95 cursor-pointer shadow-md backdrop-blur-md"
                 title="처음 화면으로 이동"
               >
                 <span>←</span>
                 <span>메인</span>
               </button>
 
-              <div className="flex items-center gap-2">
-                {/* 🌐 노래 리스트 상단: 모바일 전용 다른 브라우저로 열기 버튼 */}
-                <button
-                  type="button"
-                  onClick={handleOpenExternal}
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-700 text-zinc-200 font-semibold text-xs rounded-xl transition-all active:scale-95 cursor-pointer shadow-md backdrop-blur-md sm:hidden"
-                  title="다른 브라우저로 열기"
-                >
-                  <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                  <span>다른 브라우저로 열기</span>
-                </button>
+              {/* 🌐 노래 리스트 상단: 모바일 전용 다른 브라우저로 열기 버튼 */}
+              <button
+                type="button"
+                onClick={handleOpenExternal}
+                className="ml-auto inline-flex shrink-0 items-center gap-1 whitespace-nowrap px-2.5 py-1.5 bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-700 text-zinc-200 font-semibold text-xs rounded-xl transition-all active:scale-95 cursor-pointer shadow-md backdrop-blur-md sm:hidden"
+                title="다른 브라우저로 열기"
+              >
+                <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                <span>다른 브라우저로 열기</span>
+              </button>
 
+              <div className={`flex items-center gap-2 ${isAdminMode ? 'basis-full justify-end border-t border-zinc-800 pt-2 sm:basis-auto sm:border-0 sm:pt-0' : 'shrink-0'}`}>
                 {isAdminMode && (
                   <>
-                    <button onClick={changePassword} className="text-[10px] bg-zinc-800/80 text-zinc-300 border border-zinc-700 px-2 py-1 rounded font-bold">비번 변경</button>
-                    <button onClick={resetNewTags} className="text-[10px] bg-rose-950/80 text-rose-300 border border-rose-800 px-2 py-1 rounded font-bold">NEW 초기화</button>
-                    <button onClick={downloadCSV} className="text-[10px] bg-zinc-800/80 text-zinc-300 border border-zinc-700 px-2 py-1 rounded font-bold">CSV</button>
+                    <button onClick={changePassword} className="whitespace-nowrap text-xs sm:text-[10px] bg-zinc-800/80 text-zinc-300 border border-zinc-700 px-2 py-1 rounded font-bold">비번 변경</button>
+                    <button onClick={resetNewTags} className="whitespace-nowrap text-xs sm:text-[10px] bg-rose-950/80 text-rose-300 border border-rose-800 px-2 py-1 rounded font-bold">NEW 초기화</button>
+                    <button onClick={downloadCSV} className="whitespace-nowrap text-xs sm:text-[10px] bg-zinc-800/80 text-zinc-300 border border-zinc-700 px-2 py-1 rounded font-bold">CSV</button>
                   </>
                 )}
                 <button 
                   onClick={handleAdminToggle} 
                   className="p-1.5 text-zinc-400 hover:text-zinc-200 transition-all text-base rounded-lg hover:bg-zinc-800/80"
-                  title="관리자 설정"
+                  aria-label={isAdminMode ? '관리자 모드 종료' : '관리자 설정'}
+                  title={isAdminMode ? '관리자 모드 종료' : '관리자 설정'}
                 >
                   {isAdminMode ? '✕' : '⚙️'}
                 </button>
