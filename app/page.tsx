@@ -1086,7 +1086,7 @@ export default function Home() {
                         placeholder="예: 2026-06-15" 
                         value={item.date} 
                         onChange={e => handleHistoryChange(idx, 'date', e.target.value)}
-                        className="w-full min-w-0 p-2 bg-zinc-900/90 text-zinc-100 rounded-lg text-base md:w-1/3 md:text-xs border border-zinc-700 outline-none"
+                        className="w-full min-w-0 p-2 bg-zinc-900/90 text-zinc-100 rounded-lg text-sm md:w-1/3 border border-zinc-700 outline-none"
                       />
                       <input 
                         type="text" 
@@ -1094,7 +1094,7 @@ export default function Home() {
                         placeholder="영상 URL" 
                         value={item.url} 
                         onChange={e => handleHistoryChange(idx, 'url', e.target.value)}
-                        className="w-full min-w-0 p-2 bg-zinc-900/90 text-zinc-100 rounded-lg text-base md:w-auto md:flex-1 md:text-xs border border-zinc-700 outline-none"
+                        className="w-full min-w-0 p-2 bg-zinc-900/90 text-zinc-100 rounded-lg text-sm md:w-auto md:flex-1 border border-zinc-700 outline-none"
                       />
                       
                       <div className="flex items-center justify-end gap-2 md:shrink-0">
