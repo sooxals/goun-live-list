@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase, supabaseAdmin } from '@/lib/supabase';
 import { submitSongServer, deleteSongServer, checkAdminPasswordServer } from './adminActions';
@@ -19,16 +19,33 @@ interface Song {
   history?: LiveHistoryItem[];
 }
 
+const getInitialSound = (text: string) => {
+  if (!text) return '?';
+  const char = text.trim()[0];
+  const code = char.charCodeAt(0);
+  if (code >= 0xac00 && code <= 0xd7a3) {
+    const icons = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+    const idx = Math.floor((code - 0xac00) / 588);
+    const simpleIcons: {[key: string]: string} = {'ㄲ':'ㄱ', 'ㄸ':'ㄷ', 'ㅃ':'ㅂ', 'ㅆ':'ㅅ', 'ㅉ':'ㅈ'};
+    return simpleIcons[icons[idx]] || icons[idx];
+  }
+  if (/[0-9]/.test(char)) return '0-9';
+  if (/[a-zA-Z]/.test(char)) return 'A-Z';
+  return char.toUpperCase();
+};
+
+const songCollator = new Intl.Collator('ko', { sensitivity: 'base' });
+const normalizeSearch = (text: string) => text.replace(/\s+/g, '').toLowerCase();
+
 export default function Home() {
   const router = useRouter();
   
   // 1️⃣ 새로고침 시 기존 리스트 화면 유지 (sessionStorage 감지)
-  const [showList, setShowList] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('showList') === 'true';
-    }
-    return false;
-  });
+  const [showList, setShowList] = useState(false);
+
+  useEffect(() => {
+    setShowList(sessionStorage.getItem('showList') === 'true');
+  }, []);
 
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
@@ -174,21 +191,6 @@ export default function Home() {
     }
   };
 
-  const getInitialSound = (text: string) => {
-    if (!text) return '?';
-    const char = text.trim()[0];
-    const code = char.charCodeAt(0);
-    if (code >= 0xac00 && code <= 0xd7a3) {
-      const icons = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
-      const idx = Math.floor((code - 0xac00) / 588);
-      const simpleIcons: {[key: string]: string} = {'ㄲ':'ㄱ', 'ㄸ':'ㄷ', 'ㅃ':'ㅂ', 'ㅆ':'ㅅ', 'ㅉ':'ㅈ'};
-      return simpleIcons[icons[idx]] || icons[idx];
-    }
-    if (/[0-9]/.test(char)) return '0-9';
-    if (/[a-zA-Z]/.test(char)) return 'A-Z';
-    return char.toUpperCase();
-  };
-
   const fetchSongs = async () => {
     const { data } = await supabase.from('LIVE LIST').select('*').order('artist', { ascending: true });
     if (data) setSongs(data as Song[]);
@@ -281,7 +283,7 @@ export default function Home() {
 
   const handleHistoryChange = (index: number, field: 'date' | 'url', value: string) => {
     const updated = [...formHistory];
-    updated[index][field] = value;
+    updated[index] = { ...updated[index], [field]: value };
     setFormHistory(updated);
   };
 
@@ -355,40 +357,46 @@ export default function Home() {
     return now.getTime() - created.getTime() < 30 * 24 * 60 * 60 * 1000;
   };
 
-  const filtered = songs.filter(s => {
-    if (specialFilter === 'new') {
-      if (!isNew(s.created_at)) return false;
-    } else if (specialFilter === 'top100') {
-      const validHistoryCount = s.history?.filter(h => h.url && h.url.trim() !== '').length || 0;
-      if (validHistoryCount === 0) return false;
-    } else {
-      const isInitialMatch = selectedInitial === '전체' || getInitialSound(s.artist) === selectedInitial;
-      const isGenreMatch = selectedGenre === '전체' || s.genre === selectedGenre;
-      if (!isInitialMatch || !isGenreMatch) return false;
-    }
+  const { alphabeticalSongs, rankedSongs, randomTopSongs } = useMemo(() => {
+    const entries = songs.map(song => ({
+      song,
+      artist: song.artist.trim(),
+      title: song.title.trim(),
+      initial: getInitialSound(song.artist),
+      searchText: normalizeSearch(song.artist + song.title),
+      validHistoryCount: song.history?.filter(item => item.url && item.url.trim() !== '').length ?? 0,
+    }));
 
-    const cleanSearch = searchTerm.replace(/\s+/g, '').toLowerCase();
-    const isSearchMatch = !cleanSearch || (s.artist + s.title).replace(/\s+/g, '').toLowerCase().includes(cleanSearch);
-    return isSearchMatch;
-  }).sort((a, b) => {
-    if (specialFilter === 'top100') {
-      const countA = a.history?.filter(h => h.url && h.url.trim() !== '').length || 0;
-      const countB = b.history?.filter(h => h.url && h.url.trim() !== '').length || 0;
-      if (countA !== countB) {
-        return countB - countA;
+    const alphabeticalSongs = [...entries].sort((a, b) =>
+      songCollator.compare(a.artist, b.artist) || songCollator.compare(a.title, b.title)
+    );
+    const byHistoryCount = (a: typeof entries[number], b: typeof entries[number]) =>
+      b.validHistoryCount - a.validHistoryCount;
+
+    return {
+      alphabeticalSongs,
+      rankedSongs: alphabeticalSongs.filter(entry => entry.validHistoryCount > 0).sort(byHistoryCount),
+      randomTopSongs: entries.filter(entry => entry.validHistoryCount > 0).sort(byHistoryCount)
+        .slice(0, 100).map(entry => entry.song),
+    };
+  }, [songs]);
+
+  const matchingSongs = useMemo(() => {
+    const search = normalizeSearch(searchTerm);
+    const candidates = specialFilter === 'top100' ? rankedSongs : alphabeticalSongs;
+
+    return candidates.filter(entry => {
+      if (specialFilter === 'all') {
+        if (selectedInitial !== '전체' && entry.initial !== selectedInitial) return false;
+        if (selectedGenre !== '전체' && entry.song.genre !== selectedGenre) return false;
       }
-    }
+      return !search || entry.searchText.includes(search);
+    }).slice(0, specialFilter === 'top100' ? 100 : undefined);
+  }, [alphabeticalSongs, rankedSongs, searchTerm, selectedGenre, selectedInitial, specialFilter]);
 
-    const artistA = a.artist.trim();
-    const artistB = b.artist.trim();
-    const artistCompare = artistA.localeCompare(artistB, 'ko', { sensitivity: 'base' });
-    
-    if (artistCompare !== 0) return artistCompare;
-
-    const titleA = a.title.trim();
-    const titleB = b.title.trim();
-    return titleA.localeCompare(titleB, 'ko', { sensitivity: 'base' });
-  }).slice(0, specialFilter === 'top100' ? 100 : undefined);
+  const filtered = specialFilter === 'new'
+    ? matchingSongs.filter(({ song }) => isNew(song.created_at))
+    : matchingSongs;
 
   const handlePickRandomSong = () => {
     let pool = songs;
@@ -396,14 +404,7 @@ export default function Home() {
     if (randomTarget === 'new') {
       pool = pool.filter(s => isNew(s.created_at));
     } else if (randomTarget === 'top100') {
-      pool = pool
-        .filter(s => (s.history?.filter(h => h.url && h.url.trim() !== '').length || 0) > 0)
-        .sort((a, b) => {
-          const countA = a.history?.filter(h => h.url && h.url.trim() !== '').length || 0;
-          const countB = b.history?.filter(h => h.url && h.url.trim() !== '').length || 0;
-          return countB - countA;
-        })
-        .slice(0, 100);
+      pool = randomTopSongs;
     }
 
     if (randomGenre !== '전체') {
@@ -421,7 +422,7 @@ export default function Home() {
     setIsRandomCopied(false);
   };
 
-  if (loading) return <div className="p-10 text-center text-zinc-400 font-sans bg-[#0F0F12] min-h-screen flex items-center justify-center">목록을 불러오는 중...</div>;
+  if (showList && loading) return <div className="p-10 text-center text-zinc-400 font-sans bg-[#0F0F12] min-h-screen flex items-center justify-center">목록을 불러오는 중...</div>;
 
   return (
     <main className="min-h-screen bg-[#0F0F12] text-[#F3F4F6] pb-10 font-sans relative">
@@ -692,8 +693,7 @@ export default function Home() {
                   조건에 맞는 곡이 없습니다.
                 </div>
               ) : (
-                filtered.map((song, index) => {
-                  const validHistoryCount = song.history?.filter(h => h.url && h.url.trim() !== '').length || 0;
+                filtered.map(({ song, validHistoryCount }, index) => {
 
                   return (
                     <div 
