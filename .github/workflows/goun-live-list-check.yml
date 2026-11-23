@@ -85,6 +85,7 @@ jobs:
 
               stage = '테스트 곡 추가';
               console.log('테스트 곡 식별자: ' + title);
+              await page.locator('div.group').filter({ has: page.getByRole('heading', { level: 3 }) }).first().waitFor({ state: 'visible' });
               await search.fill(title);
               if (await exactTitle.count() !== 0) throw new Error();
               await add.click();
@@ -105,6 +106,7 @@ jobs:
               await exactTitle.waitFor({ state: 'hidden' });
               if (expectedDialog !== '') throw new Error();
               await page.reload({ timeout: 30000 });
+              await page.locator('div.group').filter({ has: page.getByRole('heading', { level: 3 }) }).first().waitFor({ state: 'visible' });
               await search.fill(title);
               if (await exactTitle.count() !== 0) throw new Error();
               console.log('테스트 곡 한 건을 추가하고 삭제했습니다.');
