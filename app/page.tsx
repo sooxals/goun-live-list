@@ -1055,9 +1055,9 @@ export default function Home() {
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-              <input className="w-full min-w-0 p-3 bg-zinc-800/80 rounded-xl text-base md:text-sm outline-none border border-zinc-700 text-zinc-100 focus:border-zinc-500" aria-label="가수명" placeholder="가수명" value={formArtist} onChange={e=>setFormArtist(e.target.value)} />
-              <input className="w-full min-w-0 p-3 bg-zinc-800/80 rounded-xl text-base md:text-sm outline-none border border-zinc-700 text-zinc-100 focus:border-zinc-500" aria-label="노래제목" placeholder="노래제목" value={formTitle} onChange={e=>setFormTitle(e.target.value)} />
-              <select aria-label="장르" className="w-full min-w-0 p-3 bg-zinc-800/80 rounded-xl text-base md:text-sm outline-none border border-zinc-700 text-zinc-100" value={formGenre} onChange={e=>setFormGenre(e.target.value)}>
+              <input className="w-full min-w-0 p-3 bg-zinc-800/80 rounded-xl text-sm outline-none border border-zinc-700 text-zinc-100 focus:border-zinc-500" aria-label="가수명" placeholder="가수명" value={formArtist} onChange={e=>setFormArtist(e.target.value)} />
+              <input className="w-full min-w-0 p-3 bg-zinc-800/80 rounded-xl text-sm outline-none border border-zinc-700 text-zinc-100 focus:border-zinc-500" aria-label="노래제목" placeholder="노래제목" value={formTitle} onChange={e=>setFormTitle(e.target.value)} />
+              <select aria-label="장르" className="w-full min-w-0 p-3 bg-zinc-800/80 rounded-xl text-sm outline-none border border-zinc-700 text-zinc-100" value={formGenre} onChange={e=>setFormGenre(e.target.value)}>
                 {genres.slice(1).map(g => <option key={g} value={g}>{g}</option>)}
               </select>
             </div>
